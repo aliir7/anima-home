@@ -38,3 +38,32 @@ body {
   color: var(--color-foreground);
   font-family: "Vazir", Helvetica, sans-serif;
 }
+
+@layer utilities {
+  .wrapper {
+    @apply w-full max-w-7xl p-5 md:px-10 lg:mx-auto;
+  }
+
+  .flex-start {
+    @apply flex items-center justify-start;
+  }
+  .flex-center {
+    @apply flex items-center justify-center;
+  }
+
+  .flex-between {
+    @apply flex items-center justify-between;
+  }
+
+  .h1-bold {
+    @apply text-3xl font-bold lg:text-4xl;
+  }
+
+  .h2-bold {
+    @apply text-2xl font-bold lg:text-3xl;
+  }
+
+  .h3-bold {
+    @apply text-xl font-bold lg:text-2xl;
+  }
+}
