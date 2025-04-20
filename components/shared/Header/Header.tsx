@@ -1,5 +1,6 @@
 import Logo from "./Logo";
 import NavBar from "./NavBar";
+import SignupBtn from "./SignupBtn";
 
 function Header() {
   return (
@@ -9,6 +10,7 @@ function Header() {
           <Logo />
           <NavBar />
         </div>
+        <SignupBtn />
       </div>
     </header>
   );
