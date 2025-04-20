@@ -23,7 +23,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fa" dir="rtl" suppressHydrationWarning={true}>
-      <body className={`${vazir.className} antialiased`}>{children}</body>
+      <body
+        className={`${vazir.className} dark:bg-neutralDark dark:text-text-dark antialiased`}
+      >
+        {children}
+      </body>
     </html>
   );
 }
