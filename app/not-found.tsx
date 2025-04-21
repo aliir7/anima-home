@@ -11,7 +11,7 @@ export default function NotFound() {
       </p>
       <Link
         href="/"
-        className="bg-primary hover:bg-primary/80 rounded-xl px-6 py-2 text-white transition"
+        className="bg-primary hover:bg-primary/80 rounded-full px-6 py-2 text-white transition"
       >
         بازگشت به خانه
       </Link>

@@ -1,4 +1,4 @@
-import BannerCarousel from "@/components/shared/BannerCarousel";
+import Footer from "@/components/shared/Footer/Footer";
 import Header from "@/components/shared/Header/Header";
 
 export default function RootLayout({
@@ -11,6 +11,7 @@ export default function RootLayout({
       <Header />
 
       <main className="container mx-auto px-4">{children}</main>
+      <Footer />
     </div>
   );
 }
