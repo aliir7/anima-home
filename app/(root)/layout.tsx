@@ -1,3 +1,4 @@
+import BannerCarousel from "@/components/shared/BannerCarousel";
 import Header from "@/components/shared/Header/Header";
 
 export default function RootLayout({
@@ -6,9 +7,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="flex h-screen flex-col">
+    <div className="flex min-h-screen flex-col">
       <Header />
-      <main className="wrapper flex-1">{children}</main>
+
+      <main className="container mx-auto px-4">{children}</main>
     </div>
   );
 }

@@ -1,3 +1,3 @@
-export default function Home() {
-  return <div className="">سلام</div>;
+export default function HomePage() {
+  return <div className="space-y-12">hello</div>;
 }

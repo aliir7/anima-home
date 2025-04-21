@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Vazir from "next/font/local";
 import "./globals.css";
 import { APP_DESCRIPTION, APP_NAME } from "@/lib/constants";
+import { ThemeProvider } from "next-themes";
 
 const vazir = Vazir({
   src: "./fonts/Vazir.ttf",
@@ -23,10 +24,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fa" dir="rtl" suppressHydrationWarning={true}>
-      <body
-        className={`${vazir.className} dark:bg-neutralDark dark:text-text-dark antialiased`}
-      >
-        {children}
+      <body className={`${vazir.className}`}>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

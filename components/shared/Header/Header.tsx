@@ -1,4 +1,5 @@
 import Logo from "./Logo";
+import ModeToggle from "./ModeToggle";
 import NavBar from "./NavBar";
 import SignupBtn from "./SignupBtn";
 
@@ -10,7 +11,10 @@ function Header() {
           <Logo />
           <NavBar />
         </div>
-        <SignupBtn />
+        <div className="flex items-center justify-end gap-4">
+          <ModeToggle />
+          <SignupBtn />
+        </div>
       </div>
     </header>
   );
