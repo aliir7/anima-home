@@ -1,16 +1,12 @@
 import Link from "next/link";
+import CategoriesMenu from "./CategoriesMenu";
 
 function NavBar() {
   return (
     <nav>
-      <ul className="hidden gap-5 md:flex rtl:space-x-reverse">
+      <ul className="hidden items-center gap-5 md:flex rtl:space-x-reverse">
         <li>
-          <Link
-            href="/products"
-            className="cursor-pointer hover:text-neutral-200"
-          >
-            محصولات
-          </Link>
+          <CategoriesMenu />
         </li>
         <li>
           <Link href="/about" className="cursor-pointer hover:text-neutral-200">

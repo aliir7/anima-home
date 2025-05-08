@@ -10,7 +10,7 @@ export default function Footer() {
         {/* برند */}
         <div>
           <h3 className="text-foreground mb-4 text-lg font-semibold">
-            فروشگاه مدرن
+            آنیماهوم
           </h3>
           <p className="text-sm leading-relaxed">
             تجربه‌ای نوین از خرید آنلاین با محصولات متنوع، قیمت مناسب و ارسال
@@ -90,7 +90,7 @@ export default function Footer() {
 
       {/* کپی‌رایت */}
       <div className="text-muted-foreground mt-8 text-center text-xs">
-        © {new Date().getFullYear()} فروشگاه مدرن - تمام حقوق محفوظ است.
+        © {new Date().getFullYear()} آنیماهوم - تمام حقوق محفوظ است.
       </div>
     </footer>
   );
