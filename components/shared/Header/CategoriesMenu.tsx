@@ -20,16 +20,16 @@ function CategoriesMenu() {
       <NavigationMenu>
         <NavigationMenuList>
           <NavigationMenuItem>
-            <NavigationMenuTrigger className="items-center bg-transparent font-normal text-white hover:bg-transparent">
+            <NavigationMenuTrigger className="items-center bg-transparent px-0 py-0 font-normal text-white shadow-none hover:bg-transparent dark:text-white">
               دسته‌بندی
             </NavigationMenuTrigger>
             <NavigationMenuContent>
-              <ul className="flex min-w-[150px] flex-col gap-1 p-3 text-center">
+              <ul className="flex min-w-[150px] flex-col gap-2 p-3 text-center">
                 {categories.map((item) => (
                   <li key={item.name}>
                     <Link
                       href={item.href}
-                      className="block py-1 hover:underline"
+                      className="hover:bg-primary dark:hover:bg-primaryDark mt-1 block rounded-lg py-1 hover:text-white"
                     >
                       {item.name}
                     </Link>

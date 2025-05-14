@@ -1,4 +1,3 @@
-// db/schema/users.ts
 import {
   pgTable,
   uuid,
@@ -11,6 +10,7 @@ import { accounts } from "./account";
 import { sessions } from "./sessions";
 import { authenticators } from "./authenticator";
 import { relations } from "drizzle-orm/relations";
+import { carts } from "./cart";
 
 export const users = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -34,5 +34,6 @@ export const userRelations = relations(users, ({ one }) => {
     account: one(accounts),
     session: one(sessions),
     authenticator: one(authenticators),
+    cart: one(carts),
   };
 });

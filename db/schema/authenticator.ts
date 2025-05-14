@@ -6,6 +6,7 @@ import {
   primaryKey,
 } from "drizzle-orm/pg-core";
 import { users } from "./user";
+import { relations } from "drizzle-orm/relations";
 
 export const authenticators = pgTable(
   "authenticator",
@@ -29,3 +30,10 @@ export const authenticators = pgTable(
     },
   ],
 );
+
+export const authenticatorRelations = relations(authenticators, ({ one }) => ({
+  user: one(users, {
+    fields: [authenticators.userId],
+    references: [users.id],
+  }),
+}));
