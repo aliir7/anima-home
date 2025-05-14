@@ -1,5 +1,5 @@
 import Image from "next/image";
-import logoImg from "../../../public/logo/logo.svg";
+import logoImg from "/public/logo/logo-mini.png";
 import Link from "next/link";
 
 function Logo() {
@@ -11,8 +11,7 @@ function Logo() {
         width={48}
         height={48}
         priority={true}
-        quality={100}
-        className="bg-transparent"
+        className="bg-muted"
       />
       <Link href="/" className="cursor-pointer">
         <h1 className="text-xl font-bold">آنیما هوم</h1>

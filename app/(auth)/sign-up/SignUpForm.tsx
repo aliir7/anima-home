@@ -23,10 +23,10 @@ function SignUpForm() {
   // });
 
   return (
-    <form className="space-y-5">
+    <form className="space-y-4">
       <div>
         <Label htmlFor="name">نام</Label>
-        <Input id="name" />
+        <Input id="name" className="mt-4 rounded-full" />
         {/* {errors.name && (
           <p className="text-destructive text-sm">{errors.name.message}</p>
     */}
@@ -34,7 +34,12 @@ function SignUpForm() {
 
       <div>
         <Label htmlFor="email">ایمیل</Label>
-        <Input id="email" type="email" />
+        <Input
+          id="email"
+          type="email"
+          className="mt-4 rounded-full"
+          name="email"
+        />
         {/* {errors.email && (
           <p className="text-destructive text-sm">{errors.email.message}</p>
         )} */}
@@ -42,10 +47,24 @@ function SignUpForm() {
 
       <div>
         <Label htmlFor="password">رمز عبور</Label>
-        {/* <Input id="password" type="password" {...register("password")} />
-        {errors.password && (
+        <Input
+          id="password"
+          type="password"
+          className="mt-4 rounded-full"
+          name="password"
+        />
+        {/* {errors.password && (
           <p className="text-destructive text-sm">{errors.password.message}</p>
         )} */}
+      </div>
+      <div>
+        <Label htmlFor="confirmPassword">تکرار رمز عبور</Label>
+        <Input
+          id="confirmPassword"
+          type="password"
+          className="mt-4 rounded-full"
+          name="confirmPassword"
+        />
       </div>
       {/* 
       {state.message && (
@@ -56,7 +75,7 @@ function SignUpForm() {
         </p>
       )} */}
 
-      <Button type="submit" className="w-full">
+      <Button type="submit" className="mt-4 w-full rounded-full">
         ثبت‌نام
       </Button>
     </form>
