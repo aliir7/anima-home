@@ -11,7 +11,7 @@ const vazir = Vazir({
 
 export const metadata: Metadata = {
   title: {
-    template: `%s | Anima-Home`,
+    template: `%s  - انیماهوم`,
     default: APP_NAME,
   },
   description: `${APP_DESCRIPTION}`,

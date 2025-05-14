@@ -11,7 +11,7 @@ function SignupBtn() {
       >
         <div>
           <UserIcon />
-          <Link href="/signup" className="px-2 py-4">
+          <Link href="/sign-up" className="px-2 py-4">
             ثبت نام | ورود
           </Link>
         </div>
