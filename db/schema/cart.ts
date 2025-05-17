@@ -1,11 +1,11 @@
-import { pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { users } from "./user";
 import { relations } from "drizzle-orm/relations";
 import { products } from "./product";
 
 export const carts = pgTable("cart", {
   id: text("id").primaryKey(),
-  userId: text("user_id")
+  userId: uuid("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" })
     .unique(), // هر کاربر فقط یک cart

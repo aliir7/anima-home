@@ -2,11 +2,12 @@ import { integer, primaryKey, text, pgTable } from "drizzle-orm/pg-core";
 import { users } from "./user";
 import type { AdapterAccountType } from "next-auth/adapters";
 import { relations } from "drizzle-orm/relations";
+import { uuid } from "drizzle-orm/pg-core";
 
 export const accounts = pgTable(
   "account",
   {
-    userId: text("userId")
+    userId: uuid("userId")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" })
       .unique(),
