@@ -5,7 +5,7 @@ import SignupBtn from "./SignupBtn";
 
 function Header() {
   return (
-    <header className="bg-primary dark:bg-foreground w-full border-b text-white shadow-md dark:text-white">
+    <header className="bg-primary dark:bg-muted w-full border-b text-white shadow-md">
       <div className="wrapper flex-between">
         <div className="flex-start gap-8">
           <Logo />

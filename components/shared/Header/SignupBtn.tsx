@@ -7,7 +7,7 @@ function SignupBtn() {
     <div className="flex items-center">
       <Button
         asChild
-        className="bg-secondary rounded-full text-neutral-900 hover:bg-neutral-300 hover:text-neutral-800"
+        className="bg-secondary rounded-full text-neutral-900 hover:bg-neutral-300 hover:text-neutral-800 dark:text-white dark:hover:text-neutral-100"
       >
         <div>
           <UserIcon />
