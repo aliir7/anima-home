@@ -1,5 +1,6 @@
 import Link from "next/link";
 import CategoriesMenu from "./CategoriesMenu";
+import MobileNav from "./MobileNav";
 
 function NavBar() {
   return (

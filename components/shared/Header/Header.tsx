@@ -1,4 +1,5 @@
 import Logo from "./Logo";
+import MobileNav from "./MobileNav";
 import ModeToggle from "./ModeToggle";
 import NavBar from "./NavBar";
 import SignupBtn from "./SignupBtn";
@@ -8,6 +9,7 @@ function Header() {
     <header className="bg-primary dark:bg-muted w-full border-b text-white shadow-md">
       <div className="wrapper flex-between">
         <div className="flex-start gap-8">
+          <MobileNav />
           <Logo />
           <NavBar />
         </div>

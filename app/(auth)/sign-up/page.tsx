@@ -9,9 +9,8 @@ import {
   Card,
   CardHeader,
   CardContent,
-  CardDescription,
 } from "@/components/ui/card";
-import { Link } from "lucide-react";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "ثبت‌ نام ",
@@ -19,24 +18,36 @@ export const metadata: Metadata = {
 
 function SignUpPage() {
   return (
-    <div className="mx-auto w-full max-w-md">
-      <Card suppressHydrationWarning={true}>
-        <CardHeader className="flex-center space-y-4">
-          <Image
-            src={logoImg}
-            priority={true}
-            alt="logo"
-            width={100}
-            height={100}
-          />
+    <div className="mx-auto my-8 min-h-screen w-full max-w-md px-4">
+      <Card className="rounded-2xl border shadow-xl">
+        <CardHeader className="text-center">
+          <Link href="/" className="mb-4 inline-block">
+            <Image
+              src={logoImg}
+              alt="Anima Home Logo"
+              width={120}
+              height={40}
+              className="mx-auto bg-transparent"
+              priority={true}
+            />
+          </Link>
+          <CardTitle className="text-xl font-semibold md:text-2xl">
+            به ما بپیوندید
+          </CardTitle>
         </CardHeader>
-        <CardTitle className="text-center">به ما بپیوندید</CardTitle>
-        <CardDescription className="text-center font-semibold">
-          برای ثبت نام اطلاعات خود را وارد کنید
-        </CardDescription>
-        <CardContent className="space-y-4">
+
+        <CardContent>
           <SignUpForm />
         </CardContent>
+
+        <CardFooter className="text-muted-foreground mt-2 flex justify-center pb-4 text-sm">
+          <Link href="/sign-in">
+            قبلاً حساب دارید؟{" "}
+            <span className="text-primary hover:underline dark:hover:text-neutral-300">
+              ورود
+            </span>
+          </Link>
+        </CardFooter>
       </Card>
     </div>
   );

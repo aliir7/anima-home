@@ -4,7 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { db } from "@/db";
 import { accounts, users, sessions, verificationTokens } from "@/db/schema";
-import { getUser } from "./utils";
+import { getUser } from "./utils/getUserAction";
 import { signinSchema } from "./validations/usersValidations";
 
 export const authConfig = {
@@ -54,16 +54,12 @@ export const authConfig = {
         if (!validatedData.success) {
           return null;
         }
-
         const { email, password } = validatedData.data;
-
         const result = await getUser(email, password!);
-
         if (!result.success) {
           console.error("AuthError:", result.error);
           return null;
         }
-
         return {
           id: result.user.id,
           email: result.user.email,

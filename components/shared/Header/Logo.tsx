@@ -11,7 +11,7 @@ function Logo() {
         width={48}
         height={48}
         priority={true}
-        className="bg-muted"
+        className="hidden md:flex"
       />
       <Link href="/" className="cursor-pointer">
         <h1 className="text-xl font-bold">آنیما هوم</h1>

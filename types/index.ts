@@ -4,9 +4,13 @@ import {
   signupFormSchema,
   signupSchema,
 } from "@/lib/validations/usersValidations";
-import { z } from "zod";
+import { z, ZodIssue } from "zod";
 
 export type ProductSchema = z.infer<typeof productSchema>;
+
+export type ActionResult<T> =
+  | { success: true; data: T }
+  | { success: false; error: string | ZodIssue[] };
 
 export type SignupFormValues = z.infer<typeof signupFormSchema>;
 export type SignupInsert = z.infer<typeof signupSchema>;
