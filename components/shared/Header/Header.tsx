@@ -9,9 +9,15 @@ function Header() {
     <header className="bg-primary dark:bg-muted w-full border-b text-white shadow-md">
       <div className="wrapper flex-between">
         <div className="flex-start gap-8">
-          <MobileNav />
+          <div className="md:hidden">
+            <MobileNav />
+          </div>
+
           <Logo />
-          <NavBar />
+
+          <div className="hidden md:flex">
+            <NavBar />
+          </div>
         </div>
         <div className="hidden items-center justify-end gap-4 md:flex">
           <ModeToggle />

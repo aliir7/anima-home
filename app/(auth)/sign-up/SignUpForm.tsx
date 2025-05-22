@@ -3,33 +3,49 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { useActionState } from "react";
-
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { SignupFormValues } from "@/types";
+import { signupFormSchema } from "@/lib/validations/usersValidations";
+import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
+import { signupAction } from "@/lib/actions/auth.actions";
 
-function SignUpForm() {
-  // const [data, action] = useActionState(signupAction, {
-  //   success: false,
-  //   message: "",
-  // });
+export default function SignUpForm() {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<SignupFormValues>({
+    resolver: zodResolver(signupFormSchema),
+    mode: "onTouched",
+  });
 
-  // const {
-  //   register,
-  //   formState: { errors },
-  // } = useForm<SignupSchemaType>({
-  //   resolver: zodResolver(signupSchema),
-  // });
+  //submit handler function
+  const onSubmit = async (data: SignupFormValues) => {
+    const result = await signupAction(data);
+
+    if (result.success) {
+      showSuccessToast("تبت نام با موفقیت انجام شد");
+    }
+    if (!result.success && result.error.type === "custom") {
+      showErrorToast(result.error.message);
+    }
+  };
 
   return (
-    <form className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div>
         <Label htmlFor="name">نام</Label>
-        <Input id="name" className="mt-4 rounded-full" />
-        {/* {errors.name && (
-          <p className="text-destructive text-sm">{errors.name.message}</p>
-    */}
+        <Input
+          id="name"
+          {...register("name")}
+          className="mt-4 rounded-full"
+          placeholder="نام و نام خانوادگی"
+        />
+        {errors.name && (
+          <p className="text-destructive mt-2">{errors.name.message}</p>
+        )}
       </div>
 
       <div>
@@ -37,12 +53,15 @@ function SignUpForm() {
         <Input
           id="email"
           type="email"
+          {...register("email")}
           className="mt-4 rounded-full"
-          name="email"
+          placeholder="name@example.com"
         />
-        {/* {errors.email && (
-          <p className="text-destructive text-sm">{errors.email.message}</p>
-        )} */}
+        {errors.email && (
+          <p className="text-destructive mt-2 text-sm">
+            {errors.email.message}
+          </p>
+        )}
       </div>
 
       <div>
@@ -50,35 +69,40 @@ function SignUpForm() {
         <Input
           id="password"
           type="password"
+          {...register("password")}
           className="mt-4 rounded-full"
-          name="password"
+          placeholder="رمزعبور حداقل باید 6 کاراکتر داشته باشد"
         />
-        {/* {errors.password && (
-          <p className="text-destructive text-sm">{errors.password.message}</p>
-        )} */}
+        {errors.password && (
+          <p className="text-destructive mt-2 text-sm">
+            {errors.password.message}
+          </p>
+        )}
       </div>
+
       <div>
         <Label htmlFor="confirmPassword">تکرار رمز عبور</Label>
         <Input
           id="confirmPassword"
           type="password"
+          {...register("confirmPassword")}
           className="mt-4 rounded-full"
-          name="confirmPassword"
+          placeholder="رمزعبور حداقل باید 6 کاراکتر داشته باشد"
         />
+        {errors.confirmPassword && (
+          <p className="text-destructive mt-2 text-sm">
+            {errors.confirmPassword.message}
+          </p>
+        )}
       </div>
-      {/* 
-      {state.message && (
-        <p
-          className={`${state.success ? "text-green-600" : "text-red-600"} text-sm`}
-        >
-          {state.message}
-        </p>
-      )} */}
 
-      <Button type="submit" className="mt-4 w-full rounded-full">
-        ثبت‌نام
+      <Button
+        type="submit"
+        disabled={isSubmitting}
+        className="mt-4 w-full rounded-full"
+      >
+        {isSubmitting ? "در حال ارسال..." : "ثبت‌نام"}
       </Button>
     </form>
   );
 }
-export default SignUpForm;

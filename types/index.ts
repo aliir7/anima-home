@@ -8,9 +8,12 @@ import { z, ZodIssue } from "zod";
 
 export type ProductSchema = z.infer<typeof productSchema>;
 
+export type ActionError =
+  | { type: "zod"; issues: ZodIssue[] }
+  | { type: "custom"; message: string };
 export type ActionResult<T> =
   | { success: true; data: T }
-  | { success: false; error: string | ZodIssue[] };
+  | { success: false; error: ActionError };
 
 export type SignupFormValues = z.infer<typeof signupFormSchema>;
 export type SignupInsert = z.infer<typeof signupSchema>;

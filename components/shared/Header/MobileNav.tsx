@@ -1,14 +1,18 @@
 import Link from "next/link";
 import {
-  NavigationMenu,
-  NavigationMenuList,
-  NavigationMenuItem,
-  NavigationMenuTrigger,
-  NavigationMenuContent,
-} from "@/components/ui/navigation-menu";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { EllipsisVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Menu } from "lucide-react";
 
 const categories = [
   { name: "کمد", href: "/categories/کمد" },
@@ -17,51 +21,60 @@ const categories = [
   { name: "مارول شیت", href: "/categories/مارول-شیت" },
 ];
 
-function MobileNav() {
+export default function MobileNav() {
   return (
-    <div className="md:hidden">
+    <div className="flex md:hidden">
       <Sheet>
-        <SheetTrigger asChild>
-          <Button
-            variant="outline"
-            className="bg-primary hover:bg-primary/90 dark:bg-primary dark:hover:bg-primary/90"
-            size="icon"
-          >
-            <Menu className="h-6 w-6 text-white" />
-          </Button>
+        <SheetTrigger asChild className="align-middle">
+          <EllipsisVertical />
         </SheetTrigger>
-        <SheetContent side="right">
-          <nav className="mt-8 flex flex-col gap-4 px-6">
-            <NavigationMenu>
-              <NavigationMenuList className="flex-col items-start">
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger className="w-full text-right">
-                    دسته‌بندی
-                  </NavigationMenuTrigger>
-                  <NavigationMenuContent className="ml-auto w-full">
-                    <ul className="flex flex-col gap-2 p-2 text-right">
-                      {categories.map((item) => (
-                        <li key={item.name}>
-                          <Link
-                            href={item.href}
-                            className="block w-full py-1 hover:underline"
-                          >
-                            {item.name}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
-              </NavigationMenuList>
-            </NavigationMenu>
-            <Link href="/about">درباره ما</Link>
-            <Link href="/contact">تماس با ما</Link>
+
+        <SheetContent
+          side="right"
+          className="flex h-full flex-col items-start px-6 dark:text-white"
+        >
+          <SheetTitle></SheetTitle>
+
+          <nav className="mt-6 mr-6 flex flex-col gap-2">
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="categories">
+                <AccordionTrigger className="border-none text-lg outline-none">
+                  دسته‌بندی
+                </AccordionTrigger>
+                <AccordionContent>
+                  <ul className="flex flex-col gap-2">
+                    {categories.map((item) => (
+                      <li key={item.name}>
+                        <Link
+                          href={item.href}
+                          className="block py-1 pr-2 hover:underline"
+                        >
+                          {item.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+
+            <Link href="/about" className="text-lg hover:underline">
+              درباره ما
+            </Link>
+            <Link href="/contact" className="text-lg hover:underline">
+              تماس با ما
+            </Link>
           </nav>
+          <div className="mt-20 flex w-full flex-col-reverse justify-end gap-4 px-6">
+            <Button asChild className="bg-primary">
+              <Link href="/sign-up">تبت نام</Link>
+            </Button>
+            <Button asChild className="border-primary" variant="outline">
+              <Link href="/sign-in">ورود</Link>
+            </Button>
+          </div>
         </SheetContent>
       </Sheet>
     </div>
   );
 }
-
-export default MobileNav;

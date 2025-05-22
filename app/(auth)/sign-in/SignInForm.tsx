@@ -3,38 +3,47 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { useActionState } from "react";
-
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { SigninValues } from "@/types";
+import { signinSchema } from "@/lib/validations/usersValidations";
+import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
+import { signinWithCredentials } from "@/lib/actions/auth.actions";
 
 function SignInForm() {
-  // const [data, action] = useActionState(signupAction, {
-  //   success: false,
-  //   message: "",
-  // });
+  const {
+    register,
+    formState: { errors, isSubmitting },
+    handleSubmit,
+  } = useForm<SigninValues>({
+    resolver: zodResolver(signinSchema),
+  });
 
-  // const {
-  //   register,
-  //   formState: { errors },
-  // } = useForm<SignupSchemaType>({
-  //   resolver: zodResolver(signupSchema),
-  // });
+  // sigIn handler action
+  const onSubmit = async (data: SigninValues) => {
+    const result = await signinWithCredentials(data);
+    if (result.success) {
+      showSuccessToast(result.data);
+    }
+    if (!result.success && result.error.type === "custom") {
+      showErrorToast(result.error.message);
+    }
+  };
 
   return (
-    <form className="space-y-6">
+    <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
       <div>
         <Label htmlFor="email">ایمیل</Label>
         <Input
           id="email"
           type="email"
           className="my-4 rounded-full"
-          name="email"
+          placeholder="ایمیل خود را وارد کنید"
+          {...register("email")}
         />
-        {/* {errors.email && (
-          <p className="text-destructive text-sm">{errors.email.message}</p>
-        )} */}
+        {errors.password &&
+          showErrorToast(errors.email?.message || "ایمیل وارد شده صحیح نیست")}
       </div>
 
       <div>
@@ -43,24 +52,19 @@ function SignInForm() {
           id="password"
           type="password"
           className="my-4 rounded-full"
-          name="password"
+          placeholder="رمز عبور خود را وارد کنید"
+          {...register("password")}
         />
-        {/* {errors.password && (
-          <p className="text-destructive text-sm">{errors.password.message}</p>
-        )} */}
+        {errors.password &&
+          showErrorToast(errors.password.message || "رمز وارد شده صحیح نیست")}
       </div>
 
-      {/* 
-      {state.message && (
-        <p
-          className={`${state.success ? "text-green-600" : "text-red-600"} text-sm`}
-        >
-          {state.message}
-        </p>
-      )} */}
-
-      <Button type="submit" className="mt-6 w-full rounded-full">
-        ثبت‌نام
+      <Button
+        type="submit"
+        className="mt-6 w-full rounded-full"
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? "در حال ورود" : "ورود"}
       </Button>
     </form>
   );

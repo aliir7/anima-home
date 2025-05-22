@@ -4,8 +4,10 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { db } from "@/db";
 import { accounts, users, sessions, verificationTokens } from "@/db/schema";
-import { getUser } from "./utils/getUserAction";
+
 import { signinSchema } from "./validations/usersValidations";
+import { eq } from "drizzle-orm";
+import bcrypt from "bcryptjs";
 
 export const authConfig = {
   adapter: DrizzleAdapter(db, {
@@ -28,7 +30,6 @@ export const authConfig = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
         token.role = user.role;
 
         if (user.name === "NO_NAME") {
@@ -37,11 +38,16 @@ export const authConfig = {
       }
       return token;
     },
-    async session({ session, token }) {
-      if (token) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as string;
+    async session({ session, token, trigger, user }) {
+      session.user.id = token.sub as string;
+      session.user.role = token.role as string;
+      session.user.name = token.name;
+
+      // there is an update user name
+      if (trigger === "update") {
+        session.user.name = user.name;
       }
+
       return session;
     },
   },
@@ -55,18 +61,31 @@ export const authConfig = {
           return null;
         }
         const { email, password } = validatedData.data;
-        const result = await getUser(email, password!);
-        if (!result.success) {
-          console.error("AuthError:", result.error);
+
+        // get user data from db
+        const user = await db.query.users.findFirst({
+          where: eq(users.email, email),
+        });
+        if (!user || !user.password) {
+          console.error("AuthError:", "کاربری یاقت نشد");
+          return null;
+        }
+        // checking password
+        const isValid = await bcrypt.compare(password as string, user.password);
+        if (!isValid) {
           return null;
         }
         return {
-          id: result.user.id,
-          email: result.user.email,
-          name: result.user.name,
-          role: result.user.role,
+          ...user,
         };
       },
     }),
   ],
 } satisfies NextAuthConfig;
+
+export const {
+  auth,
+  handlers: { GET, POST },
+  signIn,
+  signOut,
+} = NextAuth(authConfig);

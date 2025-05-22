@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@variant dark (&:where([data-theme=dark],[data-theme=dark] * ));
+@custom-variant dark (&:is(.dark *));
 
 @font-face {
   font-family: "Vazir";
@@ -58,7 +58,6 @@
   --color-text-dark: #f3f3f3;
   --color-hoverBtnDark: #96a489;
 }
-
 .dark {
   --main-color: #a6c0a0;
   --accent-color: #e6b4ff;

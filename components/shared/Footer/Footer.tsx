@@ -1,4 +1,4 @@
-import { FaInstagram, FaFacebook, FaLinkedin } from "react-icons/fa";
+import { FaInstagram, FaTelegram, FaWhatsapp } from "react-icons/fa";
 
 import { Mail, Phone } from "lucide-react";
 import Link from "next/link";
@@ -75,14 +75,14 @@ export default function Footer() {
               aria-label="Facebook"
               className="hover:text-primary transition"
             >
-              <FaFacebook className="h-5 w-5" />
+              <FaTelegram className="h-5 w-5" />
             </Link>
             <Link
               href="#"
               aria-label="LinkedIn"
               className="hover:text-primary transition"
             >
-              <FaLinkedin className="h-5 w-5" />
+              <FaWhatsapp className="h-5 w-5" />
             </Link>
           </div>
         </div>
