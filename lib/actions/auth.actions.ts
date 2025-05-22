@@ -115,7 +115,6 @@ export async function signinWithCredentials(
     }
 
     await signIn("credentials", {
-      redirectTo: "/",
       email,
       password,
     });
@@ -138,5 +137,5 @@ export async function signinWithCredentials(
 
 // signOut user action
 export async function userSignOut() {
-  await signOut({ redirectTo: "/sign-in" });
+  await signOut();
 }
