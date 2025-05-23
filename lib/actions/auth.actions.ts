@@ -115,6 +115,7 @@ export async function signinWithCredentials(
     }
 
     await signIn("credentials", {
+      redirect: false,
       email,
       password,
     });
@@ -125,7 +126,7 @@ export async function signinWithCredentials(
     if (err instanceof AuthError) {
       return {
         success: false,
-        error: { type: "custom", message: "ورود ناموفق بود" },
+        error: { type: "custom", message: "ایمیل یا رمز عبور صحیح نیست" },
       };
     }
     return {

@@ -10,8 +10,13 @@ import { SignupFormValues } from "@/types";
 import { signupFormSchema } from "@/lib/validations/usersValidations";
 import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
 import { signupAction } from "@/lib/actions/auth.actions";
+import { useSearchParams, useRouter } from "next/navigation";
 
 export default function SignUpForm() {
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
+  const router = useRouter();
+
   const {
     register,
     handleSubmit,
@@ -27,6 +32,7 @@ export default function SignUpForm() {
 
     if (result.success) {
       showSuccessToast("تبت نام با موفقیت انجام شد");
+      router.push(callbackUrl);
     }
     if (!result.success && result.error.type === "custom") {
       showErrorToast(result.error.message);
@@ -35,6 +41,12 @@ export default function SignUpForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <Input
+        name="callbackUrl"
+        value={callbackUrl}
+        type="hidden"
+        id="callbackUrl"
+      />
       <div>
         <Label htmlFor="name">نام</Label>
         <Input
