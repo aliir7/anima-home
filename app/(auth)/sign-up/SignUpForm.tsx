@@ -41,12 +41,6 @@ export default function SignUpForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <Input
-        name="callbackUrl"
-        value={callbackUrl}
-        type="hidden"
-        id="callbackUrl"
-      />
       <div>
         <Label htmlFor="name">نام</Label>
         <Input

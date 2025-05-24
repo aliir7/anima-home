@@ -1,10 +1,13 @@
+import { auth } from "@/lib/auth";
 import Logo from "./Logo";
 import MobileNav from "./MobileNav";
 import ModeToggle from "./ModeToggle";
 import NavBar from "./NavBar";
 import SignupBtn from "./SignupBtn";
+import UserDropdown from "../Account/UserDropdown";
 
-function Header() {
+async function Header() {
+  const session = await auth();
   return (
     <header className="bg-primary dark:bg-muted w-full border-b text-white shadow-md">
       <div className="wrapper flex-between">
@@ -21,7 +24,7 @@ function Header() {
         </div>
         <div className="hidden items-center justify-end gap-4 md:flex">
           <ModeToggle />
-          <SignupBtn />
+          {session?.user ? <UserDropdown /> : <SignupBtn />}
         </div>
       </div>
     </header>

@@ -41,7 +41,7 @@ export const authConfig = {
     async session({ session, token, trigger, user }) {
       session.user.id = token.sub as string;
       session.user.role = token.role as string;
-      session.user.name = token.name;
+      session.user.name = token.name as string;
 
       // there is an update user name
       if (trigger === "update") {
@@ -76,7 +76,11 @@ export const authConfig = {
           return null;
         }
         return {
-          ...user,
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          image: user.image,
+          role: user.role,
         };
       },
     }),

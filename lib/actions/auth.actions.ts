@@ -64,6 +64,13 @@ export async function signupAction(
       })
       .returning();
 
+    // automatic signIn after signUp
+    await signIn("credentials", {
+      redirect: false,
+      email,
+      password,
+    });
+
     return {
       success: true,
       data: {

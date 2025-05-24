@@ -11,8 +11,11 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { EllipsisVertical } from "lucide-react";
+import { EllipsisVertical, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { auth } from "@/lib/auth";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import SignOutForm from "../Account/SignOutForm";
 
 const categories = [
   { name: "کمد", href: "/categories/کمد" },
@@ -21,7 +24,9 @@ const categories = [
   { name: "مارول شیت", href: "/categories/مارول-شیت" },
 ];
 
-export default function MobileNav() {
+export default async function MobileNav() {
+  const session = await auth();
+  const user = session?.user;
   return (
     <div className="flex md:hidden">
       <Sheet>
@@ -65,14 +70,62 @@ export default function MobileNav() {
               تماس با ما
             </Link>
           </nav>
-          <div className="mt-20 flex w-full flex-col-reverse justify-end gap-4 px-6">
-            <Button asChild className="bg-primary">
-              <Link href="/sign-up">تبت نام</Link>
-            </Button>
-            <Button asChild className="border-primary" variant="outline">
-              <Link href="/sign-in">ورود</Link>
-            </Button>
+          <div>
+            {user && (
+              <div className="mt-6 border-t pt-4">
+                <div className="flex items-center gap-3">
+                  <Avatar>
+                    <AvatarImage
+                      src={user.image || "/public/images/user.png"}
+                    />
+                    <AvatarFallback>{user.name?.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="text-sm font-medium">{user.name}</p>
+                    <p className="text-muted-foreground text-xs">
+                      {user.email}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-6 space-y-2">
+                  <Button asChild variant="ghost">
+                    <Link
+                      href="/my-account"
+                      className="flex items-center gap-2 text-sm"
+                    >
+                      <User className="h-4 w-4" />
+                      حساب کاربری
+                    </Link>
+                  </Button>
+                  <SignOutForm />
+                  {user.role === "admin" && (
+                    <Link
+                      href="/admin"
+                      className="flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400"
+                    >
+                      <User className="h-4 w-4" />
+                      پنل ادمین
+                    </Link>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
+
+          {!user && (
+            <div className="mt-10 flex flex-col-reverse gap-3">
+              <Button asChild variant="outline" className="border-primary">
+                <Link href="/sign-in">ورود</Link>
+              </Button>
+              <Button
+                asChild
+                className="bg-primary hover:bg-primary/80 text-white"
+              >
+                <Link href="/sign-up">ثبت‌ نام</Link>
+              </Button>
+            </div>
+          )}
         </SheetContent>
       </Sheet>
     </div>
