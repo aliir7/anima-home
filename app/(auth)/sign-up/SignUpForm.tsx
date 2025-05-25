@@ -31,11 +31,11 @@ export default function SignUpForm() {
     const result = await signupAction(data);
 
     if (result.success) {
-      showSuccessToast("تبت نام با موفقیت انجام شد");
+      showSuccessToast("تبت نام با موفقیت انجام شد", "top-right");
       router.push(callbackUrl);
     }
     if (!result.success && result.error.type === "custom") {
-      showErrorToast(result.error.message);
+      showErrorToast(result.error.message, "top-right");
     }
   };
 

@@ -45,7 +45,7 @@ export const authConfig = {
 
       // there is an update user name
       if (trigger === "update") {
-        session.user.name = user.name;
+        session.user.name = user.name as string;
       }
 
       return session;

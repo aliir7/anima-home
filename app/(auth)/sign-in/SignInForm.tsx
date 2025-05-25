@@ -34,11 +34,11 @@ function SignInForm() {
   const onSubmit = async (data: SigninValues) => {
     const result = await signinWithCredentials(data);
     if (result.success) {
-      showSuccessToast(result.data);
+      showSuccessToast(result.data, "top-right");
       router.push(callbackUrl);
     }
     if (!result.success && result.error.type === "custom") {
-      showErrorToast(result.error.message);
+      showErrorToast(result.error.message, "top-right");
     }
   };
 

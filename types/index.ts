@@ -3,8 +3,11 @@ import {
   signinSchema,
   signupFormSchema,
   signupSchema,
+  userSchema,
 } from "@/lib/validations/usersValidations";
 import { z, ZodIssue } from "zod";
+
+export type UserSchema = z.infer<typeof userSchema>;
 
 export type ProductSchema = z.infer<typeof productSchema>;
 

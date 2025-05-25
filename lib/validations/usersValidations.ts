@@ -26,3 +26,9 @@ export const signinSchema = createInsertSchema(users).pick({
   email: true,
   password: true,
 });
+
+export const userSchema = createInsertSchema(users).pick({
+  name: true,
+  email: true,
+  image: true,
+});

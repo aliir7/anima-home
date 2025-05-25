@@ -24,7 +24,7 @@ async function Header() {
         </div>
         <div className="hidden items-center justify-end gap-4 md:flex">
           <ModeToggle />
-          {session?.user ? <UserDropdown /> : <SignupBtn />}
+          {session?.user ? <UserDropdown user={session.user} /> : <SignupBtn />}
         </div>
       </div>
     </header>

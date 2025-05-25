@@ -3,7 +3,7 @@ import Vazir from "next/font/local";
 import "./globals.css";
 import { APP_DESCRIPTION, APP_NAME } from "@/lib/constants";
 import { ThemeProvider } from "next-themes";
-import { Toaster } from "sonner";
+import { Toaster } from "@/components/ui/Toaster";
 
 const vazir = Vazir({
   src: "./fonts/Vazir.ttf",
@@ -28,7 +28,7 @@ export default function RootLayout({
       <body className={`${vazir.className}`}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           {children}
-          <Toaster duration={5000} />
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>
