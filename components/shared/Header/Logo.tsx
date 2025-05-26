@@ -1,5 +1,3 @@
-import Image from "next/image";
-import logoImg from "/public/logo/logo-mini.png";
 import Link from "next/link";
 
 function Logo() {

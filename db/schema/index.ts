@@ -5,3 +5,5 @@ export { products } from "./product";
 export { sessions } from "./sessions";
 export { users } from "./user";
 export { verificationTokens } from "./verificationToken";
+export { projects } from "./projects";
+export { categories } from "./categories";

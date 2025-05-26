@@ -8,6 +8,13 @@
       "when": 1747504401746,
       "tag": "0000_lucky_thunderbird",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1748266479526,
+      "tag": "0001_silent_thunderbird",
+      "breakpoints": true
     }
   ]
 }

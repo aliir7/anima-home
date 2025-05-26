@@ -10,11 +10,11 @@ async function SignupBtn() {
       <div className="flex items-center">
         <Button
           asChild
-          className="bg-secondary rounded-full text-neutral-900 hover:bg-neutral-300 hover:text-neutral-800 dark:text-white dark:hover:text-neutral-100"
+          className="bg-secondary rounded-full text-neutral-900 hover:bg-neutral-300 hover:text-neutral-800 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-neutral-300"
         >
           <div>
             <UserIcon />
-            <Link href="/sign-up" className="px-2 py-4">
+            <Link href="/sign-in" className="px-2 py-4">
               ثبت نام | ورود
             </Link>
           </div>

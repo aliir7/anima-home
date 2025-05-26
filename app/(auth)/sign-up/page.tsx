@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Image from "next/image";
-import logoImg from "/public/logo/logo-mini.png";
+import logoImg from "/public/logo/logo-mini-2.png";
 
 import SignUpForm from "./SignUpForm";
 import {

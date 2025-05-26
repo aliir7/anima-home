@@ -1,11 +1,17 @@
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "درباره ما",
+};
+
 function AboutPage() {
   return (
     <div className="rtl container space-y-12 px-4 py-16">
-      <h1 className="text-primary text-center text-3xl font-bold md:text-4xl">
+      <h1 className="text-primary py-4 text-center text-3xl font-bold md:text-4xl dark:text-neutral-900">
         درباره ما
       </h1>
 
-      <div className="text-muted-foreground space-y-6 text-right leading-loose">
+      <div className="text-muted-foreground space-y-6 px-4 pb-4 text-right leading-loose dark:text-neutral-800">
         <p>
           ما یک تیم خلاق و باانگیزه هستیم که با هدف ارائه بهترین تجربه خرید
           آنلاین برای شما فعالیت می‌کنیم. هدف ما ارائه محصولاتی باکیفیت، طراحی
@@ -23,7 +29,7 @@ function AboutPage() {
         </p>
       </div>
 
-      <div className="grid gap-6 text-center md:grid-cols-3">
+      <div className="mt-4 grid gap-6 pt-6 text-center md:grid-cols-3">
         <div className="bg-muted rounded-xl p-6 shadow-sm">
           <p className="text-primary text-4xl font-bold">+۵ سال</p>
           <p className="text-muted-foreground mt-2 text-sm">سابقه فعالیت</p>

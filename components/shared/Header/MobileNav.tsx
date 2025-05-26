@@ -68,7 +68,7 @@ export default async function MobileNav() {
               <AccordionTrigger className="text-base">
                 دسته‌بندی
               </AccordionTrigger>
-              <AccordionContent>
+              <AccordionContent className="my-2 mr-4">
                 <ul className="space-y-2 pr-2 text-sm">
                   {categories.map((item) => (
                     <li key={item.name}>
@@ -112,7 +112,10 @@ export default async function MobileNav() {
         <div className="mt-8 flex flex-col gap-3 border-t pt-4">
           {!user ? (
             <>
-              <Button asChild className="bg-primary w-full text-white">
+              <Button
+                asChild
+                className="bg-primary mb-2 w-full text-white dark:text-neutral-900"
+              >
                 <Link href="/sign-up">
                   <LogIn className="ml-2 h-4 w-4" />
                   ثبت‌نام

@@ -21,7 +21,7 @@ const BENEFITS = [
 
 function BenefitsSection() {
   return (
-    <section className="bg-muted/60 py-16 dark:bg-[#1a1a1a]">
+    <section className="bg-muted/60 rounded-lg px-6 py-16 dark:bg-[#1a1a1a]">
       <div className="wrapper text-center">
         <h2 className="h2-bold text-primary mb-12">چرا آنیماهوم؟</h2>
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3">
@@ -37,8 +37,10 @@ function BenefitsSection() {
                     <Icon className="h-6 w-6" />
                   </div>
                 </div>
-                <h3 className="mb-2 text-lg font-bold">{benefit.title}</h3>
-                <p className="text-muted-foreground text-sm leading-6">
+                <h3 className="mt-4 mb-2 text-lg font-bold dark:text-neutral-200">
+                  {benefit.title}
+                </h3>
+                <p className="text-muted-foreground mt-4 text-sm leading-6">
                   {benefit.description}
                 </p>
               </div>

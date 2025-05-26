@@ -21,3 +21,5 @@ export type ActionResult<T> =
 export type SignupFormValues = z.infer<typeof signupFormSchema>;
 export type SignupInsert = z.infer<typeof signupSchema>;
 export type SigninValues = z.infer<typeof signinSchema>;
+
+// export type Post = z.infer<typeof >;

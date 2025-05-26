@@ -61,6 +61,8 @@ const sampleData = {
       banner: "banner-1.jpg",
     },
   ],
+
+  // blogs
 };
 
 export default sampleData;

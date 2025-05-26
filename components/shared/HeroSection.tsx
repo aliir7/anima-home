@@ -4,7 +4,7 @@ import heroImg from "../../public/images/hero.png";
 import { Button } from "../ui/button";
 function HeroSection() {
   return (
-    <section className="bg-background text-foreground dark:bg-muted relative w-full">
+    <section className="bg-background text-foreground dark:bg-muted relative w-full rounded-lg">
       <Image
         src={heroImg}
         alt="hero-image"
