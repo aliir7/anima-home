@@ -38,7 +38,7 @@ export default async function MobileNav() {
       <SheetTitle></SheetTitle>
       <SheetContent
         side="right"
-        className="flex h-full w-72 flex-col justify-start px-6 py-4 dark:text-white"
+        className="flex h-full w-72 flex-col justify-start px-6 py-4 dark:bg-neutral-950 dark:text-white"
       >
         {/* Header with user info & toggle */}
         <div className="mt-8 flex items-center justify-between">

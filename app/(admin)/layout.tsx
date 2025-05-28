@@ -1,5 +1,5 @@
 // app/(admin)/layout.tsx
-import AdminSidebar from "@/components/shared/Admin/AdminSidebar";
+import AdminSidebar from "@/components/shared/Admin/Dashboard/AdminSidebar";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { ReactNode } from "react";

@@ -61,6 +61,14 @@ const sampleData = {
       banner: "banner-1.jpg",
     },
   ],
+  users: [
+    {
+      name: "Ali",
+      email: "ali@example.com",
+      password: "12345678",
+      role: "admin",
+    },
+  ],
 
   // blogs
 };

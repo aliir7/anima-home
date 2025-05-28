@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { userSignOut } from "@/lib/actions/auth.actions";
 
 const sidebarItems = [
   { href: "/admin", label: "داشبورد", icon: <LayoutDashboard size={18} /> },
@@ -50,7 +51,7 @@ function AdminSidebar() {
             {item.label}
           </Link>
         ))}
-        <form action="/api/auth/signout" method="post" className="mt-10">
+        <form action={userSignOut} className="mt-10">
           <Button
             variant="ghost"
             className="w-full justify-start gap-3 text-sm"

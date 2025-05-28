@@ -3,15 +3,14 @@ import { categories } from "./categories";
 import { relations } from "drizzle-orm";
 
 export const projects = pgTable("projects", {
-  id: uuid("id").primaryKey().defaultRandom(),
+  id: uuid("id").defaultRandom().primaryKey(),
   title: text("title").notNull(),
-  slug: text("slug").notNull().unique(),
-  description: text("description").notNull(),
-  images: jsonb("images").$type<string[]>().default([]),
-  videos: jsonb("videos").$type<string[]>().default([]), // optional
-  categoryId: uuid("category_id").references(() => categories.id, {
-    onDelete: "cascade",
-  }),
+  description: text("description"),
+  images: jsonb("images").notNull().default([]), // Array of image URLs
+  videos: jsonb("videos").default([]), // Optional array of video URLs
+  categoryId: uuid("category_id")
+    .notNull()
+    .references(() => categories.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
 

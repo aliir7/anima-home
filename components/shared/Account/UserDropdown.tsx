@@ -9,12 +9,15 @@ import {
 import SignOutForm from "./SignOutForm";
 import { UserSchema } from "@/types";
 import { Separator } from "@/components/ui/separator";
+import { auth } from "@/lib/auth";
 
 type UserDropdownProps = {
   user: Pick<UserSchema, "name" | "email" | "image">;
 };
 
-function UserDropdown({ user }: UserDropdownProps) {
+async function UserDropdown({ user }: UserDropdownProps) {
+  const session = await auth();
+  const admin = session?.user.role === "admin";
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -42,7 +45,11 @@ function UserDropdown({ user }: UserDropdownProps) {
           asChild
           className="mr-2 mb-2 flex cursor-pointer justify-end px-2 dark:bg-neutral-700"
         >
-          <Link href="/my-account">پروفایل من</Link>
+          {admin ? (
+            <Link href="/admin">ادمین پنل</Link>
+          ) : (
+            <Link href="my-account">پروفایل من</Link>
+          )}
         </DropdownMenuItem>
         <DropdownMenuItem asChild className="mr-2 mb-2 flex justify-end px-2">
           <Link href="/my-account/orders">سفارش‌ها</Link>
