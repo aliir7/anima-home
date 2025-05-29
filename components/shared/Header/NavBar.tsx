@@ -1,6 +1,5 @@
 import Link from "next/link";
 import CategoriesMenu from "./CategoriesMenu";
-import { auth } from "@/lib/auth";
 
 function NavBar() {
   return (
