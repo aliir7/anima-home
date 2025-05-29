@@ -1,20 +1,15 @@
 // app/(admin)/layout.tsx
-import AdminSidebar from "@/components/shared/Admin/Dashboard/AdminSidebar";
+import AdminSidebar from "@/app/admin/AdminSidebar";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { ReactNode } from "react";
 
-export default async function AdminLayout({
+async function AdminLayout({
   children,
-}: {
-  children: ReactNode;
-}) {
+}: Readonly<{ children: React.ReactNode }>) {
   const session = await auth();
-
   if (!session || session.user.role !== "admin") {
     redirect("/");
   }
-
   return (
     <div className="bg-background text-foreground flex min-h-screen">
       <AdminSidebar />
@@ -22,3 +17,5 @@ export default async function AdminLayout({
     </div>
   );
 }
+
+export default AdminLayout;

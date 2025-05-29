@@ -6,13 +6,7 @@ import {
   NavigationMenuTrigger,
   NavigationMenuContent,
 } from "@/components/ui/navigation-menu";
-
-const categories = [
-  { name: "کمد", href: "/categories/کمد" },
-  { name: "کابینت", href: "/categories/کابینت" },
-  { name: "تی وی وال", href: "/categories/تی-وی-وال" },
-  { name: "مارول شیت", href: "/categories/مارول-شیت" },
-];
+import { categories } from "@/lib/constants";
 
 function CategoriesMenu() {
   return (

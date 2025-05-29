@@ -1,12 +1,6 @@
 import Link from "next/link";
 
-import { LogOut, Package, User } from "lucide-react";
-
-const menu = [
-  { label: "اطلاعات حساب", icon: <User />, sectionId: "profile" },
-  { label: "سفارش‌ها", icon: <Package />, sectionId: "orders" },
-  { label: "خروج از حساب", icon: <LogOut />, sectionId: "logout" },
-];
+import { menu } from "@/lib/constants";
 
 function SidebarMenu() {
   return (
@@ -17,7 +11,7 @@ function SidebarMenu() {
           href={`#${item.sectionId}`}
           className="hover:text-primary flex items-center gap-2 pb-4 text-sm transition dark:hover:text-neutral-300"
         >
-          {item.icon}
+          {<item.icon />}
           {item.label}
         </Link>
       ))}
