@@ -73,4 +73,34 @@ const sampleData = {
   // blogs
 };
 
+export const dummyProjects = [
+  {
+    id: "1",
+    title: "کابینت کلاسیک",
+    slug: "کابینت-کلاسیک",
+    category: { id: "a", name: "کابینت" },
+    images: ["/dummy/project1.jpg"],
+    videos: ["/dummy/project1.mp4"],
+    createdAt: "2025/10/2",
+  },
+  {
+    id: "2",
+    title: "تی‌وی وال مدرن",
+    slug: "تی-وی-وال-مدرن",
+    category: { id: "b", name: "تی وی وال" },
+    images: ["/dummy/project2.jpg"],
+    videos: [],
+    createdAt: "2025/1/2",
+  },
+  {
+    id: "3",
+    title: "کمد ریلی",
+    slug: "کمد-ریلی",
+    category: { id: "c", name: "کمد" },
+    images: ["/dummy/project3.jpg"],
+    videos: [],
+    createdAt: "2024/10/2",
+  },
+];
+
 export default sampleData;
