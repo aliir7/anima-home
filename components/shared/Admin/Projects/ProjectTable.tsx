@@ -3,15 +3,15 @@
 import { useState } from "react";
 // import { ProjectWithCategory } from "@/types";
 import { Button } from "@/components/ui/button";
-import { MoreVertical } from "lucide-react";
+import { MoreVertical, Pencil, Trash2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-// import EditProjectModal from "./EditProjectModal";
-// import DeleteProjectModal from "./DeleteProjectModal";
+import EditProjectModal from "./EditProjectModal";
+import DeleteProjectModal from "./DeleteProjectModal";
 import { dummyProjects } from "@/db/sampleData";
 
 function ProjectTable() {
@@ -45,16 +45,24 @@ function ProjectTable() {
                       <MoreVertical className="h-5 w-5" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent side="left" align="end">
+                  <DropdownMenuContent side="left" align="start">
                     <DropdownMenuItem
+                      className="flex justify-end gap-2"
                       onClick={() => setEditProjectId(project.id)}
                     >
                       ویرایش
+                      <span>
+                        <Pencil className="h-4 w-4" />
+                      </span>
                     </DropdownMenuItem>
                     <DropdownMenuItem
+                      className="flex cursor-pointer justify-end gap-2"
                       onClick={() => setDeleteProjectId(project.id)}
                     >
                       حذف
+                      <span>
+                        <Trash2 className="h-4 w-4" />
+                      </span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

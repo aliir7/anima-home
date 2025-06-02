@@ -1,4 +1,4 @@
-const sampleData = {
+export const sampleData = {
   products: [
     {
       id: 1,

@@ -13,11 +13,12 @@ import { db } from "@/db";
 import { projects } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { generateUniqueSlug } from "../utils/generateSlug";
 
 // action for create project
 export async function createProject(
   data: InsertProjectValues,
-): Promise<ActionResult<null>> {
+): Promise<ActionResult<unknown>> {
   try {
     // validation data
     const validated = insertProjectSchema.safeParse(data);
@@ -32,8 +33,41 @@ export async function createProject(
     }
 
     // if validation passed
-    const { title, description, categoryId, images, videos } = validated.data;
-  } catch (error) {}
+    const { title } = validated.data;
+    // checking new project not duplicated
+    const [existing] = await db
+      .select()
+      .from(projects)
+      .where(eq(projects.title, title));
+
+    if (existing) {
+      return {
+        success: false,
+        error: {
+          type: "custom",
+          message: "پروژه با این عنوان از قبل وجود دارد",
+        },
+      };
+    }
+
+    const slug = await generateUniqueSlug(title);
+    const [newProject] = await db
+      .insert(projects)
+      .values({
+        ...data,
+        slug,
+      })
+      .returning();
+
+    revalidatePath("admin/projects");
+    return { success: true, data: newProject };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      error: { type: "custom", message: "خطایی در ایجاد پروژه رخ داد" },
+    };
+  }
 }
 
 // update project action

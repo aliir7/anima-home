@@ -26,10 +26,10 @@ export const menu = [
 
 // categories items in categories menu
 export const categories = [
-  { name: "کمد", href: "/categories/کمد" },
-  { name: "کابینت", href: "/categories/کابینت" },
-  { name: "تی وی وال", href: "/categories/تی-وی-وال" },
-  { name: "مارول شیت", href: "/categories/مارول-شیت" },
+  { id: "1", name: "کمد", href: "/categories/کمد" },
+  { id: "2", name: "کابینت", href: "/categories/کابینت" },
+  { id: "3", name: "تی وی وال", href: "/categories/تی-وی-وال" },
+  { id: "4", name: "مارول شیت", href: "/categories/مارول-شیت" },
 ];
 
 // admin routes

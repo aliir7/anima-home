@@ -29,27 +29,33 @@ function EditProjectModal({ projectId, onClose }: EditProjectModalProps) {
 
   const form = useForm<UpdateProjectValues>({
     resolver: zodResolver(updateProjectSchema),
-    defaultValues,
+    defaultValues: defaultValues || {
+      title: "",
+      description: "",
+      categoryId: "",
+      images: [],
+      videos: [],
+    },
   });
 
-  useEffect(() => {
-    if (projectId) {
-      setLoading(true);
-      getProjectById(projectId).then((data) => {
-        setDefaultValues({
-          title: data.title,
-          description: data.description ?? "",
-          categoryId: data.categoryId,
-        });
-        form.reset({
-          title: data.title,
-          description: data.description ?? "",
-          categoryId: data.categoryId,
-        });
-        setLoading(false);
-      });
-    }
-  }, [projectId]);
+  // useEffect(() => {
+  //   if (projectId) {
+  //     setLoading(true);
+  //     getProjectById(projectId).then((data) => {
+  //       setDefaultValues({
+  //         title: data.title,
+  //         description: data.description ?? "",
+  //         categoryId: data.categoryId,
+  //       });
+  //       form.reset({
+  //         title: data.title,
+  //         description: data.description ?? "",
+  //         categoryId: data.categoryId,
+  //       });
+  //       setLoading(false);
+  //     });
+  //   }
+  // }, [projectId]);
 
   const onSubmit = async (values: UpdateProjectValues) => {
     if (!projectId) return;
@@ -61,7 +67,9 @@ function EditProjectModal({ projectId, onClose }: EditProjectModalProps) {
       onClose();
     } else {
       showErrorToast(
-        result.error?.message || "خطا در بروزرسانی پروژه",
+        result.error.type === "custom"
+          ? result.error.message
+          : "خطا در بروزرسانی پروژه",
         "bottom-right",
       );
     }
@@ -71,13 +79,13 @@ function EditProjectModal({ projectId, onClose }: EditProjectModalProps) {
     <Dialog open={!!projectId} onOpenChange={onClose}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>ویرایش پروژه</DialogTitle>
+          <DialogTitle className="mr-4 text-right">ویرایش پروژه</DialogTitle>
         </DialogHeader>
 
         {loading ? (
           <div className="py-10 text-center">در حال بارگذاری...</div>
         ) : (
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <Input
               placeholder="عنوان پروژه"
               {...form.register("title")}
@@ -94,7 +102,11 @@ function EditProjectModal({ projectId, onClose }: EditProjectModalProps) {
               disabled={form.formState.isSubmitting}
             />
             <div className="flex justify-end">
-              <Button type="submit" disabled={form.formState.isSubmitting}>
+              <Button
+                type="submit"
+                disabled={form.formState.isSubmitting}
+                className="cursor-pointer rounded-full"
+              >
                 {form.formState.isSubmitting
                   ? "در حال ذخیره..."
                   : "ذخیره تغییرات"}
