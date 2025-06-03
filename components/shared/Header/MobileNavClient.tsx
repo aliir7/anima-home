@@ -38,7 +38,11 @@ function MobileNavClient({ user }: MobileNavClientProps) {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button size="icon" variant="ghost" className="text-white">
+        <Button
+          size="icon"
+          variant="ghost"
+          className="cursor-pointer text-white"
+        >
           <Menu className="h-6 w-6" />
         </Button>
       </SheetTrigger>
@@ -100,7 +104,7 @@ function MobileNavClient({ user }: MobileNavClientProps) {
           <Button
             variant="link"
             onClick={() => handleNavigate("/contact")}
-            className="justify-start text-right text-base hover:underline"
+            className="justify-start text-right text-base hover:underline dark:text-white"
           >
             تماس با ما
           </Button>
@@ -110,10 +114,10 @@ function MobileNavClient({ user }: MobileNavClientProps) {
               onClick={() => handleNavigate("/admin")}
               className="text-primary mt-2 cursor-pointer justify-start text-right text-base font-medium hover:underline dark:text-white"
             >
-              پنل ادمین
+              پنل مدیریت
             </Button>
           )}
-          {user && (
+          {user && user.role !== "admin" && (
             <Button
               variant="link"
               onClick={() => handleNavigate("/my-account")}

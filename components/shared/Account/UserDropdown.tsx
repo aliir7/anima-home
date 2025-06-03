@@ -43,10 +43,10 @@ async function UserDropdown({ user }: UserDropdownProps) {
       >
         <DropdownMenuItem
           asChild
-          className="mr-2 mb-2 flex cursor-pointer justify-end px-2 dark:bg-neutral-700"
+          className="mt-4 mr-2 mb-2 flex cursor-pointer justify-end px-2 dark:bg-neutral-700"
         >
           {admin ? (
-            <Link href="/admin">ادمین پنل</Link>
+            <Link href="/admin">پنل مدیریت</Link>
           ) : (
             <Link href="my-account">پروفایل من</Link>
           )}

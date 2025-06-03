@@ -54,7 +54,7 @@ function AboutPage() {
 
       <div className="mt-4 grid gap-6 pt-6 text-center md:grid-cols-3">
         <div className="bg-muted rounded-xl p-6 shadow-sm">
-          <p className="text-primary text-4xl font-bold">+۵ سال</p>
+          <p className="text-primary text-4xl font-bold">+1۵ سال</p>
           <p className="text-muted-foreground mt-2 text-sm">سابقه فعالیت</p>
         </div>
         <div className="bg-muted rounded-xl p-6 shadow-sm">
