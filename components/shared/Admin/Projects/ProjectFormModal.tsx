@@ -1,82 +1,76 @@
 "use client";
-
-import { createProject } from "@/lib/actions/project.actions";
-import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
-import { insertProjectSchema } from "@/lib/validations/projectsValidations";
 import { InsertProjectValues } from "@/types";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useState, useTransition } from "react";
-import { useForm } from "react-hook-form";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
-  DialogTrigger,
   DialogContent,
   DialogHeader,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { categories } from "@/lib/constants";
+import { getProjectById } from "@/db/queries/projectQueries";
+import ProjectForm from "./ProjectForm";
 
 type ProjectFormModalProps = {
-  isEdit?: boolean;
-  defaultValues?: InsertProjectValues;
-  trigger: React.ReactNode;
+  isOpen: boolean;
+  onClose: () => void;
+  type: "create" | "edit";
+  projectId?: string;
 };
 
 function ProjectFormModal({
-  isEdit,
-  defaultValues,
-  trigger,
+  isOpen,
+  onClose,
+  type,
+  projectId,
 }: ProjectFormModalProps) {
-  const [open, setOpen] = useState(false);
-  const [pending, startTransition] = useTransition();
-
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<InsertProjectValues>({
-    resolver: zodResolver(insertProjectSchema),
-    mode: "onSubmit",
-    defaultValues: defaultValues || {
-      title: "",
-      description: "",
-      categoryId: "",
-      images: [],
-      videos: [],
-    },
-  });
-
-  const onSubmit = (data: InsertProjectValues) => {
-    startTransition(async () => {
-      const result = await createProject(data);
-      if (result.success) {
-        showSuccessToast(
-          isEdit ? "پروژه با موفقیت ویرایش شد" : "پروژه جدید ایجاد شد",
-          "bottom-right",
-        );
-        reset();
-        setOpen(false);
-      } else {
-        showErrorToast("خطا در ثبت پروژه", "bottom-right");
-      }
-    });
-  };
+  const [defaultData, setDefaultData] = useState<InsertProjectValues | null>(
+    null,
+  );
+  const [isLoading, setIsLoading] = useState(false);
+  useEffect(() => {
+    if (type === "edit" && projectId) {
+      setIsLoading(true);
+      getProjectById(projectId).then((data) => {
+        setDefaultData({
+          title: data.title,
+          description: data.description || "",
+          categoryId: data.categoryId,
+          images: data.images,
+          videos: data.videos || [],
+        });
+        setIsLoading(false);
+      });
+    } else {
+      setDefaultData(null);
+    }
+  }, [type, projectId]);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="max-w-lg">
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>
-            {isEdit ? "ویرایش پروژه" : "ایجاد پروژه جدید"}
+          <DialogTitle className="text-right">
+            {type === "create" ? "ایجاد پروژه جدید" : "ویرایش پروژه"}
           </DialogTitle>
         </DialogHeader>
+        {type === "edit" && isLoading ? (
+          <div></div>
+        ) : (
+          <ProjectForm
+            onClose={onClose}
+            initialData={defaultData!}
+            type={type}
+          />
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
 
+export default ProjectFormModal;
+
+{
+  /* 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
             <Label htmlFor="title">عنوان پروژه</Label>
@@ -136,10 +130,5 @@ function ProjectFormModal({
                 ? "ویرایش پروژه"
                 : "ایجاد پروژه"}
           </Button>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
+        </form> */
 }
-
-export default ProjectFormModal;

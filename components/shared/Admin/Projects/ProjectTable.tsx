@@ -8,7 +8,7 @@ function ProjectTable() {
 
   return (
     <Suspense fallback={<ProjectTableSkeleton rows={5} />}>
-      <ProjectTableClient projects={projects} />{" "}
+      <ProjectTableClient projects={projects} />
     </Suspense>
   );
 }

@@ -16,17 +16,30 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Pencil, Trash2, MoreVertical } from "lucide-react";
-import EditProjectModal from "./EditProjectModal";
+import { Pencil, Trash2, MoreVertical, Plus } from "lucide-react";
 import DeleteProjectModal from "./DeleteProjectModal";
 import { dummyProjects } from "@/db/sampleData";
+import ProjectFormModal from "./ProjectFormModal";
+import { InsertProjectValues } from "@/types";
 
 function ProjectTableClient() {
-  const [editProjectId, setEditProjectId] = useState<string | null>(null);
+  const [showCreateProject, setShowCreateProject] = useState(false);
+
+  const [editProject, setEditProject] = useState<InsertProjectValues | null>(
+    null,
+  );
   const [deleteProjectId, setDeleteProjectId] = useState<string | null>(null);
   const projects = dummyProjects;
   return (
     <>
+      <div className="mb-4 flex justify-end">
+        <Button
+          className="bg-primary hover:bg-primary/80 rounded-full text-white"
+          onClick={() => setShowCreateProject(true)}
+        >
+          <Plus className="ml-2 h-4 w-4" /> ایجاد پروژه جدید
+        </Button>
+      </div>
       <div className="rounded-lg border">
         <Table>
           <TableHeader className="bg-muted">
@@ -58,7 +71,7 @@ function ProjectTableClient() {
                       <DropdownMenuContent side="left" align="end">
                         <DropdownMenuItem
                           className="flex justify-end gap-2"
-                          onClick={() => setEditProjectId(project.id)}
+                          onClick={() => setEditProject(project)}
                         >
                           ویرایش <Pencil className="h-4 w-4" />
                         </DropdownMenuItem>
@@ -83,10 +96,20 @@ function ProjectTableClient() {
           </TableBody>
         </Table>
       </div>
-      <EditProjectModal
-        projectId={editProjectId}
-        onClose={() => setEditProjectId(null)}
+      {/* Create Modal */}
+      <ProjectFormModal
+        type="create"
+        isOpen={showCreateProject}
+        onClose={() => setShowCreateProject(false)}
       />
+      {/* Edit Modal */}
+      <ProjectFormModal
+        type="edit"
+        isOpen={!!editProject}
+        initialData={editProject!}
+        onClose={() => setEditProject(null)}
+      />
+      {/* Delete Modal */}
       <DeleteProjectModal
         projectId={deleteProjectId}
         onClose={() => setDeleteProjectId(null)}
