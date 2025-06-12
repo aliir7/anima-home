@@ -16,3 +16,15 @@ export async function getProjectById(
     return { success: false, error: "خطا در گرفتن پروژه با آیدی" };
   }
 }
+
+export async function getAllProjects(): Promise<
+  QueryResult<(typeof projects.$inferSelect)[]>
+> {
+  try {
+    const data = await db.select().from(projects).orderBy(projects.createdAt);
+    return { success: true, data: data };
+  } catch (error) {
+    console.log(error);
+    return { success: false, error: "خطا در گرفتن لیست پروژه ها" };
+  }
+}

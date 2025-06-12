@@ -6,27 +6,35 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
 import { createProject, updateProject } from "@/lib/actions/project.actions";
-import { useEffect, useState, useTransition } from "react";
+import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertProjectSchema } from "@/lib/validations/projectsValidations";
 import { InsertProjectValues } from "@/types";
-import { getAllCategories } from "@/db/queries/categoriesQueries";
 
 type ProjectFormProps = {
   onClose: () => void;
   type: "create" | "edit";
   initialData?: InsertProjectValues;
+  categories: any[];
 };
 
-function ProjectForm({ onClose, type, initialData }: ProjectFormProps) {
+function ProjectForm({
+  onClose,
+  type,
+  initialData,
+  categories,
+}: ProjectFormProps) {
   const [pending, startTransition] = useTransition();
-  const [categories, setCategories] = useState<{ id: string; name: string }[]>(
-    [],
-  );
 
-  const form = useForm<InsertProjectValues>({
+  const {
+    reset,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    register,
+  } = useForm<InsertProjectValues>({
     resolver: zodResolver(insertProjectSchema),
+    mode: "onSubmit",
     defaultValues: initialData ?? {
       title: "",
       description: "",
@@ -48,7 +56,7 @@ function ProjectForm({ onClose, type, initialData }: ProjectFormProps) {
           `پروژه با موفقیت ${type === "create" ? "ایجاد" : "ویرایش"} شد`,
           "bottom-right",
         );
-        form.reset();
+        reset();
         onClose();
       } else {
         showErrorToast("خطا در ذخیره پروژه", "bottom-right");
@@ -57,26 +65,38 @@ function ProjectForm({ onClose, type, initialData }: ProjectFormProps) {
   };
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-      <div>
-        <Label>عنوان پروژه</Label>
-        <Input {...form.register("title")} disabled={pending} />
-      </div>
-
-      <div>
-        <Label>توضیحات</Label>
-        <Textarea
-          {...form.register("description")}
-          rows={3}
-          disabled={pending}
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      <div className="space-y-2">
+        <Label htmlFor="title">عنوان پروژه</Label>
+        <Input
+          id="title"
+          {...register("title")}
+          disabled={pending || isSubmitting}
         />
+        {errors.title && (
+          <p className="text-destructive mt-2">{errors.title.message}</p>
+        )}
       </div>
 
-      <div>
-        <Label>دسته‌بندی</Label>
+      <div className="space-y-2">
+        <Label htmlFor="description">توضیحات</Label>
+        <Textarea
+          id="description"
+          {...register("description")}
+          rows={3}
+          disabled={pending || isSubmitting}
+        />
+        {errors.description && (
+          <p className="text-destructive mt-2">{errors.description.message}</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="categoryId">دسته‌بندی</Label>
         <select
-          {...form.register("categoryId")}
-          disabled={pending}
+          id="categoryId"
+          {...register("categoryId")}
+          disabled={pending || isSubmitting}
           className="w-full rounded-md border p-2"
         >
           <option value="">انتخاب کنید...</option>
@@ -88,28 +108,40 @@ function ProjectForm({ onClose, type, initialData }: ProjectFormProps) {
         </select>
       </div>
 
-      <div>
-        <Label>تصاویر (JSON)</Label>
+      <div className="space-y-2">
+        <Label htmlFor="images">تصاویر (JSON)</Label>
         <Textarea
-          {...form.register("images")}
+          id="images"
+          {...register("images")}
           placeholder='["image1.jpg", "image2.jpg"]'
           rows={2}
-          disabled={pending}
+          disabled={pending || isSubmitting}
         />
+        {errors.images && (
+          <p className="text-destructive mt-2">{errors.images.message}</p>
+        )}
       </div>
 
-      <div>
-        <Label>ویدیوها (JSON - اختیاری)</Label>
+      <div className="space-y-2">
+        <Label htmlFor="videos">ویدیوها (JSON - اختیاری)</Label>
         <Textarea
-          {...form.register("videos")}
+          id="videos"
+          {...register("videos")}
           placeholder='["video1.mp4"]'
           rows={2}
-          disabled={pending}
+          disabled={pending || isSubmitting}
         />
+        {errors.videos && (
+          <p className="text-destructive mt-2">{errors.videos.message}</p>
+        )}
       </div>
 
-      <Button type="submit" disabled={pending} className="w-full rounded-full">
-        {pending
+      <Button
+        type="submit"
+        disabled={pending || isSubmitting}
+        className="mt-4 w-full rounded-full"
+      >
+        {pending || isSubmitting
           ? "در حال ذخیره..."
           : type === "create"
             ? "ایجاد پروژه"

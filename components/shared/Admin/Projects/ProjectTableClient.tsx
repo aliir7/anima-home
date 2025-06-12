@@ -18,28 +18,34 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Pencil, Trash2, MoreVertical, Plus } from "lucide-react";
 import DeleteProjectModal from "./DeleteProjectModal";
-import { dummyProjects } from "@/db/sampleData";
 import ProjectFormModal from "./ProjectFormModal";
 import { InsertProjectValues } from "@/types";
 
-function ProjectTableClient() {
-  const [showCreateProject, setShowCreateProject] = useState(false);
+type ProjectTableClientProps = {
+  categories: any[];
+  projects: any[];
+};
 
+function ProjectTableClient({ categories, projects }: ProjectTableClientProps) {
+  const [showCreateProject, setShowCreateProject] = useState(false);
   const [editProject, setEditProject] = useState<InsertProjectValues | null>(
     null,
   );
   const [deleteProjectId, setDeleteProjectId] = useState<string | null>(null);
-  const projects = dummyProjects;
+
   return (
     <>
+      {/* دکمه ساخت پروژه */}
       <div className="mb-4 flex justify-end">
         <Button
-          className="bg-primary hover:bg-primary/80 rounded-full text-white"
+          className="bg-primary hover:bg-primary/80 rounded-full text-white dark:bg-neutral-800 dark:hover:bg-neutral-600"
           onClick={() => setShowCreateProject(true)}
         >
           <Plus className="ml-2 h-4 w-4" /> ایجاد پروژه جدید
         </Button>
       </div>
+
+      {/* جدول پروژه‌ها */}
       <div className="rounded-lg border">
         <Table>
           <TableHeader className="bg-muted">
@@ -96,11 +102,13 @@ function ProjectTableClient() {
           </TableBody>
         </Table>
       </div>
+
       {/* Create Modal */}
       <ProjectFormModal
         type="create"
         isOpen={showCreateProject}
         onClose={() => setShowCreateProject(false)}
+        categories={categories}
       />
       {/* Edit Modal */}
       <ProjectFormModal
@@ -108,6 +116,7 @@ function ProjectTableClient() {
         isOpen={!!editProject}
         initialData={editProject!}
         onClose={() => setEditProject(null)}
+        categories={categories}
       />
       {/* Delete Modal */}
       <DeleteProjectModal
