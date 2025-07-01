@@ -5,6 +5,10 @@ import {
   LayoutDashboard,
   Boxes,
   Layers3,
+  FolderCheck,
+  ShoppingBag,
+  Drill,
+  BookImage,
   FolderKanban,
   Settings,
 } from "lucide-react";
@@ -30,6 +34,39 @@ export const categories = [
   { id: "2", name: "کابینت", href: "/categories/cabinet" },
   { id: "3", name: "تی وی وال", href: "/categories/تی-وی-وال" },
   { id: "4", name: "مارول شیت", href: "/categories/marvel" },
+];
+
+// services in app
+export const services = [
+  {
+    icon: FolderCheck,
+    title: "نمونه کارها",
+    description:
+      "در این بخش می‌توانید نمونه کارها و پروژه‌های اجرا شده را مشاهده کنید",
+    btnText: "برو بریم",
+    href: "/projects",
+  },
+  {
+    icon: ShoppingBag,
+    title: "محصولات",
+    description: "تمام محصولات دارای گارانتی اصالت و سلامت فیزیکی هستند",
+    btnText: "برو بریم",
+    href: "/products",
+  },
+  {
+    icon: Drill,
+    title: "ابزارآلات و یراق",
+    description: "ابزارآلات و یراق خود را از ما بخواهید",
+    btnText: "برو بریم",
+    href: "/tools",
+  },
+  {
+    icon: BookImage,
+    title: "متریال",
+    description: "متریال مورد نظرتان را انتخاب کنید",
+    btnText: "برو بریم",
+    href: "/materials",
+  },
 ];
 
 // admin routes

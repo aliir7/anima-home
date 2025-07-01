@@ -1,6 +1,6 @@
-import BenefitsSection from "@/components/shared/BenefitsSection";
-import BlogSection from "@/components/shared/BlogSection";
 import HeroSection from "@/components/shared/HeroSection";
+import ServicesSection from "@/components/shared/ServicesSection";
+import BlogSection from "@/components/shared/BlogSection";
 
 import { Metadata } from "next";
 
@@ -12,8 +12,7 @@ export default function HomePage() {
   return (
     <div className="space-y-6">
       <HeroSection />
-
-      <BenefitsSection />
+      <ServicesSection />
       <BlogSection />
     </div>
   );
