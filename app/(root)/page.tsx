@@ -1,5 +1,5 @@
 import HeroSection from "@/components/shared/HeroSection";
-import ServicesSection from "@/components/shared/ServicesSection";
+import ServicesSection from "@/components/shared/Services/ServicesSection";
 import BlogSection from "@/components/shared/BlogSection";
 
 import { Metadata } from "next";

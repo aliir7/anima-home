@@ -1,4 +1,4 @@
-import { Button } from "../ui/button";
+import { Button } from "../../ui/button";
 import Link from "next/link";
 
 import type { TypeIcon } from "lucide-react";
