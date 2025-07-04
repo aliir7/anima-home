@@ -20,6 +20,8 @@ export const APP_DESCRIPTION =
   process.env.NEXT_PUBLIC_APP_DESCRIPTION ||
   "A modern ecommerce store built with Next.js";
 
+export const PAGE_SIZE = 5;
+
 // static data
 // user sidebar menu
 export const menu = [
@@ -41,31 +43,30 @@ export const services = [
   {
     icon: FolderCheck,
     title: "نمونه کارها",
-    description:
-      "در این بخش می‌توانید نمونه کارها و پروژه‌های اجرا شده را مشاهده کنید",
+    description: "بررسی نمونه‌کارهای اجراشده توسط تیم ما",
     btnText: "برو بریم",
     href: "/projects",
   },
   {
+    icon: BookImage,
+    title: "متریال",
+    description: "مشاهده کاتالوگ و سمپل رنگ‌های MDF، صفحه کابینت و بین‌کابینتی",
+    btnText: "برو بریم",
+    href: "/materials",
+  },
+  {
     icon: ShoppingBag,
     title: "محصولات",
-    description: "تمام محصولات دارای گارانتی اصالت و سلامت فیزیکی هستند",
+    description: "مدل‌های آماده‌ای که می‌تونن برای فضای شما سفارشی بشن",
     btnText: "برو بریم",
     href: "/products",
   },
   {
     icon: Drill,
-    title: "ابزارآلات و یراق",
-    description: "ابزارآلات و یراق خود را از ما بخواهید",
+    title: "یراق‌آلات",
+    description: "انتخاب و سفارش انواع یراق‌آلات مخصوص کابینت و دکوراسیون",
     btnText: "برو بریم",
     href: "/tools",
-  },
-  {
-    icon: BookImage,
-    title: "متریال",
-    description: "متریال مورد نظرتان را انتخاب کنید",
-    btnText: "برو بریم",
-    href: "/materials",
   },
 ];
 

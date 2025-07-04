@@ -13,8 +13,9 @@ export default function Footer() {
             آنیماهوم
           </h3>
           <p className="text-sm leading-relaxed">
-            تجربه‌ای نوین از خرید آنلاین با محصولات متنوع، قیمت مناسب و ارسال
-            سریع.
+            طراحی و اجرای دکوراسیون با پشتوانه‌ی سه نسل اعتماد.
+            <br />
+            سه نسل، یک نگاه: کیفیت.
           </p>
         </div>
 
@@ -49,10 +50,12 @@ export default function Footer() {
           </h4>
           <ul className="space-y-2 text-sm">
             <li className="flex items-center gap-2">
-              <Phone className="h-4 w-4" /> ۰۹۱۲۱۲۳۴۵۶۷
+              <Phone className="h-4 w-4" /> 09128184930
+              <br />
+              09129277302
             </li>
             <li className="flex items-center gap-2">
-              <Mail className="h-4 w-4" /> info@modernshop.ir
+              <Mail className="h-4 w-4" /> anima.homedecor@gmail.com
             </li>
           </ul>
         </div>
@@ -71,15 +74,17 @@ export default function Footer() {
               <FaInstagram className="h-5 w-5" />
             </Link>
             <Link
-              href="#"
-              aria-label="Facebook"
+              href="https://telegram.me/@AnimaHomeDecor"
+              aria-label="Telegram"
+              target="_blank"
               className="hover:text-primary transition"
             >
               <FaTelegram className="h-5 w-5" />
             </Link>
             <Link
-              href="#"
-              aria-label="LinkedIn"
+              target="_blank"
+              href="https://wa.me/989129277302"
+              aria-label="Whatsapp"
               className="hover:text-primary transition"
             >
               <FaWhatsapp className="h-5 w-5" />

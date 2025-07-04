@@ -1,5 +1,7 @@
 import { services } from "@/lib/constants";
+import Link from "next/link";
 import ServiceItem from "./ServiceItem";
+import { Button } from "@/components/ui/button";
 
 function ServicesSection() {
   return (
@@ -20,6 +22,15 @@ function ServicesSection() {
             );
           })}
         </div>
+        <Button
+          asChild
+          variant="default"
+          className="bg-primary hover:bg-hoverBtn mt-12 rounded-full px-6 py-4 text-sm font-semibold text-white transition md:px-8 md:py-6 dark:bg-neutral-950 dark:hover:bg-neutral-800"
+        >
+          <Link href="https://telegram.me/@AnimaHomeDecor" target="_blank">
+            دریافت مشاوره
+          </Link>
+        </Button>
       </div>
     </section>
   );

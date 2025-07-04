@@ -1,14 +1,11 @@
 import { Metadata } from "next";
-import { services } from "@/lib/constants";
+import ProjectContent from "./ProjectContent";
 
-const pageTitle = services.at(0)?.title;
+export const metadata: Metadata = { title: "پروژه‌ها" };
 
-export const metadata: Metadata = {
-  title: pageTitle || "پروژه‌ها",
-};
-
-function page() {
-  return <div>projects</div>;
+// ✅ تابع صفحه به صورت async
+function ProjectsPage() {
+  return <ProjectContent />;
 }
 
-export default page;
+export default ProjectsPage;
