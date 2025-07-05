@@ -16,6 +16,7 @@ type ProjectFormProps = {
   onClose: () => void;
   type: "create" | "edit";
   initialData?: InsertProjectValues;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   categories: any[];
 };
 
@@ -46,16 +47,26 @@ function ProjectForm({
 
   const onSubmit = (values: InsertProjectValues) => {
     startTransition(async () => {
-      const result =
-        type === "create"
-          ? await createProject(values)
-          : await updateProject(initialData!.id, values);
+      if (type === "create") {
+        const result = await createProject(values);
+        if (result.success) {
+          showSuccessToast(
+            `پروژه با موفقیت ${type === "create" ? "ایجاد" : "ویرایش"} شد`,
+            "bottom-right",
+          );
+        } else if (initialData?.id) {
+          const result = await updateProject(initialData.id, values);
+          if (result.success) {
+            showSuccessToast(
+              `پروژه با موفقیت ${type === "create" ? "ایجاد" : "ویرایش"} شد`,
+              "bottom-right",
+            );
+          }
+        } else {
+          showErrorToast("شناسه پروژه برای ویرایش موجود نیست", "bottom-right");
+          return;
+        }
 
-      if (result.success) {
-        showSuccessToast(
-          `پروژه با موفقیت ${type === "create" ? "ایجاد" : "ویرایش"} شد`,
-          "bottom-right",
-        );
         reset();
         onClose();
       } else {
