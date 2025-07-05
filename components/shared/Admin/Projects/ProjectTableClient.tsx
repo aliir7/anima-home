@@ -22,7 +22,9 @@ import ProjectFormModal from "./ProjectFormModal";
 import { InsertProjectValues } from "@/types";
 
 type ProjectTableClientProps = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   categories: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   projects: any[];
 };
 

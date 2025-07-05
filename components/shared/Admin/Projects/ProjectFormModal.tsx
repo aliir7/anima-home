@@ -1,13 +1,12 @@
 "use client";
+
 import { InsertProjectValues } from "@/types";
-import { useState } from "react";
 import {
   Dialog,
   DialogTitle,
   DialogContent,
   DialogHeader,
 } from "@/components/ui/dialog";
-
 import ProjectForm from "./ProjectForm";
 
 type ProjectFormModalProps = {
@@ -15,6 +14,7 @@ type ProjectFormModalProps = {
   onClose: () => void;
   type: "create" | "edit";
   initialData?: InsertProjectValues;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   categories: any[];
 };
 
@@ -25,11 +25,6 @@ function ProjectFormModal({
   initialData,
   categories,
 }: ProjectFormModalProps) {
-  const [defaultData, setDefaultData] = useState<InsertProjectValues | null>(
-    null,
-  );
-  const [isLoading, setIsLoading] = useState(false);
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl">
@@ -38,16 +33,13 @@ function ProjectFormModal({
             {type === "create" ? "ایجاد پروژه جدید" : "ویرایش پروژه"}
           </DialogTitle>
         </DialogHeader>
-        {type === "edit" && isLoading ? (
-          <div></div>
-        ) : (
-          <ProjectForm
-            onClose={onClose}
-            initialData={initialData}
-            categories={categories}
-            type={type}
-          />
-        )}
+
+        <ProjectForm
+          onClose={onClose}
+          initialData={initialData}
+          categories={categories}
+          type={type}
+        />
       </DialogContent>
     </Dialog>
   );
