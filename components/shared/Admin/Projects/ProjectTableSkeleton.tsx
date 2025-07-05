@@ -4,7 +4,7 @@ type ProjectTableSkeleton = {
   rows?: number;
 };
 
-function ProjectTableSkeleton({ rows }: ProjectTableSkeleton) {
+function ProjectTableSkeleton({ rows = 6 }: ProjectTableSkeleton) {
   return (
     <div className="rounded-lg border">
       <table className="w-full">
