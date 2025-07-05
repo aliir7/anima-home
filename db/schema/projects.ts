@@ -6,6 +6,7 @@ export const projects = pgTable("projects", {
   id: uuid("id").defaultRandom().primaryKey(),
   title: text("title").notNull(),
   description: text("description"),
+  slug: text("slug").notNull().unique(),
   images: jsonb("images").notNull().default([]), // Array of image URLs
   videos: jsonb("videos").default([]), // Optional array of video URLs
   categoryId: uuid("category_id")

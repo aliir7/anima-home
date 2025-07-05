@@ -11,6 +11,11 @@ import {
 } from "@/lib/validations/usersValidations";
 import { z, ZodIssue } from "zod";
 
+// database queries types
+export type QueryResult<T> =
+  | { success: true; data: T }
+  | { success: false; error: string };
+
 // server action results types
 export type ActionError =
   | { type: "zod"; issues: ZodIssue[] }

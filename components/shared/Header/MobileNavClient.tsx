@@ -19,7 +19,7 @@ import { LogIn, Menu, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ModeToggle from "./ModeToggle";
 import SignOutForm from "../Account/SignOutForm";
-import { categories } from "@/lib/constants";
+import { services } from "@/lib/constants";
 
 type MobileNavClientProps = {
   user?: { name?: string; image?: string; role?: string };
@@ -38,7 +38,11 @@ function MobileNavClient({ user }: MobileNavClientProps) {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button size="icon" variant="ghost" className="text-white">
+        <Button
+          size="icon"
+          variant="ghost"
+          className="cursor-pointer text-white"
+        >
           <Menu className="h-6 w-6" />
         </Button>
       </SheetTrigger>
@@ -69,20 +73,18 @@ function MobileNavClient({ user }: MobileNavClientProps) {
         {/* Navigation */}
         <nav className="mt-8 flex flex-col gap-3">
           <Accordion type="single" collapsible>
-            <AccordionItem value="categories">
-              <AccordionTrigger className="text-base">
-                دسته‌بندی
-              </AccordionTrigger>
+            <AccordionItem value="services">
+              <AccordionTrigger className="text-base">خدمات</AccordionTrigger>
               <AccordionContent className="data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up my-2 mr-4 transition-all duration-500">
                 <ul className="space-y-2 pr-2 text-sm">
-                  {categories.map((item) => (
-                    <li key={item.name}>
+                  {services.map((item) => (
+                    <li key={item.title}>
                       <Button
                         variant="link"
                         onClick={() => handleNavigate(item.href)}
                         className="block w-full cursor-pointer text-right hover:underline"
                       >
-                        {item.name}
+                        {item.title}
                       </Button>
                     </li>
                   ))}
@@ -100,7 +102,7 @@ function MobileNavClient({ user }: MobileNavClientProps) {
           <Button
             variant="link"
             onClick={() => handleNavigate("/contact")}
-            className="justify-start text-right text-base hover:underline"
+            className="justify-start text-right text-base hover:underline dark:text-white"
           >
             تماس با ما
           </Button>
@@ -110,10 +112,10 @@ function MobileNavClient({ user }: MobileNavClientProps) {
               onClick={() => handleNavigate("/admin")}
               className="text-primary mt-2 cursor-pointer justify-start text-right text-base font-medium hover:underline dark:text-white"
             >
-              پنل ادمین
+              پنل مدیریت
             </Button>
           )}
-          {user && (
+          {user && user.role !== "admin" && (
             <Button
               variant="link"
               onClick={() => handleNavigate("/my-account")}
