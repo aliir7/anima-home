@@ -6,26 +6,26 @@ import {
   NavigationMenuTrigger,
   NavigationMenuContent,
 } from "@/components/ui/navigation-menu";
-import { categories } from "@/lib/constants";
+import { services } from "@/lib/constants";
 
-function CategoriesMenu() {
+function ServicesMenu() {
   return (
     <div>
       <NavigationMenu>
         <NavigationMenuList>
           <NavigationMenuItem>
             <NavigationMenuTrigger className="items-center bg-transparent px-0 py-0 font-normal text-white shadow-none hover:bg-transparent dark:text-white">
-              دسته‌بندی
+              خدمات
             </NavigationMenuTrigger>
             <NavigationMenuContent>
               <ul className="flex min-w-[150px] flex-col gap-2 p-3 text-center">
-                {categories.map((item) => (
-                  <li key={item.name}>
+                {services.map((item) => (
+                  <li key={item.title}>
                     <Link
                       href={item.href}
-                      className="hover:bg-primary dark:hover:bg-primaryDark mt-1 block rounded-lg py-1 hover:text-white"
+                      className="hover:bg-primary dark:hover:bg-primaryDark dark:active:bg-primaryDark mt-1 block rounded-lg py-1 hover:text-white active:text-white"
                     >
-                      {item.name}
+                      {item.title}
                     </Link>
                   </li>
                 ))}
@@ -38,4 +38,4 @@ function CategoriesMenu() {
   );
 }
 
-export default CategoriesMenu;
+export default ServicesMenu;

@@ -26,17 +26,26 @@ export default function Footer() {
           </h4>
           <ul className="space-y-2 text-sm">
             <li>
-              <Link href="/about" className="hover:text-primary transition">
+              <Link
+                href="/about"
+                className="hover:text-primary active:text-primary transition"
+              >
                 درباره ما
               </Link>
             </li>
             <li>
-              <Link href="/contact" className="hover:text-primary transition">
+              <Link
+                href="/contact"
+                className="hover:text-primary active:text-primary transition"
+              >
                 تماس با ما
               </Link>
             </li>
             <li>
-              <Link href="/faq" className="hover:text-primary transition">
+              <Link
+                href="/faq"
+                className="hover:text-primary active:text-primary transition"
+              >
                 سؤالات متداول
               </Link>
             </li>
@@ -55,7 +64,8 @@ export default function Footer() {
               09129277302
             </li>
             <li className="flex items-center gap-2">
-              <Mail className="h-4 w-4" /> anima.homedecor@gmail.com
+              <Mail className="h-4 w-4 cursor-pointer" />{" "}
+              anima.homedecor@gmail.com
             </li>
           </ul>
         </div>
@@ -67,9 +77,9 @@ export default function Footer() {
           </h4>
           <div className="flex gap-4">
             <Link
-              href="#"
+              href="https://www.instagram.com/anima.home.official?utm_source=qr&igsh=YTB4eHhmdG82bnpn"
               aria-label="Instagram"
-              className="hover:text-primary transition"
+              className="hover:text-primary active:text-primary transition"
             >
               <FaInstagram className="h-5 w-5" />
             </Link>
@@ -77,7 +87,7 @@ export default function Footer() {
               href="https://telegram.me/@AnimaHomeDecor"
               aria-label="Telegram"
               target="_blank"
-              className="hover:text-primary transition"
+              className="hover:text-primary active:text-primary transition"
             >
               <FaTelegram className="h-5 w-5" />
             </Link>
@@ -85,7 +95,7 @@ export default function Footer() {
               target="_blank"
               href="https://wa.me/989129277302"
               aria-label="Whatsapp"
-              className="hover:text-primary transition"
+              className="hover:text-primary active:text-primary transition"
             >
               <FaWhatsapp className="h-5 w-5" />
             </Link>

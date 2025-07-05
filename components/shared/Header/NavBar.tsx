@@ -1,13 +1,12 @@
 import Link from "next/link";
-import CategoriesMenu from "./CategoriesMenu";
-import { auth } from "@/lib/auth";
+import ServicesMenu from "./ServicesMenu";
 
 function NavBar() {
   return (
     <nav>
       <ul className="hidden items-center gap-6 md:flex rtl:space-x-reverse">
         <li>
-          <CategoriesMenu />
+          <ServicesMenu />
         </li>
         <li>
           <Link href="/about" className="hover:text-neutral-200">

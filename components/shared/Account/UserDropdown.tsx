@@ -51,9 +51,11 @@ async function UserDropdown({ user }: UserDropdownProps) {
             <Link href="my-account">پروفایل من</Link>
           )}
         </DropdownMenuItem>
-        <DropdownMenuItem asChild className="mr-2 mb-2 flex justify-end px-2">
-          <Link href="/my-account/orders">سفارش‌ها</Link>
-        </DropdownMenuItem>
+        {!admin && (
+          <DropdownMenuItem asChild className="mr-2 mb-2 flex justify-end px-2">
+            <Link href="/my-account/orders">سفارش‌ها</Link>
+          </DropdownMenuItem>
+        )}
 
         <Separator className="my-2" />
 

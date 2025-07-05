@@ -19,7 +19,7 @@ import { LogIn, Menu, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ModeToggle from "./ModeToggle";
 import SignOutForm from "../Account/SignOutForm";
-import { categories } from "@/lib/constants";
+import { services } from "@/lib/constants";
 
 type MobileNavClientProps = {
   user?: { name?: string; image?: string; role?: string };
@@ -73,20 +73,18 @@ function MobileNavClient({ user }: MobileNavClientProps) {
         {/* Navigation */}
         <nav className="mt-8 flex flex-col gap-3">
           <Accordion type="single" collapsible>
-            <AccordionItem value="categories">
-              <AccordionTrigger className="text-base">
-                دسته‌بندی
-              </AccordionTrigger>
+            <AccordionItem value="services">
+              <AccordionTrigger className="text-base">خدمات</AccordionTrigger>
               <AccordionContent className="data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up my-2 mr-4 transition-all duration-500">
                 <ul className="space-y-2 pr-2 text-sm">
-                  {categories.map((item) => (
-                    <li key={item.name}>
+                  {services.map((item) => (
+                    <li key={item.title}>
                       <Button
                         variant="link"
                         onClick={() => handleNavigate(item.href)}
                         className="block w-full cursor-pointer text-right hover:underline"
                       >
-                        {item.name}
+                        {item.title}
                       </Button>
                     </li>
                   ))}
