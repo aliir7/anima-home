@@ -84,7 +84,7 @@ export default function Footer() {
               <FaInstagram className="h-5 w-5" />
             </Link>
             <Link
-              href="https://telegram.me/@AnimaHomeDecor"
+              href="https://telegram.me/AnimaHomeDecor"
               aria-label="Telegram"
               target="_blank"
               className="hover:text-primary active:text-primary transition"

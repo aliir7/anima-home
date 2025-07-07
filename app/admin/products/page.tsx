@@ -1,11 +1,16 @@
 import { Metadata } from "next";
+import ComingSoon from "@/components/shared/ComingSoon";
 
 export const metadata: Metadata = {
   title: "پنل مدیریت / محصولات",
 };
 
-function ProductsPage() {
-  return <div>products page</div>;
+function AdminProductsPage() {
+  return (
+    <section className="wrapper py-12">
+      <ComingSoon />
+    </section>
+  );
 }
 
-export default ProductsPage;
+export default AdminProductsPage;

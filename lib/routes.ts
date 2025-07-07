@@ -9,5 +9,18 @@ export const publicRoutes = [
   "/tools",
   "/materials",
 ];
-export const authRoutes = ["/sign-in", "/sign-up", "/my-account"];
-export const adminRoutes = ["/admin"];
+export const authRoutes = [
+  "/sign-in",
+  "/sign-up",
+  "/my-account",
+  "/my-account/orders",
+];
+export const adminRoutes = [
+  "/admin",
+  "/admin/projects",
+  "/admin/materials",
+  "/admin/tools",
+  "/admin/products",
+  "/admin/categories",
+  "/admin/settings",
+];

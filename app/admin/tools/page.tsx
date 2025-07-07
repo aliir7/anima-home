@@ -1,6 +1,6 @@
 import ComingSoon from "@/components/shared/ComingSoon";
 
-function AdminSettingsPage() {
+function AdminToolsPage() {
   return (
     <section className="wrapper py-12">
       <ComingSoon />
@@ -8,4 +8,4 @@ function AdminSettingsPage() {
   );
 }
 
-export default AdminSettingsPage;
+export default AdminToolsPage;

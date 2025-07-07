@@ -188,4 +188,14 @@ body {
   .h3-bold {
     @apply text-xl font-bold lg:text-2xl;
   }
+
+  .outline-light {
+    @apply focus:ring-primary/50 focus:ring focus:outline-none;
+  }
+  .outline-dark {
+    @apply focus:ring focus:ring-neutral-500 focus:outline-none;
+  }
+}
+
+@layer components {
 }
