@@ -49,7 +49,7 @@ function SignInForm() {
         <Input
           id="email"
           type="email"
-          className="my-4 rounded-full"
+          className="outline-light dark:outline-dark my-4 rounded-full"
           placeholder="ایمیل خود را وارد کنید"
           {...register("email")}
         />
@@ -63,7 +63,7 @@ function SignInForm() {
         <Input
           id="password"
           type={showPassword ? "text" : "password"}
-          className="my-4 rounded-full"
+          className="outline-light dark:outline-dark my-4 rounded-full"
           placeholder="رمز عبور خود را وارد کنید"
           {...register("password")}
         />

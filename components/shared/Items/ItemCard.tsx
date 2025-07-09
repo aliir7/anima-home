@@ -45,7 +45,7 @@ function ItemCard({
         </p>
       </CardContent>
       <CardFooter className="px-4 pt-0 pb-4">
-        <Button asChild className="w-full rounded-full" variant="outline">
+        <Button asChild className="w-full rounded-full" variant="default">
           <Link href={href}>{buttonText}</Link>
         </Button>
       </CardFooter>

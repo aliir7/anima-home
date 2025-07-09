@@ -1,9 +1,11 @@
-import { createInsertSchema } from "drizzle-zod";
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { projects } from "@/db/schema/projects";
 import { z } from "zod";
 
-// Full schema for insert
+// Full schema for select
+export const selectProjectSchema = createSelectSchema(projects);
 
+// Full schema for insert
 export const insertProjectSchema = createInsertSchema(projects, {
   title: z.string().min(3, "عنوان باید حداقل ۳ حرف باشد."),
   description: z.string().min(10, "توضیحات کافی نیست.").optional(),
@@ -13,8 +15,10 @@ export const insertProjectSchema = createInsertSchema(projects, {
   videos: z
     .array(z.string().url({ message: "لینک ویدیو معتبر نیست" }))
     .optional(),
+  categoryId: z.string().uuid({ message: "دسته‌بندی معتبر نیست." }),
 });
-// Partial schema for update
+
+// for update
 export const updateProjectSchema = insertProjectSchema.partial().extend({
   id: insertProjectSchema.shape.id,
 });

@@ -73,8 +73,10 @@ export const services = [
 // admin routes
 export const adminRoutes = [
   { label: "داشبورد", href: "/admin", icon: LayoutDashboard },
+  { label: "پروژه‌ها", href: "/admin/projects", icon: FolderKanban },
+  { label: "متریال", href: "/admin/materials", icon: BookImage },
+  { label: "یراق آلات", href: "/admin/tools", icon: Drill },
   { label: "محصولات", href: "/admin/products", icon: Boxes },
   { label: "دسته‌بندی‌ها", href: "/admin/categories", icon: Layers3 },
-  { label: "پروژه‌ها", href: "/admin/projects", icon: FolderKanban },
   { label: "تنظیمات", href: "/admin/settings", icon: Settings },
 ];

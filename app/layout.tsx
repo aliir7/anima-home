@@ -12,7 +12,7 @@ const vazir = Vazir({
 
 export const metadata: Metadata = {
   title: {
-    template: `%s  - انیماهوم`,
+    template: `آنیما هوم - %s`,
     default: APP_NAME,
   },
   description: `${APP_DESCRIPTION}`,

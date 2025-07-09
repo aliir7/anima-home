@@ -23,7 +23,7 @@ function ServiceItem({
       <div>
         <div className="mb-4 flex justify-center">
           <div className="bg-primary/10 text-primary group-hover:bg-primary group-active:bg-primary rounded-full p-3 transition group-hover:text-white group-active:text-white">
-            <Icon className="h-6 w-6 dark:text-neutral-900" />
+            <Icon className="h-6 w-6 dark:text-neutral-50 dark:hover:text-neutral-950 dark:active:text-neutral-950" />
           </div>
         </div>
         <h3 className="mt-4 mb-2 text-lg font-bold dark:text-neutral-200">

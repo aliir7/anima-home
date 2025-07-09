@@ -46,7 +46,7 @@ export default function SignUpForm() {
         <Input
           id="name"
           {...register("name")}
-          className="mt-4 rounded-full"
+          className="outline-light dark:outline-dark mt-4 rounded-full"
           placeholder="نام و نام خانوادگی"
         />
         {errors.name && (
@@ -60,7 +60,7 @@ export default function SignUpForm() {
           id="email"
           type="email"
           {...register("email")}
-          className="mt-4 rounded-full"
+          className="outline-light dark:outline-dark mt-4 rounded-full"
           placeholder="name@example.com"
         />
         {errors.email && (
@@ -76,7 +76,7 @@ export default function SignUpForm() {
           id="password"
           type="password"
           {...register("password")}
-          className="mt-4 rounded-full"
+          className="outline-light dark:outline-dark mt-4 rounded-full"
           placeholder="رمزعبور حداقل باید 6 کاراکتر داشته باشد"
         />
         {errors.password && (
@@ -92,7 +92,7 @@ export default function SignUpForm() {
           id="confirmPassword"
           type="password"
           {...register("confirmPassword")}
-          className="mt-4 rounded-full"
+          className="outline-light dark:outline-dark mt-4 rounded-full"
           placeholder="رمزعبور حداقل باید 6 کاراکتر داشته باشد"
         />
         {errors.confirmPassword && (

@@ -25,9 +25,9 @@ function ServicesSection() {
         <Button
           asChild
           variant="default"
-          className="bg-primary hover:bg-hoverBtn mt-12 rounded-full px-6 py-4 text-sm font-semibold text-white transition md:px-8 md:py-6 dark:bg-neutral-950 dark:hover:bg-neutral-800"
+          className="bg-primary hover:bg-hoverBtn mt-12 rounded-full px-6 py-4 text-sm font-semibold text-white transition md:px-8 md:py-6 dark:bg-neutral-200 dark:text-neutral-950 dark:hover:bg-neutral-400"
         >
-          <Link href="https://telegram.me/@AnimaHomeDecor" target="_blank">
+          <Link href="https://telegram.me/AnimaHomeDecor" target="_blank">
             دریافت مشاوره
           </Link>
         </Button>

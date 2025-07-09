@@ -34,3 +34,7 @@ export const userSchema = createInsertSchema(users).pick({
   image: true,
   role: true,
 });
+
+export const forgotPasswordSchema = z.object({
+  email: z.string().email("ایمیل معتبر وارد کنید"),
+});

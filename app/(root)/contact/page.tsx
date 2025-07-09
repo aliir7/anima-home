@@ -25,11 +25,13 @@ function ContactPage() {
           <div className="text-muted-foreground space-y-4 text-sm">
             <div className="flex items-center gap-2 dark:text-neutral-700">
               <Mail className="text-primary h-5 w-5 dark:text-neutral-400" />
-              info@example.com
+              anima.homedecor@gmail.com
             </div>
             <div className="flex items-center gap-2 dark:text-neutral-700">
               <Phone className="text-primary h-5 w-5 dark:text-neutral-400" />
-              ۰۲۱-۱۲۳۴۵۶۷۸
+              09128184930
+              <br />
+              09129277302
             </div>
             <div className="flex items-center gap-2 dark:text-neutral-700">
               <MapPin className="text-primary h-5 w-5 dark:text-neutral-400" />
@@ -43,25 +45,25 @@ function ContactPage() {
           <div className="grid gap-4 md:grid-cols-2 dark:text-neutral-400">
             <Input
               placeholder="نام شما"
-              className="rounded-full text-right dark:border-neutral-600"
+              className="outline-light dark:outline-dark rounded-full text-right dark:border-neutral-600"
             />
             <Input
               type="email"
               placeholder="ایمیل شما"
-              className="rounded-full text-right dark:border-neutral-600"
+              className="outline-light dark:outline-dark rounded-full text-right dark:border-neutral-600"
             />
           </div>
           <Input
             placeholder="موضوع پیام"
-            className="rounded-full text-right dark:border-neutral-600"
+            className="outline-light dark:outline-dark rounded-full text-right dark:border-neutral-600"
           />
           <Textarea
             placeholder="متن پیام..."
-            className="min-h-[120px] text-right dark:border-neutral-600"
+            className="outline-light dark:outline-dark min-h-[120px] text-right dark:border-neutral-600"
           />
           <Button
             type="submit"
-            className="mt-2 w-full cursor-pointer rounded-full px-4 py-2 hover:text-neutral-200 sm:mt-4 md:w-auto dark:hover:text-neutral-700"
+            className="outline-light dark:outline-dark mt-2 w-full cursor-pointer rounded-full px-4 py-2 hover:text-neutral-200 active:text-neutral-200 sm:mt-4 md:w-auto dark:hover:text-neutral-700 dark:active:text-neutral-700"
           >
             ارسال پیام
           </Button>
