@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: "پنل مدیریت / پروژه‌ها",
 };
 
-function ProjectsPage() {
+function AdminProjectsPage() {
   return (
     <div>
       <div>
@@ -16,4 +16,4 @@ function ProjectsPage() {
   );
 }
 
-export default ProjectsPage;
+export default AdminProjectsPage;
