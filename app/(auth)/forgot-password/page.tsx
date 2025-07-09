@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import ForgotPasswordForm from "./ForgotPasswordForm";
+// import ForgotPasswordForm from "./ForgotPasswordForm";
 
 export const metadata: Metadata = { title: "فراموشی رمز عبور" };
 
@@ -21,9 +21,7 @@ async function ForgotPasswordPage() {
             بازیابی رمز عبور
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <ForgotPasswordForm />
-        </CardContent>
+        <CardContent>{/* <ForgotPasswordForm /> */}</CardContent>
       </Card>
     </div>
   );
