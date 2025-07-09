@@ -10,6 +10,9 @@ import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 
 export const authConfig = {
+  // for deploy with liara
+  trustHost: true,
+
   adapter: DrizzleAdapter(db, {
     usersTable: users,
     accountsTable: accounts,

@@ -147,3 +147,19 @@ export async function signinWithCredentials(
 export async function userSignOut() {
   await signOut();
 }
+
+// forgot password
+
+export async function sendResetPasswordEmailAction(
+  email: string,
+): Promise<ActionResult<null>> {
+  const user = await getUserByEmail(email);
+  if (!user) {
+    return {
+      success: false,
+      error: { type: "custom", message: "کاربری با این ایمیل یافت نشد" },
+    };
+  }
+  await sendResetPasswordEmail(user.email, user.id);
+  return { success: true, data: null };
+}
