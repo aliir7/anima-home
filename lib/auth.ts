@@ -12,6 +12,7 @@ import bcrypt from "bcryptjs";
 export const authConfig = {
   // for deploy with liara
   trustHost: true,
+  secret: process.env.NEXTAUTH_SECRET,
 
   adapter: DrizzleAdapter(db, {
     usersTable: users,
