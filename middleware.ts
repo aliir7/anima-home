@@ -1,7 +1,7 @@
 import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { authRoutes, publicRoutes } from "./lib/routes";
+import { authRoutes, publicRoutes ,adminRoutes} from "./lib/routes";
 
 export async function middleware(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
@@ -11,7 +11,7 @@ export async function middleware(req: NextRequest) {
 
   const isPublic = publicRoutes.includes(nextUrl.pathname);
   const isAuthRoute = authRoutes.includes(nextUrl.pathname);
-  const isAdminRoute = nextUrl.pathname.startsWith("/admin");
+  const isAdminRoute = adminRoutes.includes(nextUrl.pathname);
 
   if (isPublic || isAdmin) {
     return NextResponse.next();
