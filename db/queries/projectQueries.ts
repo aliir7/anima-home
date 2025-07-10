@@ -22,7 +22,7 @@ export async function getAllProjects(): Promise<
 
 export async function getProjectById(
   id: string,
-): Promise<QueryResult<ProjectWithCategory[] | null>> {
+): Promise<QueryResult<ProjectWithCategory[]>> {
   try {
     const data = await db.select().from(projects).where(eq(projects.id, id));
 
