@@ -52,6 +52,7 @@ export type Project = z.infer<typeof selectProjectSchema>;
 export type ProjectWithCategory = Project & {
   category?: Category;
 };
+export type ProjectFormValues = Omit<InsertProjectValues, "slug" | "createdAt">;
 
 // product types
 export type ProductSchema = z.infer<typeof productSchema>;

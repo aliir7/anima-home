@@ -20,6 +20,7 @@ import { Pencil, Trash2, MoreVertical, Plus } from "lucide-react";
 import DeleteProjectModal from "./DeleteProjectModal";
 import ProjectFormModal from "./ProjectFormModal";
 import { Category, ProjectWithCategory } from "@/types";
+import { normalizeProjectForForm } from "@/lib/utils/normalize";
 
 type ProjectTableClientProps = {
   categories: Category[];
@@ -114,7 +115,9 @@ function ProjectTableClient({ categories, projects }: ProjectTableClientProps) {
       <ProjectFormModal
         type="edit"
         isOpen={!!editProject}
-        initialData={editProject ?? undefined}
+        initialData={
+          editProject ? normalizeProjectForForm(editProject) : undefined
+        }
         onClose={() => setEditProject(null)}
         categories={categories}
       />

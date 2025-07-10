@@ -1,6 +1,6 @@
 "use client";
 
-import { CategoryWithParent, InsertProjectValues } from "@/types";
+import { Category, ProjectFormValues } from "@/types";
 import {
   Dialog,
   DialogTitle,
@@ -13,8 +13,8 @@ type ProjectFormModalProps = {
   isOpen: boolean;
   onClose: () => void;
   type: "create" | "edit";
-  initialData?: InsertProjectValues;
-  categories: CategoryWithParent[];
+  initialData?: ProjectFormValues;
+  categories: Category[];
 };
 
 function ProjectFormModal({
