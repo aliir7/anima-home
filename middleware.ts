@@ -7,9 +7,19 @@ export async function middleware(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   const { nextUrl } = req;
   const isLoggedIn = !!token;
+  const isAdmin = token?.role === "admin";
 
   const isPublic = publicRoutes.includes(nextUrl.pathname);
   const isAuthRoute = authRoutes.includes(nextUrl.pathname);
+  const isAdminRoute = nextUrl.pathname.startsWith("/admin");
+
+  if (isPublic || isAdmin) {
+    return NextResponse.next();
+  }
+
+  if (isAdminRoute && !isAdmin) {
+    return NextResponse.redirect(new URL("/", nextUrl));
+  }
 
   if (isAuthRoute && isLoggedIn) {
     return NextResponse.next();

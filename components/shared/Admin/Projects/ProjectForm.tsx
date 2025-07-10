@@ -10,14 +10,14 @@ import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertProjectSchema } from "@/lib/validations/projectsValidations";
-import { InsertProjectValues } from "@/types";
+import { Category, InsertProjectValues, ProjectFormValues } from "@/types";
 
 type ProjectFormProps = {
   onClose: () => void;
   type: "create" | "edit";
-  initialData?: InsertProjectValues;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  categories: any[];
+  initialData?: ProjectFormValues;
+
+  categories: Category[];
 };
 
 function ProjectForm({

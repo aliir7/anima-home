@@ -1,34 +1,36 @@
 "use client";
 
+import { deleteCategoryAction } from "@/lib/actions/category.actions";
+import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
 import { useTransition } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { deleteProject } from "@/lib/actions/project.actions";
 
-import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
-
-type DeleteProjectModalProps = {
-  projectId: string | null;
+type DeleteCategoryModalProps = {
+  categoryId: string | null;
   onClose: () => void;
 };
 
-export default function DeleteProjectModal({
-  projectId,
+function DeleteCategoryModal({
+  categoryId,
   onClose,
-}: DeleteProjectModalProps) {
+}: DeleteCategoryModalProps) {
   const [isPending, startTransition] = useTransition();
 
+  // delete handler
   const handleDelete = () => {
-    if (!projectId) return;
-    startTransition(async () => {
-      const result = await deleteProject(projectId);
+    if (!categoryId) {
+      return;
+    }
 
+    startTransition(async () => {
+      const result = await deleteCategoryAction(categoryId);
       if (result.success) {
         showSuccessToast(result.data, "bottom-right");
         onClose();
@@ -36,15 +38,14 @@ export default function DeleteProjectModal({
         showErrorToast(
           result.error.type === "custom"
             ? result.error.message
-            : "خطا در بروزرسانی پروژه",
+            : "خطا در حذف دسته بندی",
           "bottom-right",
         );
       }
     });
   };
-
   return (
-    <Dialog open={!!projectId} onOpenChange={onClose}>
+    <Dialog open={!!categoryId} onOpenChange={onClose}>
       <DialogContent className="max-w-sm dark:text-white">
         <DialogHeader>
           <DialogTitle className="mr-4 text-right">
@@ -62,13 +63,14 @@ export default function DeleteProjectModal({
           <Button
             variant="destructive"
             onClick={handleDelete}
-            disabled={isPending}
             className="dark:hover:bg-destructive/50 cursor-pointer transition-all duration-300"
+            disabled={isPending}
           >
-            {isPending ? "در حال حذف پروژه..." : "حذف"}
+            {isPending ? "در حال حذف..." : "حذف"}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
+export default DeleteCategoryModal;

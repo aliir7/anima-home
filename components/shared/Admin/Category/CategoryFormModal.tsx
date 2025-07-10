@@ -1,47 +1,44 @@
-"use client";
-
-import { Category, ProjectFormValues } from "@/types";
 import {
   Dialog,
-  DialogTitle,
-  DialogContent,
   DialogHeader,
+  DialogContent,
+  DialogTitle,
 } from "@/components/ui/dialog";
-import ProjectForm from "./ProjectForm";
+import CategoryForm from "./CategoryForm";
+import { Category, CategoryWithParent } from "@/types";
 
-type ProjectFormModalProps = {
+type CategoryFormModalProps = {
   isOpen: boolean;
   onClose: () => void;
   type: "create" | "edit";
-  initialData?: ProjectFormValues;
-  categories: Category[];
+  initialData?: Category;
+  categories: CategoryWithParent[];
 };
 
-function ProjectFormModal({
+function CategoryFormModal({
   isOpen,
   onClose,
   type,
   initialData,
   categories,
-}: ProjectFormModalProps) {
+}: CategoryFormModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle className="mt-4 mb-2 text-right">
-            {type === "create" ? "ایجاد پروژه جدید" : "ویرایش پروژه"}
+            {type === "create" ? "ایجاد دسته‌بندی جدید" : "ویرایش دسته‌بندی"}
           </DialogTitle>
         </DialogHeader>
-
-        <ProjectForm
+        <CategoryForm
           onClose={onClose}
           initialData={initialData}
-          categories={categories}
           type={type}
+          categories={categories.filter((c) => c.id !== initialData?.id)}
         />
       </DialogContent>
     </Dialog>
   );
 }
 
-export default ProjectFormModal;
+export default CategoryFormModal;

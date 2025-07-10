@@ -19,18 +19,17 @@ import {
 import { Pencil, Trash2, MoreVertical, Plus } from "lucide-react";
 import DeleteProjectModal from "./DeleteProjectModal";
 import ProjectFormModal from "./ProjectFormModal";
-import { InsertProjectValues } from "@/types";
+import { Category, ProjectWithCategory } from "@/types";
+import { normalizeProjectForForm } from "@/lib/utils/normalize";
 
 type ProjectTableClientProps = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  categories: any[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  projects: any[];
+  categories: Category[];
+  projects: ProjectWithCategory[];
 };
 
 function ProjectTableClient({ categories, projects }: ProjectTableClientProps) {
   const [showCreateProject, setShowCreateProject] = useState(false);
-  const [editProject, setEditProject] = useState<InsertProjectValues | null>(
+  const [editProject, setEditProject] = useState<ProjectWithCategory | null>(
     null,
   );
   const [deleteProjectId, setDeleteProjectId] = useState<string | null>(null);
@@ -67,7 +66,7 @@ function ProjectTableClient({ categories, projects }: ProjectTableClientProps) {
                     {project.category?.name ?? "نامشخص"}
                   </TableCell>
                   <TableCell className="text-right">
-                    {new Date(project.createdAt).toLocaleDateString("fa-IR")}
+                    {new Date(project.createdAt!).toLocaleDateString("fa-IR")}
                   </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
@@ -116,7 +115,9 @@ function ProjectTableClient({ categories, projects }: ProjectTableClientProps) {
       <ProjectFormModal
         type="edit"
         isOpen={!!editProject}
-        initialData={editProject!}
+        initialData={
+          editProject ? normalizeProjectForForm(editProject) : undefined
+        }
         onClose={() => setEditProject(null)}
         categories={categories}
       />

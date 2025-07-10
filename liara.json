@@ -4,5 +4,5 @@
   "build": {
     "location": "iran"
   },
-  "disks": []
+  "disks": [{ "name": "anima-media", "mountTo": "uploads/media" }]
 }

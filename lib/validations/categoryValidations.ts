@@ -2,15 +2,21 @@ import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { categories } from "@/db/schema/categories";
 
-// 👇 اسکیمای insert برای استفاده در فرم و سرور
+//for insert
 export const insertCategorySchema = createInsertSchema(categories, {
-  name: z.string().min(2, "نام دسته‌بندی حداقل باید ۲ حرف باشد"),
-  slug: z
-    .string()
-    .min(2, "اسلاگ باید حداقل ۲ کاراکتر باشد")
-    .regex(/^[a-z0-9-]+$/, "فقط حروف کوچک، عدد و خط فاصله مجاز است"),
+  name: z.string().min(3, "نام دسته‌بندی حداقل باید 3 حرف باشد"),
   parentId: z.string().uuid().optional().nullable(), // برای دسته‌های اصلی null هست
 });
 
-// 👇 اسکیمای select (مثلاً برای نمایش یا ویرایش)
+// for select
 export const selectCategorySchema = createSelectSchema(categories);
+
+// for add parent
+export const categoryWithParentSchema = selectCategorySchema.extend({
+  parent: selectCategorySchema.optional().nullable(), // یا فقط name اگر فقط همینه
+});
+
+// for update
+export const updateCategorySchema = insertCategorySchema.extend({
+  id: z.string().uuid({ message: "شناسه نامعتبر است." }),
+});
