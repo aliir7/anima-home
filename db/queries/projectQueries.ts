@@ -1,30 +1,37 @@
-import { eq } from "drizzle-orm";
+import { ProjectWithCategory, QueryResult } from "@/types";
 import { db } from "..";
 import { projects } from "../schema";
-import { QueryResult } from "@/types";
-import { console } from "inspector";
-
-export async function getProjectById(
-  id: string,
-): Promise<QueryResult<(typeof projects.$inferSelect)[]>> {
-  try {
-    const data = await db.select().from(projects).where(eq(projects.id, id));
-
-    return { success: true, data: data };
-  } catch (error) {
-    console.log("Error in ProjectById:", error);
-    return { success: false, error: "خطا در گرفتن پروژه با آیدی" };
-  }
-}
+import { normalizeProject } from "@/lib/utils/normalize";
+import { eq } from "drizzle-orm";
 
 export async function getAllProjects(): Promise<
-  QueryResult<(typeof projects.$inferSelect)[]>
+  QueryResult<ProjectWithCategory[]>
 > {
   try {
     const data = await db.select().from(projects).orderBy(projects.createdAt);
-    return { success: true, data: data };
+    const normalized = (data as Partial<ProjectWithCategory>[]).map(
+      normalizeProject,
+    );
+
+    return { success: true, data: normalized };
   } catch (error) {
     console.log(error);
-    return { success: false, error: "خطا در گرفتن لیست پروژه ها" };
+    return { success: false, error: "خطا در گرفتن لیست پروژه‌ها" };
+  }
+}
+
+export async function getProjectById(
+  id: string,
+): Promise<QueryResult<ProjectWithCategory[] | null>> {
+  try {
+    const data = await db.select().from(projects).where(eq(projects.id, id));
+
+    const normalized = (data as Partial<ProjectWithCategory>[]).map(
+      normalizeProject,
+    );
+    return { success: true, data: normalized };
+  } catch (error) {
+    console.log("Error in ProjectById:", error);
+    return { success: false, error: "خطا در گرفتن پروژه با آیدی" };
   }
 }
