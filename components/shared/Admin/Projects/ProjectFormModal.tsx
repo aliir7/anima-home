@@ -1,6 +1,6 @@
 "use client";
 
-import { InsertProjectValues } from "@/types";
+import { CategoryWithParent, InsertProjectValues } from "@/types";
 import {
   Dialog,
   DialogTitle,
@@ -14,8 +14,7 @@ type ProjectFormModalProps = {
   onClose: () => void;
   type: "create" | "edit";
   initialData?: InsertProjectValues;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  categories: any[];
+  categories: CategoryWithParent[];
 };
 
 function ProjectFormModal({

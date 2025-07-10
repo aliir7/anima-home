@@ -154,3 +154,46 @@ export async function updateCategoryAction(
     };
   }
 }
+
+// Action for delete category
+export async function deleteCategoryAction(
+  id: string,
+): Promise<ActionResult<string>> {
+  try {
+    // check for category exist or not
+    const [existing] = await db
+      .select()
+      .from(categories)
+      .where(eq(categories.id, id));
+
+    if (!existing) {
+      return {
+        success: false,
+        error: {
+          type: "custom",
+          message: "دسته‌بندی مورد نظر یافت نشد.",
+        },
+      };
+    }
+
+    // deleting category from database
+    await db.delete(categories).where(eq(categories.id, id));
+
+    // update page with fresh data
+    revalidatePath("/admin/categories");
+
+    return {
+      success: true,
+      data: "دسته بندی با موفقیت حذف شد",
+    };
+  } catch (error) {
+    console.error("Delete category error:", error);
+    return {
+      success: false,
+      error: {
+        type: "custom",
+        message: "خطایی در حذف دسته‌بندی رخ داد.",
+      },
+    };
+  }
+}

@@ -21,6 +21,7 @@ import {
 
 import { Plus, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import CategoryFormModal from "./CategoryFormModal";
+import DeleteCategoryModal from "./DeleteCategoryModal";
 
 type CategoryTableClientProps = {
   categories: CategoryWithParent[];
@@ -31,6 +32,7 @@ function CategoryTableClient({ categories }: CategoryTableClientProps) {
   const [editCategory, setEditCategory] = useState<CategoryWithParent | null>(
     null,
   );
+  const [deleteCategoryId, setDeleteCategoryId] = useState<string | null>(null);
 
   return (
     <>
@@ -109,6 +111,11 @@ function CategoryTableClient({ categories }: CategoryTableClientProps) {
         onClose={() => setEditCategory(null)}
         initialData={editCategory ?? undefined}
         categories={categories}
+      />
+      {/* Delete Modal */}
+      <DeleteCategoryModal
+        onClose={() => setDeleteCategoryId(null)}
+        categoryId={deleteCategoryId}
       />
     </>
   );

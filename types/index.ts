@@ -49,6 +49,9 @@ export type UpdateCategoryValues = z.infer<typeof updateCategorySchema>;
 export type InsertProjectValues = z.infer<typeof insertProjectSchema>;
 export type UpdateProjectValues = z.infer<typeof updateProjectSchema>;
 export type Project = z.infer<typeof selectProjectSchema>;
+export type ProjectWithCategory = Project & {
+  category?: Category;
+};
 
 // product types
 export type ProductSchema = z.infer<typeof productSchema>;

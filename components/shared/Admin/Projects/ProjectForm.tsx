@@ -16,8 +16,8 @@ type ProjectFormProps = {
   onClose: () => void;
   type: "create" | "edit";
   initialData?: InsertProjectValues;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  categories: any[];
+
+  categories: { id: string; name: string }[];
 };
 
 function ProjectForm({
