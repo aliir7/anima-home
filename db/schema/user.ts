@@ -6,11 +6,6 @@ import {
   json,
   varchar,
 } from "drizzle-orm/pg-core";
-import { accounts } from "./account";
-import { sessions } from "./sessions";
-import { authenticators } from "./authenticator";
-import { relations } from "drizzle-orm/relations";
-import { carts } from "./cart";
 
 export const users = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -26,14 +21,4 @@ export const users = pgTable("users", {
   paymentMethod: varchar("paymentMethod", { length: 128 }),
   createdAt: timestamp("createdAt", { mode: "date" }).defaultNow(),
   updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow(),
-});
-
-// relations
-export const userRelations = relations(users, ({ one }) => {
-  return {
-    account: one(accounts),
-    session: one(sessions),
-    authenticator: one(authenticators),
-    cart: one(carts),
-  };
 });

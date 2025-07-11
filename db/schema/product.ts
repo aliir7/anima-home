@@ -9,8 +9,6 @@ import {
 } from "drizzle-orm/pg-core";
 
 import { createInsertSchema } from "drizzle-zod";
-import { carts } from "./cart";
-import { relations } from "drizzle-orm/relations";
 
 export const products = pgTable("products", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -28,9 +26,5 @@ export const products = pgTable("products", {
   banner: text("banner"),
   createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
 });
-
-export const productRelations = relations(products, ({ many }) => ({
-  carts: many(carts),
-}));
 
 export const productSchema = createInsertSchema(products);

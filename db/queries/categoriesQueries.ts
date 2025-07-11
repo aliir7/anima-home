@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db } from "..";
-import { categories } from "../schema";
+import { categories } from "../schema/index";
 import { CategoryWithParent, QueryResult } from "@/types";
 
 export async function getCategoryBySlug(

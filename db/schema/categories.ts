@@ -1,7 +1,4 @@
 import { pgTable, text, uuid, timestamp } from "drizzle-orm/pg-core";
-import { projects } from "./projects";
-import { products } from "./product";
-import { relations } from "drizzle-orm";
 
 export const categories = pgTable("categories", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -12,16 +9,3 @@ export const categories = pgTable("categories", {
   parentId: uuid("parent_id"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
-
-export const categoriesRelations = relations(categories, ({ many, one }) => ({
-  projects: many(projects),
-  products: many(products),
-  parent: one(categories, {
-    fields: [categories.parentId],
-    references: [categories.id],
-    relationName: "parent",
-  }),
-  children: many(categories, {
-    relationName: "parent",
-  }),
-}));

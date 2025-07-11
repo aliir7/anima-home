@@ -7,3 +7,4 @@ export { users } from "./user";
 export { verificationTokens } from "./verificationToken";
 export { projects } from "./projects";
 export { categories } from "./categories";
+export * from "./relations";

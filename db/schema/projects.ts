@@ -1,6 +1,5 @@
 import { pgTable, text, uuid, timestamp, jsonb } from "drizzle-orm/pg-core";
 import { categories } from "./categories";
-import { relations } from "drizzle-orm";
 
 export const projects = pgTable("projects", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -14,10 +13,3 @@ export const projects = pgTable("projects", {
     .references(() => categories.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
-
-export const projectsRelations = relations(projects, ({ one }) => ({
-  category: one(categories, {
-    fields: [projects.categoryId],
-    references: [categories.id],
-  }),
-}));

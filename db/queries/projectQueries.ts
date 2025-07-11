@@ -1,6 +1,6 @@
 import { ProjectWithCategory, QueryResult } from "@/types";
 import { db } from "..";
-import { projects } from "../schema";
+import { projects } from "../schema/projects";
 import { normalizeProject } from "@/lib/utils/normalize";
 import { eq } from "drizzle-orm";
 

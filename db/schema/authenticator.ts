@@ -31,10 +31,3 @@ export const authenticators = pgTable(
     },
   ],
 );
-
-export const authenticatorRelations = relations(authenticators, ({ one }) => ({
-  user: one(users, {
-    fields: [authenticators.userId],
-    references: [users.id],
-  }),
-}));

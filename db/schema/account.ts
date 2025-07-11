@@ -1,7 +1,7 @@
 import { integer, primaryKey, text, pgTable } from "drizzle-orm/pg-core";
 import { users } from "./user";
 import type { AdapterAccountType } from "next-auth/adapters";
-import { relations } from "drizzle-orm/relations";
+
 import { uuid } from "drizzle-orm/pg-core";
 
 export const accounts = pgTable(
@@ -30,10 +30,3 @@ export const accounts = pgTable(
     },
   ],
 );
-
-export const accountRelations = relations(accounts, ({ one }) => ({
-  user: one(users, {
-    fields: [accounts.userId],
-    references: [users.id],
-  }),
-}));
