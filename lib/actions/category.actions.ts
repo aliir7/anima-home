@@ -23,7 +23,7 @@ export async function createCategoryAction(
   data: InsertCategoryValues,
 ): Promise<ActionResult<Category>> {
   try {
-    // validation input data for create
+    // اعتبارسنجی اولیه
     const validated = insertCategorySchema.safeParse(data);
 
     if (!validated.success) {
@@ -39,56 +39,64 @@ export async function createCategoryAction(
     const { name } = validated.data;
     let { parentId } = validated.data;
 
-    // generate slug
     const slug = slugify(name, {
       lower: true,
       strict: true,
       locale: "fa",
     });
 
-    // checking for duplicate name
+    // جلوگیری از ایجاد دسته تکراری
     const [existing] = await db
       .select()
       .from(categories)
-      .where(eq(categories.name, name));
+      .where(eq(categories.slug, slug));
 
     if (existing) {
       return {
         success: false,
         error: {
           type: "custom",
-          message: "دسته‌بندی با این نام از قبل وجود دارد.",
+          message: "دسته‌بندی با این نام قبلاً وجود دارد.",
         },
       };
     }
 
-    // checking for parent for category
+    if (parentId && parentId === name) {
+      return {
+        success: false,
+        error: {
+          type: "custom",
+          message: "نام والد نمی‌تواند با نام دسته‌بندی برابر باشد.",
+        },
+      };
+    }
+
+    // اگر parentId وارد شده اما uuid نبود، یعنی نام وارد شده
     if (parentId && !isValidUUID(parentId)) {
+      const parentSlug = slugify(parentId, {
+        lower: true,
+        strict: true,
+        locale: "fa",
+      });
+
+      // بررسی وجود دسته والد با همین slug
       const [existingParent] = await db
         .select()
         .from(categories)
-        .where(eq(categories.name, parentId));
+        .where(eq(categories.slug, parentSlug));
 
-      //if parent exist id = parentId
       if (existingParent) {
         parentId = existingParent.id;
       } else {
-        // if parent not exist add parent to category
-        const parentSlug = slugify(parentId, {
-          lower: true,
-          strict: true,
-          locale: "fa",
-        });
-
         const [newParent] = await db
           .insert(categories)
           .values({ name: parentId, slug: parentSlug })
           .returning();
-
         parentId = newParent.id;
       }
     }
 
+    // ایجاد دسته‌بندی نهایی
     const [newCategory] = await db
       .insert(categories)
       .values({

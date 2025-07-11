@@ -3,6 +3,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -29,6 +30,9 @@ function CategoryFormModal({
           <DialogTitle className="mt-4 mr-2 mb-2 pt-2 text-right">
             {type === "create" ? "ایجاد دسته‌بندی جدید" : "ویرایش دسته‌بندی"}
           </DialogTitle>
+          <DialogDescription className="text-muted-foreground mt-1 mr-2 text-right text-sm">
+            لطفاً اطلاعات دسته‌بندی را وارد کنید.
+          </DialogDescription>
         </DialogHeader>
 
         <CategoryForm onClose={onClose} type={type} initialData={initialData} />

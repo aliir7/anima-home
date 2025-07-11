@@ -1,11 +1,15 @@
-import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import { createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { categories } from "@/db/schema/categories";
 
 //for insert
-export const insertCategorySchema = createInsertSchema(categories, {
-  name: z.string().min(3, "نام دسته‌بندی حداقل باید 3 حرف باشد"),
-  parentId: z.string().optional().nullable(), // برای دسته‌های اصلی null هست
+export const insertCategorySchema = z.object({
+  name: z.string().min(2, "نام دسته‌بندی باید حداقل ۲ حرف باشد."),
+  parentId: z
+    .string()
+    .min(2, "مقدار والد باید حداقل ۲ حرف باشد.")
+    .optional()
+    .or(z.literal("")), // برای خالی گذاشتن فیلد
 });
 
 // for select

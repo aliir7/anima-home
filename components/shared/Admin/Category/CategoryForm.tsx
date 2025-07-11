@@ -56,11 +56,12 @@ function CategoryForm({ onClose, type, initialData }: CategoryFormProps) {
         );
         reset();
         onClose();
-      } else if (action.error.type === "custom") {
-        showErrorToast(
-          "خطا: " + (action.error.message || "عملیات ناموفق بود"),
-          "bottom-right",
-        );
+      }
+      if (!action.success && action.error.type === "custom") {
+        showErrorToast(action.error.message, "bottom-right");
+      }
+      if (!action.success && action.error.type === "zod") {
+        showErrorToast("خطا در اعتبارسنجی داده‌ها", "bottom-right");
       }
     });
   };

@@ -25,6 +25,7 @@ function DeleteCategoryModal({
 
   // delete handler
   const handleDelete = () => {
+    console.log("click delete");
     if (!categoryId) {
       return;
     }
