@@ -16,6 +16,7 @@ import {
   insertCategorySchema,
   updateCategorySchema,
 } from "../validations/categoryValidations";
+import { isValidUUID } from "../validations/uuidValidation";
 
 // Action for create category
 export async function createCategoryAction(
@@ -35,7 +36,8 @@ export async function createCategoryAction(
       };
     }
 
-    const { name, parentId } = validated.data;
+    const { name } = validated.data;
+    let { parentId } = validated.data;
 
     // generate slug
     const slug = slugify(name, {
@@ -58,6 +60,33 @@ export async function createCategoryAction(
           message: "دسته‌بندی با این نام از قبل وجود دارد.",
         },
       };
+    }
+
+    // checking for parent for category
+    if (parentId && !isValidUUID(parentId)) {
+      const [existingParent] = await db
+        .select()
+        .from(categories)
+        .where(eq(categories.name, parentId));
+
+      //if parent exist id = parentId
+      if (existingParent) {
+        parentId = existingParent.id;
+      } else {
+        // if parent not exist add parent to category
+        const parentSlug = slugify(parentId, {
+          lower: true,
+          strict: true,
+          locale: "fa",
+        });
+
+        const [newParent] = await db
+          .insert(categories)
+          .values({ name: parentId, slug: parentSlug })
+          .returning();
+
+        parentId = newParent.id;
+      }
     }
 
     const [newCategory] = await db

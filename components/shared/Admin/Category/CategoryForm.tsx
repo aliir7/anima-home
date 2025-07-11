@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,15 +18,9 @@ type CategoryFormProps = {
   onClose: () => void;
   type: "create" | "edit";
   initialData?: InsertCategoryValues & { id?: string };
-  categories: { id: string; name: string }[];
 };
 
-function CategoryForm({
-  onClose,
-  type,
-  initialData,
-  categories,
-}: CategoryFormProps) {
+function CategoryForm({ onClose, type, initialData }: CategoryFormProps) {
   const [pending, startTransition] = useTransition();
 
   const {
@@ -71,39 +67,44 @@ function CategoryForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-      <div className="space-y-2">
-        <Label htmlFor="name">نام دسته‌بندی</Label>
+      <div className="mt-2 mr-2 mb-4 space-y-4">
+        <Label htmlFor="name" className="mr-2">
+          نام دسته‌بندی
+        </Label>
         <Input
           id="name"
           {...register("name")}
           disabled={pending || isSubmitting}
+          className="rounded-full"
         />
         {errors.name && (
           <p className="text-destructive mt-1 text-sm">{errors.name.message}</p>
         )}
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="parentId">دسته‌بندی والد (اختیاری)</Label>
-        <select
+      <div className="mt-6 mr-2 mb-4 space-y-4">
+        <Label htmlFor="parentId" className="mr-2 pt-2">
+          درنظر گرفتن سرگروه برای دسته بندی (اختیاری)
+        </Label>
+
+        <Input
           id="parentId"
+          placeholder="مثلاً: کابینت یا جا کفشی"
           {...register("parentId")}
-          className="w-full rounded-md border p-2"
+          className="rounded-full"
           disabled={pending || isSubmitting}
-        >
-          <option value="">بدون والد</option>
-          {categories.map((cat) => (
-            <option key={cat.id} value={cat.id}>
-              {cat.name}
-            </option>
-          ))}
-        </select>
+        />
+        {errors.parentId && (
+          <p className="text-destructive mt-1 mr-2 text-sm">
+            {errors.parentId.message}
+          </p>
+        )}
       </div>
 
       <Button
         type="submit"
         disabled={pending || isSubmitting}
-        className="w-full rounded-full"
+        className="mt-6 mb-4 w-full rounded-full"
       >
         {pending || isSubmitting
           ? "در حال ذخیره..."

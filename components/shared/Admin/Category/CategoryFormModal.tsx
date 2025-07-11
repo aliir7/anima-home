@@ -1,18 +1,19 @@
+"use client";
+
 import {
   Dialog,
-  DialogHeader,
   DialogContent,
+  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import CategoryForm from "./CategoryForm";
-import { Category, CategoryWithParent } from "@/types";
+import { InsertCategoryValues } from "@/types";
 
 type CategoryFormModalProps = {
   isOpen: boolean;
   onClose: () => void;
   type: "create" | "edit";
-  initialData?: Category;
-  categories: CategoryWithParent[];
+  initialData?: InsertCategoryValues;
 };
 
 function CategoryFormModal({
@@ -20,22 +21,17 @@ function CategoryFormModal({
   onClose,
   type,
   initialData,
-  categories,
 }: CategoryFormModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-xl">
         <DialogHeader>
-          <DialogTitle className="mt-4 mb-2 text-right">
+          <DialogTitle className="mt-4 mr-2 mb-2 pt-2 text-right">
             {type === "create" ? "ایجاد دسته‌بندی جدید" : "ویرایش دسته‌بندی"}
           </DialogTitle>
         </DialogHeader>
-        <CategoryForm
-          onClose={onClose}
-          initialData={initialData}
-          type={type}
-          categories={categories.filter((c) => c.id !== initialData?.id)}
-        />
+
+        <CategoryForm onClose={onClose} type={type} initialData={initialData} />
       </DialogContent>
     </Dialog>
   );

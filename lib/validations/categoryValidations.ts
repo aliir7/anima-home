@@ -5,7 +5,7 @@ import { categories } from "@/db/schema/categories";
 //for insert
 export const insertCategorySchema = createInsertSchema(categories, {
   name: z.string().min(3, "نام دسته‌بندی حداقل باید 3 حرف باشد"),
-  parentId: z.string().uuid().optional().nullable(), // برای دسته‌های اصلی null هست
+  parentId: z.string().optional().nullable(), // برای دسته‌های اصلی null هست
 });
 
 // for select

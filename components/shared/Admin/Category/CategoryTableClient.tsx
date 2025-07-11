@@ -36,9 +36,12 @@ function CategoryTableClient({ categories }: CategoryTableClientProps) {
 
   return (
     <>
-      <div className="mb-4 flex justify-end">
-        <Button onClick={() => setCreateOpen(true)} className="rounded-full">
-          <Plus className="ml-2 h-4 w-4" /> دسته‌بندی جدید
+      <div className="mb-6 flex justify-start">
+        <Button
+          onClick={() => setCreateOpen(true)}
+          className="rounded-full px-4 py-2"
+        >
+          <Plus className="h-4 w-4" /> دسته‌بندی جدید
         </Button>
       </div>
 
@@ -101,7 +104,6 @@ function CategoryTableClient({ categories }: CategoryTableClientProps) {
         type="create"
         isOpen={createOpen}
         onClose={() => setCreateOpen(false)}
-        categories={categories}
       />
 
       {/* Edit Modal */}
@@ -110,7 +112,6 @@ function CategoryTableClient({ categories }: CategoryTableClientProps) {
         isOpen={!!editCategory}
         onClose={() => setEditCategory(null)}
         initialData={editCategory ?? undefined}
-        categories={categories}
       />
       {/* Delete Modal */}
       <DeleteCategoryModal

@@ -5,14 +5,10 @@ import CategoryTableClient from "./CategoryTableClient";
 
 async function CategoryTable() {
   const result = await getAllCategories();
-  if (!result.success) {
-    return (
-      <p className="text-destructive text-center">خطا در بارگذاری داده ها</p>
-    );
-  }
+
   return (
     <Suspense fallback={<CategoryTableSkeleton rows={5} />}>
-      <CategoryTableClient categories={result.data} />
+      <CategoryTableClient categories={result.success ? result.data : []} />
     </Suspense>
   );
 }
