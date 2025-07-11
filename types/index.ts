@@ -1,4 +1,4 @@
-import { productSchema } from "@/db/schema/product";
+import { productSchema } from "@/db/schema/products";
 import {
   categoryWithParentSchema,
   insertCategorySchema,

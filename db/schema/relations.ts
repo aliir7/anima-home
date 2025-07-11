@@ -1,13 +1,15 @@
-import { relations } from "drizzle-orm/relations";
+// db/schema/relations.ts
+import { relations } from "drizzle-orm";
 import { accounts } from "./account";
-import { users } from "./user";
 import { authenticators } from "./authenticator";
 import { carts } from "./cart";
-import { products } from "./product";
-import { projects } from "./projects";
 import { categories } from "./categories";
+import { products } from "./products";
+import { projects } from "./projects";
 import { sessions } from "./sessions";
+import { users } from "./user";
 
+// accounts
 export const accountRelations = relations(accounts, ({ one }) => ({
   user: one(users, {
     fields: [accounts.userId],
@@ -15,6 +17,7 @@ export const accountRelations = relations(accounts, ({ one }) => ({
   }),
 }));
 
+// authenticators
 export const authenticatorRelations = relations(authenticators, ({ one }) => ({
   user: one(users, {
     fields: [authenticators.userId],
@@ -22,14 +25,15 @@ export const authenticatorRelations = relations(authenticators, ({ one }) => ({
   }),
 }));
 
-export const cartRelations = relations(carts, ({ one, many }) => ({
+// carts
+export const cartRelations = relations(carts, ({ one }) => ({
   user: one(users, {
     fields: [carts.userId],
     references: [users.id],
   }),
-  products: many(products),
 }));
 
+// categories
 export const categoriesRelations = relations(categories, ({ many, one }) => ({
   projects: many(projects),
   products: many(products),
@@ -43,10 +47,15 @@ export const categoriesRelations = relations(categories, ({ many, one }) => ({
   }),
 }));
 
-export const productRelations = relations(products, ({ many }) => ({
-  carts: many(carts),
+// products
+export const productRelations = relations(products, ({ one }) => ({
+  category: one(categories, {
+    fields: [products.categoryId],
+    references: [categories.id],
+  }),
 }));
 
+// projects
 export const projectsRelations = relations(projects, ({ one }) => ({
   category: one(categories, {
     fields: [projects.categoryId],
@@ -54,6 +63,7 @@ export const projectsRelations = relations(projects, ({ one }) => ({
   }),
 }));
 
+// sessions
 export const sessionRelations = relations(sessions, ({ one }) => ({
   user: one(users, {
     fields: [sessions.userId],
@@ -61,11 +71,10 @@ export const sessionRelations = relations(sessions, ({ one }) => ({
   }),
 }));
 
-export const userRelations = relations(users, ({ one }) => {
-  return {
-    account: one(accounts),
-    session: one(sessions),
-    authenticator: one(authenticators),
-    cart: one(carts),
-  };
-});
+// users
+export const userRelations = relations(users, ({ one }) => ({
+  account: one(accounts),
+  session: one(sessions),
+  authenticator: one(authenticators),
+  cart: one(carts),
+}));

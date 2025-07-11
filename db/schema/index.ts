@@ -1,10 +1,10 @@
+export * from "./relations";
 export { accounts } from "./account";
 export { authenticators } from "./authenticator";
 export { carts } from "./cart";
-export { products } from "./product";
+export { products } from "./products";
 export { sessions } from "./sessions";
 export { users } from "./user";
 export { verificationTokens } from "./verificationToken";
 export { projects } from "./projects";
 export { categories } from "./categories";
-export * from "./relations";

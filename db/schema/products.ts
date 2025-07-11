@@ -7,15 +7,18 @@ import {
   timestamp,
   decimal,
 } from "drizzle-orm/pg-core";
-
-import { createInsertSchema } from "drizzle-zod";
+import { categories } from "./categories";
 
 export const products = pgTable("products", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
   slug: text("slug").notNull().unique(),
-  category: text("category").notNull(),
-  images: text("images").array().notNull(), // PostgreSQL array of text
+
+  categoryId: uuid("category_id")
+    .notNull()
+    .references(() => categories.id, { onDelete: "cascade" }), // ✅ درست
+
+  images: text("images").array().notNull(),
   brand: text("brand").notNull(),
   description: text("description").notNull(),
   stock: integer("stock").notNull(),
@@ -26,5 +29,3 @@ export const products = pgTable("products", {
   banner: text("banner"),
   createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
 });
-
-export const productSchema = createInsertSchema(products);
