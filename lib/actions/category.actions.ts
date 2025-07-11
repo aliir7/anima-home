@@ -23,9 +23,7 @@ export async function createCategoryAction(
   data: InsertCategoryValues,
 ): Promise<ActionResult<Category>> {
   try {
-    // اعتبارسنجی اولیه
     const validated = insertCategorySchema.safeParse(data);
-
     if (!validated.success) {
       return {
         success: false,
@@ -45,7 +43,7 @@ export async function createCategoryAction(
       locale: "fa",
     });
 
-    // جلوگیری از ایجاد دسته تکراری
+    // جلوگیری از ایجاد دسته‌بندی تکراری
     const [existing] = await db
       .select()
       .from(categories)
@@ -61,17 +59,18 @@ export async function createCategoryAction(
       };
     }
 
+    // جلوگیری از اینکه دسته‌بندی خودش رو والد خودش انتخاب کنه
     if (parentId && parentId === name) {
       return {
         success: false,
         error: {
           type: "custom",
-          message: "نام والد نمی‌تواند با نام دسته‌بندی برابر باشد.",
+          message: "نام والد نمی‌تواند با نام دسته‌بندی یکی باشد.",
         },
       };
     }
 
-    // اگر parentId وارد شده اما uuid نبود، یعنی نام وارد شده
+    // اگر parentId وجود داره ولی UUID نیست => یعنی نام وارد شده
     if (parentId && !isValidUUID(parentId)) {
       const parentSlug = slugify(parentId, {
         lower: true,
@@ -79,7 +78,7 @@ export async function createCategoryAction(
         locale: "fa",
       });
 
-      // بررسی وجود دسته والد با همین slug
+      // اگه همچین والد قبلاً وجود داره، استفاده کن
       const [existingParent] = await db
         .select()
         .from(categories)
@@ -88,15 +87,17 @@ export async function createCategoryAction(
       if (existingParent) {
         parentId = existingParent.id;
       } else {
+        // اگه والد وجود نداره، ایجادش کن
         const [newParent] = await db
           .insert(categories)
           .values({ name: parentId, slug: parentSlug })
           .returning();
+
         parentId = newParent.id;
       }
     }
 
-    // ایجاد دسته‌بندی نهایی
+    // ایجاد دسته‌بندی اصلی
     const [newCategory] = await db
       .insert(categories)
       .values({
@@ -123,7 +124,6 @@ export async function createCategoryAction(
     };
   }
 }
-
 // Action for update category
 export async function updateCategoryAction(
   data: UpdateCategoryValues,

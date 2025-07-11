@@ -11,7 +11,7 @@ import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
 import { insertCategorySchema } from "@/lib/validations/categoryValidations";
 import { InsertCategoryValues } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useTransition } from "react";
+
 import { useForm } from "react-hook-form";
 
 type CategoryFormProps = {
@@ -21,8 +21,6 @@ type CategoryFormProps = {
 };
 
 function CategoryForm({ onClose, type, initialData }: CategoryFormProps) {
-  const [pending, startTransition] = useTransition();
-
   const {
     register,
     handleSubmit,
@@ -35,35 +33,32 @@ function CategoryForm({ onClose, type, initialData }: CategoryFormProps) {
   });
 
   // submit handler
-  const onSubmit = (values: InsertCategoryValues) => {
-    startTransition(async () => {
-      const action =
-        type === "create"
-          ? await createCategoryAction(values)
-          : initialData?.id
-            ? await updateCategoryAction({ ...values, id: initialData.id })
-            : null;
+  const onSubmit = async (values: InsertCategoryValues) => {
+    const action =
+      type === "create"
+        ? await createCategoryAction(values)
+        : initialData?.id
+          ? await updateCategoryAction({ ...values, id: initialData.id })
+          : null;
 
-      if (!action) {
-        showErrorToast("خطا در ذخیره دسته‌بندی", "bottom-right");
-        return;
-      }
+    if (!action) {
+      showErrorToast("خطا در ذخیره دسته‌بندی", "bottom-right");
+      return;
+    }
 
-      if (action.success) {
-        showSuccessToast(
-          `دسته‌بندی با موفقیت ${type === "create" ? "ایجاد" : "ویرایش"} شد`,
-          "bottom-right",
-        );
-        reset();
-        onClose();
-      }
-      if (!action.success && action.error.type === "custom") {
-        showErrorToast(action.error.message, "bottom-right");
-      }
-      if (!action.success && action.error.type === "zod") {
-        showErrorToast("خطا در اعتبارسنجی داده‌ها", "bottom-right");
-      }
-    });
+    if (action.success) {
+      showSuccessToast(
+        `دسته‌بندی با موفقیت ${type === "create" ? "ایجاد" : "ویرایش"} شد`,
+        "bottom-right",
+      );
+      reset();
+      onClose();
+    } else if (action.error.type === "custom") {
+      showErrorToast(
+        "خطا: " + (action.error.message || "عملیات ناموفق بود"),
+        "bottom-right",
+      );
+    }
   };
 
   return (
@@ -75,7 +70,7 @@ function CategoryForm({ onClose, type, initialData }: CategoryFormProps) {
         <Input
           id="name"
           {...register("name")}
-          disabled={pending || isSubmitting}
+          disabled={isSubmitting}
           className="rounded-full"
         />
         {errors.name && (
@@ -93,7 +88,7 @@ function CategoryForm({ onClose, type, initialData }: CategoryFormProps) {
           placeholder="مثلاً: کابینت یا جا کفشی"
           {...register("parentId")}
           className="rounded-full"
-          disabled={pending || isSubmitting}
+          disabled={isSubmitting}
         />
         {errors.parentId && (
           <p className="text-destructive mt-1 mr-2 text-sm">
@@ -104,10 +99,10 @@ function CategoryForm({ onClose, type, initialData }: CategoryFormProps) {
 
       <Button
         type="submit"
-        disabled={pending || isSubmitting}
+        disabled={isSubmitting}
         className="mt-6 mb-4 w-full rounded-full"
       >
-        {pending || isSubmitting
+        {isSubmitting
           ? "در حال ذخیره..."
           : type === "create"
             ? "ایجاد دسته‌بندی"
