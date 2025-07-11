@@ -10,6 +10,7 @@ export const insertCategorySchema = z.object({
     .min(2, "مقدار والد باید حداقل ۲ حرف باشد.")
     .optional()
     .or(z.literal("")), // برای خالی گذاشتن فیلد
+  parentName: z.string().optional(), // اعتبارسنجی نام والد
 });
 
 // for select

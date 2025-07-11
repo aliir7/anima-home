@@ -6,11 +6,13 @@ import { useTransition } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 type DeleteCategoryModalProps = {
   categoryId: string | null;
@@ -22,10 +24,9 @@ function DeleteCategoryModal({
   onClose,
 }: DeleteCategoryModalProps) {
   const [isPending, startTransition] = useTransition();
-
+  const router = useRouter();
   // delete handler
   const handleDelete = () => {
-    console.log("click delete");
     if (!categoryId) {
       return;
     }
@@ -35,6 +36,7 @@ function DeleteCategoryModal({
       if (result.success) {
         showSuccessToast(result.data, "bottom-right");
         onClose();
+        router.refresh();
       } else {
         showErrorToast(
           result.error.type === "custom"
@@ -52,6 +54,7 @@ function DeleteCategoryModal({
           <DialogTitle className="mr-4 text-right">
             آیا از حذف پروژه مطمئن هستید؟
           </DialogTitle>
+          <DialogDescription></DialogDescription>
         </DialogHeader>
         <DialogFooter className="flex justify-end gap-2">
           <Button

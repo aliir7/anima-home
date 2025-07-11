@@ -61,7 +61,7 @@ function CategoryTableClient({ categories }: CategoryTableClientProps) {
                 <TableRow key={cat.id}>
                   <TableCell className="text-right">{cat.name}</TableCell>
                   <TableCell className="text-right">
-                    {cat.parent?.name ?? "-"}
+                    {cat.parent?.name ?? cat.parentName ?? "-"}
                   </TableCell>
                   <TableCell className="text-right">
                     {new Date(cat.createdAt!).toLocaleDateString("fa-IR")}
@@ -80,7 +80,10 @@ function CategoryTableClient({ categories }: CategoryTableClientProps) {
                         >
                           ویرایش <Pencil className="h-4 w-4" />
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="flex justify-end gap-2">
+                        <DropdownMenuItem
+                          onClick={() => setDeleteCategoryId(cat.id)}
+                          className="flex justify-end gap-2"
+                        >
                           حذف <Trash2 className="h-4 w-4" />
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -111,7 +114,15 @@ function CategoryTableClient({ categories }: CategoryTableClientProps) {
         type="edit"
         isOpen={!!editCategory}
         onClose={() => setEditCategory(null)}
-        initialData={editCategory ?? undefined}
+        initialData={
+          editCategory
+            ? {
+                name: editCategory.name,
+                parentId: editCategory.parentId ?? "",
+                parentName: editCategory.parentName ?? "",
+              }
+            : undefined
+        }
       />
       {/* Delete Modal */}
       <DeleteCategoryModal

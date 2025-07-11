@@ -16,7 +16,6 @@ import {
   insertCategorySchema,
   updateCategorySchema,
 } from "../validations/categoryValidations";
-import { isValidUUID } from "../validations/uuidValidation";
 
 // Action for create category
 export async function createCategoryAction(
@@ -43,7 +42,7 @@ export async function createCategoryAction(
       locale: "fa",
     });
 
-    // جلوگیری از ایجاد دسته‌بندی تکراری
+    // Prevent duplicate category creation
     const [existing] = await db
       .select()
       .from(categories)
@@ -59,7 +58,7 @@ export async function createCategoryAction(
       };
     }
 
-    // جلوگیری از اینکه دسته‌بندی خودش رو والد خودش انتخاب کنه
+    // Prevent category from being its own parent
     if (parentId && parentId === name) {
       return {
         success: false,
@@ -70,40 +69,24 @@ export async function createCategoryAction(
       };
     }
 
-    // اگر parentId وجود داره ولی UUID نیست => یعنی نام وارد شده
-    if (parentId && !isValidUUID(parentId)) {
-      const parentSlug = slugify(parentId, {
-        lower: true,
-        strict: true,
-        locale: "fa",
-      });
-
-      // اگه همچین والد قبلاً وجود داره، استفاده کن
-      const [existingParent] = await db
-        .select()
-        .from(categories)
-        .where(eq(categories.slug, parentSlug));
-
-      if (existingParent) {
-        parentId = existingParent.id;
-      } else {
-        // اگه والد وجود نداره، ایجادش کن
-        const [newParent] = await db
-          .insert(categories)
-          .values({ name: parentId, slug: parentSlug })
-          .returning();
-
-        parentId = newParent.id;
-      }
+    // If only parentName is provided, generate a random parentId and save parentName
+    let parentName: string | null = null;
+    if (data.parentName && data.parentName.trim() !== "") {
+      parentName = data.parentName;
+      parentId = crypto.randomUUID();
+    } else {
+      parentId = undefined;
+      parentName = null;
     }
 
-    // ایجاد دسته‌بندی اصلی
+    // Create the main category row
     const [newCategory] = await db
       .insert(categories)
       .values({
         name,
         slug,
         parentId: parentId || null,
+        parentName: parentName,
       })
       .returning();
 

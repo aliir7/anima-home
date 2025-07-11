@@ -28,17 +28,25 @@ function CategoryForm({ onClose, type, initialData }: CategoryFormProps) {
     reset,
   } = useForm<InsertCategoryValues>({
     resolver: zodResolver(insertCategorySchema),
-
-    defaultValues: initialData ?? { name: "", parentId: undefined },
+    defaultValues: initialData ?? {
+      name: "",
+      parentId: undefined,
+      parentName: "",
+    },
   });
 
   // submit handler
   const onSubmit = async (values: InsertCategoryValues) => {
+    // اگر parentName وارد شده بود، مقدار parentId را حذف کن تا فقط parentName ارسال شود
+    const submitValues = { ...values };
+    if (submitValues.parentName && submitValues.parentName.trim() !== "") {
+      submitValues.parentId = undefined;
+    }
     const action =
       type === "create"
-        ? await createCategoryAction(values)
+        ? await createCategoryAction(submitValues)
         : initialData?.id
-          ? await updateCategoryAction({ ...values, id: initialData.id })
+          ? await updateCategoryAction({ ...submitValues, id: initialData.id })
           : null;
 
     if (!action) {
@@ -78,21 +86,22 @@ function CategoryForm({ onClose, type, initialData }: CategoryFormProps) {
         )}
       </div>
 
-      <div className="mt-6 mr-2 mb-4 space-y-4">
-        <Label htmlFor="parentId" className="mr-2 pt-2">
-          درنظر گرفتن سرگروه برای دسته بندی (اختیاری)
-        </Label>
+      {/* حذف فیلد parentId از فرم */}
 
+      <div className="mt-6 mr-2 mb-4 space-y-4">
+        <Label htmlFor="parentName" className="mr-2 pt-2">
+          نام والد (اختیاری، اگر والد جدید است)
+        </Label>
         <Input
-          id="parentId"
+          id="parentName"
           placeholder="مثلاً: کابینت یا جا کفشی"
-          {...register("parentId")}
+          {...register("parentName")}
           className="rounded-full"
           disabled={isSubmitting}
         />
-        {errors.parentId && (
+        {errors.parentName && (
           <p className="text-destructive mt-1 mr-2 text-sm">
-            {errors.parentId.message}
+            {errors.parentName.message}
           </p>
         )}
       </div>
