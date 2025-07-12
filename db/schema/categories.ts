@@ -4,7 +4,7 @@ export const categories = pgTable("categories", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull().unique(),
   slug: text("slug").notNull().unique(),
-  parentId: uuid("parent_id").defaultRandom(),
+  parentId: uuid("parent_id"),
   parentName: text("parent_name"), // فیلد جدید برای نام والد
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });

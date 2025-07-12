@@ -3,14 +3,18 @@ import { z } from "zod";
 import { categories } from "@/db/schema/categories";
 
 //for insert
+
 export const insertCategorySchema = z.object({
   name: z.string().min(2, "نام دسته‌بندی باید حداقل ۲ حرف باشد."),
-  parentId: z
+
+  // فیلد parentName می‌تونه اختیاری باشه ولی اگه وارد شد باید حداقل ۲ حرف باشه
+  parentName: z
     .string()
-    .min(2, "مقدار والد باید حداقل ۲ حرف باشد.")
     .optional()
-    .or(z.literal("")), // برای خالی گذاشتن فیلد
-  parentName: z.string().optional(), // اعتبارسنجی نام والد
+    .refine(
+      (val) => !val || val.trim().length >= 2,
+      "نام والد باید حداقل ۲ حرف باشد.",
+    ),
 });
 
 // for select

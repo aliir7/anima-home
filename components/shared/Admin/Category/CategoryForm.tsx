@@ -11,42 +11,45 @@ import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
 import { insertCategorySchema } from "@/lib/validations/categoryValidations";
 import { InsertCategoryValues } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-
 import { useForm } from "react-hook-form";
+import CategoryCombobox from "./CategoryComboBox"; // این کمبو از لیست والدها یا وارد دستی استفاده میشه
 
 type CategoryFormProps = {
   onClose: () => void;
   type: "create" | "edit";
   initialData?: InsertCategoryValues & { id?: string };
+  existingCategories?: { id: string; name: string }[];
 };
 
-function CategoryForm({ onClose, type, initialData }: CategoryFormProps) {
+function CategoryForm({
+  onClose,
+  type,
+  initialData,
+  existingCategories = [],
+}: CategoryFormProps) {
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
+    setValue,
+    watch,
     reset,
   } = useForm<InsertCategoryValues>({
     resolver: zodResolver(insertCategorySchema),
     defaultValues: initialData ?? {
       name: "",
-      parentId: undefined,
       parentName: "",
     },
   });
 
-  // submit handler
+  const parentName = watch("parentName");
+
   const onSubmit = async (values: InsertCategoryValues) => {
-    // اگر parentName وارد شده بود، مقدار parentId را حذف کن تا فقط parentName ارسال شود
-    const submitValues = { ...values };
-    if (submitValues.parentName && submitValues.parentName.trim() !== "") {
-      submitValues.parentId = undefined;
-    }
     const action =
       type === "create"
-        ? await createCategoryAction(submitValues)
+        ? await createCategoryAction(values)
         : initialData?.id
-          ? await updateCategoryAction({ ...submitValues, id: initialData.id })
+          ? await updateCategoryAction({ ...values, id: initialData.id })
           : null;
 
     if (!action) {
@@ -71,6 +74,7 @@ function CategoryForm({ onClose, type, initialData }: CategoryFormProps) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      {/* نام دسته‌بندی */}
       <div className="mt-2 mr-2 mb-4 space-y-4">
         <Label htmlFor="name" className="mr-2">
           نام دسته‌بندی
@@ -86,18 +90,15 @@ function CategoryForm({ onClose, type, initialData }: CategoryFormProps) {
         )}
       </div>
 
-      {/* حذف فیلد parentId از فرم */}
-
+      {/* کمبوباکس یا input برای والد */}
       <div className="mt-6 mr-2 mb-4 space-y-4">
-        <Label htmlFor="parentName" className="mr-2 pt-2">
-          نام والد (اختیاری، اگر والد جدید است)
+        <Label htmlFor="parentName" className="mr-2">
+          دسته‌بندی والد (اختیاری)
         </Label>
-        <Input
-          id="parentName"
-          placeholder="مثلاً: کابینت یا جا کفشی"
-          {...register("parentName")}
-          className="rounded-full"
-          disabled={isSubmitting}
+        <CategoryCombobox
+          categories={existingCategories}
+          value={parentName || ""}
+          onChange={(val) => setValue("parentName", val)}
         />
         {errors.parentName && (
           <p className="text-destructive mt-1 mr-2 text-sm">
@@ -106,6 +107,7 @@ function CategoryForm({ onClose, type, initialData }: CategoryFormProps) {
         )}
       </div>
 
+      {/* دکمه */}
       <Button
         type="submit"
         disabled={isSubmitting}

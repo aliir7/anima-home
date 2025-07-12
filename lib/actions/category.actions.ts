@@ -2,20 +2,12 @@
 
 import { db } from "@/db";
 import { categories } from "@/db/schema/categories";
-
+import { randomUUID } from "crypto";
 import slugify from "slugify";
-import { eq, and, ne } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import {
-  ActionResult,
-  Category,
-  InsertCategoryValues,
-  UpdateCategoryValues,
-} from "@/types";
-import {
-  insertCategorySchema,
-  updateCategorySchema,
-} from "../validations/categoryValidations";
+import { ActionResult, Category, InsertCategoryValues } from "@/types";
+import { insertCategorySchema } from "../validations/categoryValidations";
 
 // Action for create category
 export async function createCategoryAction(
@@ -33,8 +25,8 @@ export async function createCategoryAction(
       };
     }
 
-    const { name } = validated.data;
-    let { parentId } = validated.data;
+    const { name, parentName } = validated.data;
+    let parentId: string | null = null;
 
     const slug = slugify(name, {
       lower: true,
@@ -42,12 +34,11 @@ export async function createCategoryAction(
       locale: "fa",
     });
 
-    // Prevent duplicate category creation
+    // جلوگیری از تکرار دسته‌بندی با همان slug
     const [existing] = await db
       .select()
       .from(categories)
       .where(eq(categories.slug, slug));
-
     if (existing) {
       return {
         success: false,
@@ -58,35 +49,38 @@ export async function createCategoryAction(
       };
     }
 
-    // Prevent category from being its own parent
-    if (parentId && parentId === name) {
-      return {
-        success: false,
-        error: {
-          type: "custom",
-          message: "نام والد نمی‌تواند با نام دسته‌بندی یکی باشد.",
-        },
-      };
+    // بررسی و ایجاد مقدار والد
+    if (parentName && parentName.trim() !== "") {
+      const parentSlug = slugify(parentName, {
+        lower: true,
+        strict: true,
+        locale: "fa",
+      });
+
+      const [existingParent] = await db
+        .select()
+        .from(categories)
+        .where(eq(categories.slug, parentSlug));
+
+      if (existingParent) {
+        parentId = existingParent.id;
+      } else {
+        parentId = randomUUID(); // ✅ ساخت uuid جدید برای والد
+        await db.insert(categories).values({
+          id: parentId,
+          name: parentName,
+          slug: parentSlug,
+        });
+      }
     }
 
-    // If only parentName is provided, generate a random parentId and save parentName
-    let parentName: string | null = null;
-    if (data.parentName && data.parentName.trim() !== "") {
-      parentName = data.parentName;
-      parentId = crypto.randomUUID();
-    } else {
-      parentId = undefined;
-      parentName = null;
-    }
-
-    // Create the main category row
     const [newCategory] = await db
       .insert(categories)
       .values({
         name,
         slug,
-        parentId: parentId || null,
-        parentName: parentName,
+        parentId,
+        parentName: parentName || null,
       })
       .returning();
 
@@ -107,13 +101,14 @@ export async function createCategoryAction(
     };
   }
 }
+
 // Action for update category
 export async function updateCategoryAction(
-  data: UpdateCategoryValues,
-): Promise<ActionResult<Category>> {
+  data: InsertCategoryValues & { id: string },
+): Promise<ActionResult<string>> {
   try {
-    // validation input data for update
-    const validated = updateCategorySchema.safeParse(data);
+    const validated = insertCategorySchema.safeParse(data);
+
     if (!validated.success) {
       return {
         success: false,
@@ -124,22 +119,21 @@ export async function updateCategoryAction(
       };
     }
 
-    const { id, name, parentId } = validated.data;
+    const { id, name, parentName } = { ...validated.data, id: data.id };
 
-    // generate slug from category name
-    const newSlug = slugify(name, {
+    const slug = slugify(name, {
       lower: true,
       strict: true,
       locale: "fa",
     });
 
-    // checking for duplicate category
-    const [conflict] = await db
+    // بررسی تکراری نبودن نام (به جز خود رکورد فعلی)
+    const [existing] = await db
       .select()
       .from(categories)
-      .where(and(eq(categories.slug, newSlug), ne(categories.id, id)));
+      .where(eq(categories.slug, slug));
 
-    if (conflict) {
+    if (existing && existing.id !== id) {
       return {
         success: false,
         error: {
@@ -149,20 +143,22 @@ export async function updateCategoryAction(
       };
     }
 
-    // update category on database
-    const [updated] = await db
+    await db
       .update(categories)
       .set({
         name,
-        slug: newSlug,
-        parentId: parentId || null,
+        slug,
+        parentName: parentName?.trim() || null,
+        parentId: parentName?.trim() ? crypto.randomUUID() : null,
       })
-      .where(eq(categories.id, id))
-      .returning();
+      .where(eq(categories.id, id));
 
     revalidatePath("/admin/categories");
 
-    return { success: true, data: updated };
+    return {
+      success: true,
+      data: "دسته‌بندی با موفقیت ویرایش شد",
+    };
   } catch (error) {
     console.error("Update category error:", error);
     return {

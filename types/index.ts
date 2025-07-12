@@ -1,4 +1,3 @@
-import { productSchema } from "@/db/schema/products";
 import {
   categoryWithParentSchema,
   insertCategorySchema,
@@ -55,4 +54,3 @@ export type ProjectWithCategory = Project & {
 export type ProjectFormValues = Omit<InsertProjectValues, "slug" | "createdAt">;
 
 // product types
-export type ProductSchema = z.infer<typeof productSchema>;
