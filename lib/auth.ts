@@ -27,8 +27,8 @@ export const authConfig = {
   },
 
   pages: {
-    signIn: "sign-in",
-    error: "sign-in",
+    signIn: "/sign-in",
+    error: "/sign-in",
   },
 
   callbacks: {
