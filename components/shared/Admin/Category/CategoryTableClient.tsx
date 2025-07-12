@@ -118,7 +118,7 @@ function CategoryTableClient({ categories }: CategoryTableClientProps) {
           editCategory
             ? {
                 name: editCategory.name,
-                parentId: editCategory.parentId ?? "",
+
                 parentName: editCategory.parentName ?? "",
               }
             : undefined
