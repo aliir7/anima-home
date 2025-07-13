@@ -7,9 +7,14 @@ export async function middleware(req: NextRequest) {
   const { nextUrl } = req;
   const pathname = nextUrl.pathname;
 
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-  console.log("TOKEN IN PROD:", token?.role);
-  console.log("🔍 JWT token.sub =", token?.sub);
+  const token = await getToken({
+    req,
+    secret: process.env.NEXTAUTH_SECRET,
+    secureCookie: true,
+  });
+
+  console.log("🍪 TOKEN IN PROD:", token?.role);
+  console.log("📍 PATH:", pathname);
 
   const isLoggedIn = !!token;
   const isAdmin = token?.role === "admin";
