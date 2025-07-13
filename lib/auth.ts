@@ -32,18 +32,31 @@ export const authConfig = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        console.log("✅ JWT: user موجود است، role =", user.role);
+        console.log("✅ JWT: user موجود است، نقش =", user.role);
+        token.sub = user.id; // 👈 اضافه شد برای حل مشکل production
         token.role = user.role;
+
+        if (user.name === "NO_NAME") {
+          token.name = user.email?.split("@")[0];
+        }
       } else {
-        // 🔁 وقتی user وجود نداره (مثلاً در رفرش)، از DB بخون
         console.log("🔄 JWT: user نیست، از DB می‌خونیم");
+        console.log("🔍 JWT token.sub =", token.sub);
+
+        if (!token.sub) {
+          console.log("⛔ sub وجود نداره، نمی‌تونیم نقش رو از DB بخونیم");
+          return token;
+        }
+
         const dbUser = await db.query.users.findFirst({
-          where: eq(users.id, token.sub!),
+          where: eq(users.id, token.sub),
         });
 
         if (dbUser) {
           console.log("✅ DB user found:", dbUser.role);
           token.role = dbUser.role;
+        } else {
+          console.log("❌ DB user not found!");
         }
       }
 
