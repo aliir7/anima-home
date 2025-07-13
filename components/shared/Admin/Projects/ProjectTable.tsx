@@ -8,17 +8,11 @@ async function ProjectTable() {
   const categoriesResult = await getAllCategories();
   const projectsResult = await getAllProjects();
 
-  if (!categoriesResult.success || !projectsResult.success) {
-    return (
-      <p className="text-destructive text-center">خطا در بارگذاری داده ها</p>
-    );
-  }
-
   return (
     <Suspense fallback={<ProjectTableSkeleton rows={5} />}>
       <ProjectTableClient
-        categories={categoriesResult.data}
-        projects={projectsResult.data}
+        categories={categoriesResult.success ? categoriesResult.data : []}
+        projects={projectsResult.success ? projectsResult.data : []}
       />
     </Suspense>
   );

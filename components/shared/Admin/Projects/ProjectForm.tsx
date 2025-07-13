@@ -6,7 +6,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
 import { createProject, updateProject } from "@/lib/actions/project.actions";
-import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertProjectSchema } from "@/lib/validations/projectsValidations";
@@ -27,8 +26,6 @@ function ProjectForm({
   initialData,
   categories,
 }: ProjectFormProps) {
-  const [pending, startTransition] = useTransition();
-
   const {
     reset,
     handleSubmit,
@@ -48,45 +45,39 @@ function ProjectForm({
     },
   });
 
-  const onSubmit = (values: InsertProjectValues) => {
-    startTransition(async () => {
-      if (type === "create") {
-        const result = await createProject(values);
+  const onSubmit = async (values: InsertProjectValues) => {
+    if (type === "create") {
+      const result = await createProject(values);
+      if (result.success) {
+        showSuccessToast(
+          `پروژه با موفقیت ${type === "create" ? "ایجاد" : "ویرایش"} شد`,
+          "bottom-right",
+        );
+      } else if (initialData?.id) {
+        const result = await updateProject(initialData.id, values);
         if (result.success) {
           showSuccessToast(
             `پروژه با موفقیت ${type === "create" ? "ایجاد" : "ویرایش"} شد`,
             "bottom-right",
           );
-        } else if (initialData?.id) {
-          const result = await updateProject(initialData.id, values);
-          if (result.success) {
-            showSuccessToast(
-              `پروژه با موفقیت ${type === "create" ? "ایجاد" : "ویرایش"} شد`,
-              "bottom-right",
-            );
-          }
-        } else {
-          showErrorToast("شناسه پروژه برای ویرایش موجود نیست", "bottom-right");
-          return;
         }
-
-        reset();
-        onClose();
       } else {
-        showErrorToast("خطا در ذخیره پروژه", "bottom-right");
+        showErrorToast("شناسه پروژه برای ویرایش موجود نیست", "bottom-right");
+        return;
       }
-    });
+
+      reset();
+      onClose();
+    } else {
+      showErrorToast("خطا در ذخیره پروژه", "bottom-right");
+    }
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <div className="space-y-2">
         <Label htmlFor="title">عنوان پروژه</Label>
-        <Input
-          id="title"
-          {...register("title")}
-          disabled={pending || isSubmitting}
-        />
+        <Input id="title" {...register("title")} disabled={isSubmitting} />
         {errors.title && (
           <p className="text-destructive mt-2">{errors.title.message}</p>
         )}
@@ -98,7 +89,7 @@ function ProjectForm({
           id="description"
           {...register("description")}
           rows={3}
-          disabled={pending || isSubmitting}
+          disabled={isSubmitting}
         />
         {errors.description && (
           <p className="text-destructive mt-2">{errors.description.message}</p>
@@ -110,7 +101,7 @@ function ProjectForm({
         <select
           id="categoryId"
           {...register("categoryId")}
-          disabled={pending || isSubmitting}
+          disabled={isSubmitting}
           className="w-full rounded-md border p-2"
         >
           <option value="">انتخاب کنید...</option>
@@ -144,10 +135,10 @@ function ProjectForm({
 
       <Button
         type="submit"
-        disabled={pending || isSubmitting}
+        disabled={isSubmitting}
         className="mt-4 w-full rounded-full"
       >
-        {pending || isSubmitting
+        {isSubmitting
           ? "در حال ذخیره..."
           : type === "create"
             ? "ایجاد پروژه"

@@ -8,8 +8,7 @@ export async function middleware(req: NextRequest) {
   const pathname = nextUrl.pathname;
 
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-
-  // console.log("Middleware:", { pathname, token });
+  console.log("TOKEN IN PROD:", token?.role);
 
   const isLoggedIn = !!token;
   const isAdmin = token?.role === "admin";
