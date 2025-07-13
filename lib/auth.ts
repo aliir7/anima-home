@@ -39,6 +39,13 @@ export const authConfig = {
         if (user.name === "NO_NAME") {
           token.name = user.email?.split("@")[0];
         }
+      } else {
+        const dbUser = await db.query.users.findFirst({
+          where: eq(users.id, token.sub!),
+        });
+        if (dbUser) {
+          token.role = dbUser.role;
+        }
       }
       return token;
     },
