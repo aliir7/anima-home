@@ -4,6 +4,8 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "پنل مدیریت / پروژه‌ها",
 };
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 function AdminProjectsPage() {
   return (
