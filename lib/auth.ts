@@ -32,14 +32,17 @@ export const authConfig = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
+        console.log("✅ JWT: user موجود است، role =", user.role);
         token.role = user.role;
       } else {
         // 🔁 وقتی user وجود نداره (مثلاً در رفرش)، از DB بخون
+        console.log("🔄 JWT: user نیست، از DB می‌خونیم");
         const dbUser = await db.query.users.findFirst({
           where: eq(users.id, token.sub!),
         });
 
         if (dbUser) {
+          console.log("✅ DB user found:", dbUser.role);
           token.role = dbUser.role;
         }
       }
