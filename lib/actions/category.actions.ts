@@ -26,7 +26,6 @@ export async function createCategoryAction(
     }
 
     const { name, parentName } = validated.data;
-    let parentId: string | null = null;
 
     const slug = slugify(name, {
       lower: true,
@@ -34,11 +33,12 @@ export async function createCategoryAction(
       locale: "fa",
     });
 
-    // جلوگیری از تکرار دسته‌بندی با همان slug
+    // بررسی تکراری نبودن دسته
     const [existing] = await db
       .select()
       .from(categories)
       .where(eq(categories.slug, slug));
+
     if (existing) {
       return {
         success: false,
@@ -49,7 +49,21 @@ export async function createCategoryAction(
       };
     }
 
-    // بررسی و ایجاد مقدار والد
+    // جلوگیری از والد شدن خودش
+    if (parentName && parentName.trim() === name.trim()) {
+      return {
+        success: false,
+        error: {
+          type: "custom",
+          message: "نام والد نمی‌تواند با نام دسته‌بندی یکی باشد.",
+        },
+      };
+    }
+
+    // بررسی وجود والد
+    let parentId: string | null = null;
+    let finalParentName: string | null = null;
+
     if (parentName && parentName.trim() !== "") {
       const parentSlug = slugify(parentName, {
         lower: true,
@@ -64,23 +78,22 @@ export async function createCategoryAction(
 
       if (existingParent) {
         parentId = existingParent.id;
+        finalParentName = existingParent.name;
       } else {
-        parentId = randomUUID(); // ✅ ساخت uuid جدید برای والد
-        await db.insert(categories).values({
-          id: parentId,
-          name: parentName,
-          slug: parentSlug,
-        });
+        // اگر وجود نداشت، فقط نام والد رو ذخیره می‌کنیم، ولی خودش رو insert نمی‌کنیم
+        parentId = randomUUID();
+        finalParentName = parentName;
       }
     }
 
+    // ایجاد دسته جدید
     const [newCategory] = await db
       .insert(categories)
       .values({
         name,
         slug,
         parentId,
-        parentName: parentName || null,
+        parentName: finalParentName,
       })
       .returning();
 

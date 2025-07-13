@@ -11,6 +11,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertProjectSchema } from "@/lib/validations/projectsValidations";
 import { Category, InsertProjectValues, ProjectFormValues } from "@/types";
+import FileUploader from "../../Account/FileUploader";
 
 type ProjectFormProps = {
   onClose: () => void;
@@ -33,6 +34,8 @@ function ProjectForm({
     handleSubmit,
     formState: { errors, isSubmitting },
     register,
+    setValue,
+    getValues,
   } = useForm<InsertProjectValues>({
     resolver: zodResolver(insertProjectSchema),
     mode: "onSubmit",
@@ -113,38 +116,30 @@ function ProjectForm({
           <option value="">انتخاب کنید...</option>
           {categories.map((cat) => (
             <option key={cat.id} value={cat.id}>
-              {cat.name}
+              {cat.parentName}
             </option>
           ))}
         </select>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="images">تصاویر (JSON)</Label>
-        <Textarea
-          id="images"
-          {...register("images")}
-          placeholder='["image1.jpg", "image2.jpg"]'
-          rows={2}
-          disabled={pending || isSubmitting}
+        <FileUploader
+          label="آپلود تصویر"
+          accept="image/*"
+          onUploaded={(url) => {
+            setValue("images", [...getValues("images"), url]);
+          }}
         />
-        {errors.images && (
-          <p className="text-destructive mt-2">{errors.images.message}</p>
-        )}
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="videos">ویدیوها (JSON - اختیاری)</Label>
-        <Textarea
-          id="videos"
-          {...register("videos")}
-          placeholder='["video1.mp4"]'
-          rows={2}
-          disabled={pending || isSubmitting}
+        <FileUploader
+          label="آپلود ویدیو (اختیاری)"
+          accept="video/*"
+          onUploaded={(url) => {
+            setValue("videos", [...(getValues("videos") ?? []), url]);
+          }}
         />
-        {errors.videos && (
-          <p className="text-destructive mt-2">{errors.videos.message}</p>
-        )}
       </div>
 
       <Button
