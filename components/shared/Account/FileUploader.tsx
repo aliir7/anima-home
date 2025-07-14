@@ -1,44 +1,69 @@
-// components/shared/FileUploader.tsx
 "use client";
 
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
+import { uploadMedia } from "@/lib/actions/media.actions";
 
 type FileUploaderProps = {
-  onUploaded: (url: string) => void;
   label: string;
   accept: string;
+  multiple?: boolean;
+  onUploaded: (urls: string[]) => void;
 };
 
-function FileUploader({ onUploaded, label, accept }: FileUploaderProps) {
+function FileUploader({
+  label,
+  accept,
+  multiple = false,
+  onUploaded,
+}: FileUploaderProps) {
   const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
     setUploading(true);
-    const formData = new FormData();
-    formData.append("file", file);
+    const urls: string[] = [];
 
-    const res = await fetch("/api/upload", {
-      method: "POST",
-      body: formData,
-    });
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const formData = new FormData();
+      formData.append("file", file);
 
-    const data = await res.json();
-    if (data.url) {
-      onUploaded(data.url);
+      const url = await uploadMedia(formData);
+      if (url) urls.push(url);
+
+      setProgress(Math.round(((i + 1) / files.length) * 100));
     }
+
     setUploading(false);
+    setProgress(0);
+    onUploaded(urls);
   };
 
   return (
     <div className="space-y-2">
-      <label className="block font-medium">{label}</label>
-      <Input type="file" accept={accept} onChange={handleUpload} />
+      <Label className="block font-medium">{label}</Label>
+      <Input
+        type="file"
+        accept={accept}
+        onChange={handleUpload}
+        multiple={multiple}
+      />
       {uploading && (
-        <p className="text-muted-foreground text-sm">در حال آپلود...</p>
+        <div className="pt-1">
+          <Progress
+            value={progress}
+            className="bg-primary dark:bg-neutral-700"
+          />
+          <p className="text-muted-foreground text-sm md:text-lg">
+            {progress}%
+          </p>
+        </div>
       )}
     </div>
   );

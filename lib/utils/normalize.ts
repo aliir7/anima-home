@@ -17,22 +17,9 @@ export function normalizeProject(
   project: Partial<ProjectWithCategory>,
 ): ProjectWithCategory {
   return {
-    id: project.id!,
-    title: project.title!,
-    slug: project.slug!,
-    categoryId: project.categoryId!,
-    createdAt: project.createdAt ?? null,
-    description: project.description ?? "",
-    images:
-      Array.isArray(project.images) &&
-      project.images.every((i) => typeof i === "string")
-        ? project.images
-        : [],
-    videos:
-      Array.isArray(project.videos) &&
-      project.videos.every((v) => typeof v === "string")
-        ? project.videos
-        : [],
+    ...project,
+    images: Array.isArray(project.images) ? project.images : [],
+    videos: Array.isArray(project.videos) ? project.videos : [],
     category: project.category ?? undefined,
-  };
+  } as ProjectWithCategory;
 }

@@ -44,7 +44,7 @@ export default function DeleteProjectModal({
   };
 
   return (
-    <Dialog open={!!projectId} onOpenChange={onClose}>
+    <Dialog open={!!projectId} onOpenChange={() => onClose()}>
       <DialogContent className="max-w-sm dark:text-white">
         <DialogHeader>
           <DialogTitle className="mr-4 text-right">
@@ -54,7 +54,7 @@ export default function DeleteProjectModal({
         <DialogFooter className="flex justify-end gap-2">
           <Button
             variant="outline"
-            onClick={onClose}
+            onClick={() => onClose()}
             className="cursor-pointer transition-all duration-300 dark:hover:bg-neutral-700"
           >
             انصراف

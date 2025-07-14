@@ -21,6 +21,7 @@ import DeleteProjectModal from "./DeleteProjectModal";
 import ProjectFormModal from "./ProjectFormModal";
 import { Category, ProjectWithCategory } from "@/types";
 import { normalizeProjectForForm } from "@/lib/utils/normalize";
+// import Image from "next/image";
 
 type ProjectTableClientProps = {
   categories: Category[];
@@ -52,6 +53,7 @@ function ProjectTableClient({ categories, projects }: ProjectTableClientProps) {
           <TableHeader className="bg-muted">
             <TableRow>
               <TableHead className="text-right">نام پروژه</TableHead>
+              <TableHead className="text-right">در گروه</TableHead>
               <TableHead className="text-right">دسته‌بندی</TableHead>
               <TableHead className="text-right">تاریخ ایجاد</TableHead>
               <TableHead className="text-right">عملیات</TableHead>
@@ -62,9 +64,11 @@ function ProjectTableClient({ categories, projects }: ProjectTableClientProps) {
               projects.map((project) => (
                 <TableRow key={project.id}>
                   <TableCell className="text-right">{project.title}</TableCell>
+                  <TableCell className="text-right">سرگروه</TableCell>
                   <TableCell className="text-right">
                     {project.category?.name ?? "نامشخص"}
                   </TableCell>
+
                   <TableCell className="text-right">
                     {new Date(project.createdAt!).toLocaleDateString("fa-IR")}
                   </TableCell>

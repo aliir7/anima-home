@@ -16,7 +16,6 @@ type ProjectFormProps = {
   onClose: () => void;
   type: "create" | "edit";
   initialData?: ProjectFormValues;
-
   categories: Category[];
 };
 
@@ -45,36 +44,49 @@ function ProjectForm({
     },
   });
 
+  // const images = watch("images");
+  // const videos = watch("videos");
+
   const onSubmit = async (values: InsertProjectValues) => {
-    if (type === "create") {
-      const result = await createProject(values);
+    console.log("Form Submitted");
+    console.log(values);
+    console.log("Errors?", errors);
+    try {
+      const result =
+        type === "create"
+          ? await createProject(values)
+          : initialData?.id
+            ? await updateProject(initialData.id, values)
+            : null;
+
+      if (!result) {
+        showErrorToast("شناسه پروژه برای ویرایش موجود نیست", "bottom-right");
+        return;
+      }
+
       if (result.success) {
         showSuccessToast(
           `پروژه با موفقیت ${type === "create" ? "ایجاد" : "ویرایش"} شد`,
           "bottom-right",
         );
-      } else if (initialData?.id) {
-        const result = await updateProject(initialData.id, values);
-        if (result.success) {
-          showSuccessToast(
-            `پروژه با موفقیت ${type === "create" ? "ایجاد" : "ویرایش"} شد`,
-            "bottom-right",
-          );
-        }
+        reset();
+        onClose();
       } else {
-        showErrorToast("شناسه پروژه برای ویرایش موجود نیست", "bottom-right");
-        return;
+        showErrorToast("خطا در ذخیره پروژه", "bottom-right");
       }
-
-      reset();
-      onClose();
-    } else {
-      showErrorToast("خطا در ذخیره پروژه", "bottom-right");
+    } catch (error) {
+      console.log(error);
+      showErrorToast("مشکلی در پردازش رخ داد", "bottom-right");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+    <form
+      onSubmit={handleSubmit(onSubmit, (formErrors) => {
+        console.log("form not valid", formErrors);
+      })}
+      className="space-y-5"
+    >
       <div className="space-y-2">
         <Label htmlFor="title">عنوان پروژه</Label>
         <Input id="title" {...register("title")} disabled={isSubmitting} />
@@ -115,20 +127,22 @@ function ProjectForm({
 
       <div className="space-y-2">
         <FileUploader
-          label="آپلود تصویر"
+          label="آپلود تصاویر"
           accept="image/*"
-          onUploaded={(url) => {
-            setValue("images", [...getValues("images"), url]);
+          multiple
+          onUploaded={(urls) => {
+            setValue("images", [...getValues("images"), ...urls]);
           }}
         />
       </div>
 
       <div className="space-y-2">
         <FileUploader
-          label="آپلود ویدیو (اختیاری)"
+          label="آپلود ویدیو"
           accept="video/*"
-          onUploaded={(url) => {
-            setValue("videos", [...(getValues("videos") ?? []), url]);
+          multiple
+          onUploaded={(urls) => {
+            setValue("videos", [...(getValues("videos") ?? []), ...urls]);
           }}
         />
       </div>

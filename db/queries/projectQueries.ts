@@ -8,15 +8,25 @@ export async function getAllProjects(): Promise<
   QueryResult<ProjectWithCategory[]>
 > {
   try {
-    const data = await db.select().from(projects).orderBy(projects.createdAt);
+    const data = await db.query.projects.findMany({
+      with: {
+        category: true,
+        // گرفتن دسته‌بندی مربوطه با relation
+      },
+      orderBy: (projects, { desc }) => [desc(projects.createdAt)],
+    });
+
     const normalized = (data as Partial<ProjectWithCategory>[]).map(
       normalizeProject,
     );
 
     return { success: true, data: normalized };
   } catch (error) {
-    console.log(error);
-    return { success: false, error: "خطا در گرفتن لیست پروژه‌ها" };
+    console.error("Error in getAllProjects:", error);
+    return {
+      success: false,
+      error: "خطا در گرفتن لیست پروژه‌ها",
+    };
   }
 }
 

@@ -1,8 +1,0 @@
-{
-  "app": "anima-home",
-  "port": 3000,
-  "build": {
-    "location": "iran"
-  },
-  "disks": [{ "name": "anima-media", "mountTo": "uploads/media" }]
-}
