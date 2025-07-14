@@ -81,12 +81,7 @@ function ProjectForm({
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit, (formErrors) => {
-        console.log("form not valid", formErrors);
-      })}
-      className="space-y-5"
-    >
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <div className="space-y-2">
         <Label htmlFor="title">عنوان پروژه</Label>
         <Input id="title" {...register("title")} disabled={isSubmitting} />
