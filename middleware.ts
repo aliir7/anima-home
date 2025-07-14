@@ -13,8 +13,8 @@ export async function middleware(req: NextRequest) {
     secureCookie: true,
   });
 
-  console.log("🍪 TOKEN IN PROD:", token?.role);
-  console.log("📍 PATH:", pathname);
+  // console.log("🍪 TOKEN IN PROD:", token?.role);
+  // console.log("📍 PATH:", pathname);
 
   const isLoggedIn = !!token;
   const isAdmin = token?.role === "admin";
