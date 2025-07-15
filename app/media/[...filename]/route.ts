@@ -1,27 +1,29 @@
 // app/media/[...filename]/route.ts
-
 import { readFile } from "fs/promises";
 import { join } from "path";
 import { NextRequest, NextResponse } from "next/server";
 
-// ❗ این تایپ دوم دقیقا باید این باشه
-export async function GET(
-  req: NextRequest,
-  context: { params: { filename: string[] } },
-) {
-  const { filename } = context.params;
+// پارامترها رو مستقیم اینجا تایپ کن
+type Params = { filename: string[] };
 
-  const filePath = join(
+export async function GET(_req: NextRequest, { params }: { params: Params }) {
+  const filenameParts = params?.filename;
+
+  if (!filenameParts || filenameParts.length === 0) {
+    return new NextResponse("نام فایل ارسال نشده", { status: 400 });
+  }
+
+  const fullPath = join(
     process.env.NODE_ENV === "development"
       ? process.cwd() + "/public/uploads/media"
-      : "/app/uploads/media", // مسیر mount شده در لیارا
-    ...filename,
+      : "/app/uploads/media",
+    ...filenameParts,
   );
 
   try {
-    const fileBuffer = await readFile(filePath);
-    const ext = filename.at(-1)?.split(".").pop()?.toLowerCase();
-    const mimeType = getMimeType(ext ?? "bin");
+    const fileBuffer = await readFile(fullPath);
+    const ext = filenameParts.at(-1)?.split(".").pop() || "";
+    const mimeType = getMimeType(ext);
 
     return new NextResponse(fileBuffer, {
       status: 200,
@@ -30,13 +32,13 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error("❌ File not found:", filePath, error);
+    console.error("❌ File not found:", fullPath, error);
     return new NextResponse("Not Found", { status: 404 });
   }
 }
 
 function getMimeType(ext: string): string {
-  switch (ext) {
+  switch (ext.toLowerCase()) {
     case "jpg":
     case "jpeg":
       return "image/jpeg";
