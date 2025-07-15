@@ -19,7 +19,7 @@ export async function uploadMedia(formData: FormData): Promise<string | null> {
       : "app/uploads/media"; // مسیر mount شده دیسک در لیارا
 
   const filePath = path.join(uploadBase, filename);
-  const publicUrl = `/uploads/media/${filename}`;
+  const publicUrl = `/media/${filename}`;
 
   try {
     await writeFile(filePath, buffer);
