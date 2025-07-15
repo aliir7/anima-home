@@ -1,27 +1,28 @@
 // app/media/[...filename]/route.ts
+
 import { readFile } from "fs/promises";
 import { join } from "path";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-// نکته مهم: استفاده از destructuring مستقیم `params` داخل آرگومان مجاز نیست!
+// ❗ این تایپ دوم دقیقا باید این باشه
 export async function GET(
-  request: Request,
+  req: NextRequest,
   context: { params: { filename: string[] } },
 ) {
   const { filename } = context.params;
+
   const filePath = join(
     process.env.NODE_ENV === "development"
       ? process.cwd() + "/public/uploads/media"
-      : "/app/uploads/media",
+      : "/app/uploads/media", // مسیر mount شده در لیارا
     ...filename,
   );
 
   try {
     const fileBuffer = await readFile(filePath);
     const ext = filename.at(-1)?.split(".").pop()?.toLowerCase();
-
-    // تعیین نوع MIME
     const mimeType = getMimeType(ext ?? "bin");
+
     return new NextResponse(fileBuffer, {
       status: 200,
       headers: {
@@ -29,8 +30,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.log(error);
-    console.error("File not found:", filePath);
+    console.error("❌ File not found:", filePath, error);
     return new NextResponse("Not Found", { status: 404 });
   }
 }
@@ -42,10 +42,10 @@ function getMimeType(ext: string): string {
       return "image/jpeg";
     case "png":
       return "image/png";
-    case "webp":
-      return "image/webp";
     case "gif":
       return "image/gif";
+    case "webp":
+      return "image/webp";
     case "mp4":
       return "video/mp4";
     default:
