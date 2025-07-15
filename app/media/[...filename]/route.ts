@@ -1,44 +1,54 @@
 // app/media/[...filename]/route.ts
-import { NextRequest, NextResponse } from "next/server";
-import fs from "fs/promises";
-import path from "path";
+import { readFile } from "fs/promises";
+import { join } from "path";
+import { NextResponse } from "next/server";
 
-export const runtime = "nodejs"; // 👈 اجبار اجرای این route در Node.js Runtime
-
+// نکته مهم: استفاده از destructuring مستقیم `params` داخل آرگومان مجاز نیست!
 export async function GET(
-  req: NextRequest,
-  { params }: { params: { filename: string[] } },
+  request: Request,
+  context: { params: { filename: string[] } },
 ) {
-  const filename = params.filename;
-  const filePath =
+  const { filename } = context.params;
+  const filePath = join(
     process.env.NODE_ENV === "development"
-      ? path.join(process.cwd(), "public/uploads/media", ...filename)
-      : path.join("/app/uploads/media", ...filename);
+      ? process.cwd() + "/public/uploads/media"
+      : "/app/uploads/media",
+    ...filename,
+  );
 
   try {
-    const file = await fs.readFile(filePath);
-    const ext = path.extname(filePath).toLowerCase();
+    const fileBuffer = await readFile(filePath);
+    const ext = filename.at(-1)?.split(".").pop()?.toLowerCase();
 
-    const contentType =
-      {
-        ".jpg": "image/jpeg",
-        ".jpeg": "image/jpeg",
-        ".png": "image/png",
-        ".webp": "image/webp",
-        ".gif": "image/gif",
-        ".mp4": "video/mp4",
-        ".mov": "video/quicktime",
-      }[ext] || "application/octet-stream";
-
-    return new NextResponse(file, {
+    // تعیین نوع MIME
+    const mimeType = getMimeType(ext ?? "bin");
+    return new NextResponse(fileBuffer, {
       status: 200,
       headers: {
-        "Content-Type": contentType,
-        "Cache-Control": "public, max-age=31536000",
+        "Content-Type": mimeType,
       },
     });
   } catch (error) {
-    console.error("❌ Error serving media:", error);
-    return new NextResponse("File not found", { status: 404 });
+    console.log(error);
+    console.error("File not found:", filePath);
+    return new NextResponse("Not Found", { status: 404 });
+  }
+}
+
+function getMimeType(ext: string): string {
+  switch (ext) {
+    case "jpg":
+    case "jpeg":
+      return "image/jpeg";
+    case "png":
+      return "image/png";
+    case "webp":
+      return "image/webp";
+    case "gif":
+      return "image/gif";
+    case "mp4":
+      return "video/mp4";
+    default:
+      return "application/octet-stream";
   }
 }
