@@ -1,18 +1,19 @@
+// app/media/[...filename]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs/promises";
 import path from "path";
 
-// مسیر دیسک در توسعه و پروداکشن
-const baseDir =
-  process.env.NODE_ENV === "development"
-    ? path.join(process.cwd(), "public/uploads/media")
-    : "/app/uploads/media"; // مسیر mount شده دیسک در لیارا
+export const runtime = "nodejs"; // 👈 اجبار اجرای این route در Node.js Runtime
 
 export async function GET(
   req: NextRequest,
   { params }: { params: { filename: string[] } },
 ) {
-  const filePath = path.join(baseDir, ...params.filename);
+  const filename = params.filename;
+  const filePath =
+    process.env.NODE_ENV === "development"
+      ? path.join(process.cwd(), "public/uploads/media", ...filename)
+      : path.join("/app/uploads/media", ...filename);
 
   try {
     const file = await fs.readFile(filePath);
@@ -37,7 +38,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error("❌ Media fetch error:", error);
-    return new NextResponse("Not found", { status: 404 });
+    console.error("❌ Error serving media:", error);
+    return new NextResponse("File not found", { status: 404 });
   }
 }
