@@ -16,7 +16,7 @@ export async function uploadMedia(formData: FormData): Promise<string | null> {
   const uploadBase =
     process.env.NODE_ENV === "development"
       ? path.join(process.cwd(), "public/uploads/media")
-      : "/var/www/uploads/media"; // مسیر mount شده دیسک در لیارا
+      : "app/uploads/media"; // مسیر mount شده دیسک در لیارا
 
   const filePath = path.join(uploadBase, filename);
   const publicUrl = `/uploads/media/${filename}`;
