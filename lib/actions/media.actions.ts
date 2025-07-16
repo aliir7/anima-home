@@ -1,6 +1,6 @@
 "use server";
 
-import { writeFile } from "fs/promises";
+import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { v4 as uuid } from "uuid";
 
@@ -16,14 +16,17 @@ export async function uploadMedia(formData: FormData): Promise<string | null> {
   const uploadBase =
     process.env.NODE_ENV === "development"
       ? path.join(process.cwd(), "public/uploads/media")
-      : "app/uploads/media"; // مسیر mount شده دیسک در لیارا
+      : "/app/uploads/media"; // مسیر mount شده دیسک در لیارا
 
   const filePath = path.join(uploadBase, filename);
-  const publicUrl = `/media/${filename}`;
 
   try {
+    // 🔥 پوشه رو ایجاد کن اگر وجود نداره
+    await mkdir(uploadBase, { recursive: true });
+
     await writeFile(filePath, buffer);
-    return publicUrl;
+
+    return `/uploads/media/${filename}`;
   } catch (err) {
     console.error("upload error:", err);
     return null;
