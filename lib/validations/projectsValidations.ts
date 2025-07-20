@@ -1,5 +1,6 @@
+import { projects } from "@/db/schema";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
-import { projects } from "@/db/schema/projects";
+
 import { z } from "zod";
 
 // Full schema for select

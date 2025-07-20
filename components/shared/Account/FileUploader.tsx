@@ -10,12 +10,14 @@ type FileUploaderProps = {
   label: string;
   accept: string;
   multiple?: boolean;
+  folderName?: string;
   onUploaded: (urls: string[]) => void;
 };
 
 function FileUploader({
   label,
   accept,
+  folderName = "media",
   multiple = false,
   onUploaded,
 }: FileUploaderProps) {
@@ -23,6 +25,7 @@ function FileUploader({
   const [progress, setProgress] = useState(0);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    // checking file exist
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
@@ -34,7 +37,7 @@ function FileUploader({
       const formData = new FormData();
       formData.append("file", file);
 
-      const url = await uploadMedia(formData);
+      const url = await uploadMedia(formData, folderName);
       if (url) urls.push(url);
 
       setProgress(Math.round(((i + 1) / files.length) * 100));

@@ -44,13 +44,7 @@ function ProjectForm({
     },
   });
 
-  // const images = watch("images");
-  // const videos = watch("videos");
-
   const onSubmit = async (values: InsertProjectValues) => {
-    console.log("Form Submitted");
-    console.log(values);
-    console.log("Errors?", errors);
     try {
       const result =
         type === "create"
@@ -123,6 +117,7 @@ function ProjectForm({
       <div className="space-y-2">
         <FileUploader
           label="آپلود تصاویر"
+          folderName="projects"
           accept="image/*"
           multiple
           onUploaded={(urls) => {
@@ -134,6 +129,7 @@ function ProjectForm({
       <div className="space-y-2">
         <FileUploader
           label="آپلود ویدیو"
+          folderName="projects"
           accept="video/*"
           multiple
           onUploaded={(urls) => {
