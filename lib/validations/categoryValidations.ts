@@ -1,5 +1,5 @@
 import { createSelectSchema } from "drizzle-zod";
-import { z } from "zod";
+import { z } from "zod/v4";
 import { categories } from "@/db/schema/categories";
 
 //for insert

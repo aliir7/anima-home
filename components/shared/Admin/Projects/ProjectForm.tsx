@@ -9,7 +9,7 @@ import { createProject, updateProject } from "@/lib/actions/project.actions";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertProjectSchema } from "@/lib/validations/projectsValidations";
-import { Category, InsertProjectValues, ProjectFormValues } from "@/types";
+import { Category, ProjectFormValues } from "@/types";
 import FileUploader from "../../Account/FileUploader";
 
 type ProjectFormProps = {
@@ -32,7 +32,7 @@ function ProjectForm({
     register,
     setValue,
     getValues,
-  } = useForm<InsertProjectValues>({
+  } = useForm<ProjectFormValues>({
     resolver: zodResolver(insertProjectSchema),
     mode: "onSubmit",
     defaultValues: initialData ?? {
@@ -44,7 +44,7 @@ function ProjectForm({
     },
   });
 
-  const onSubmit = async (values: InsertProjectValues) => {
+  const onSubmit = async (values: ProjectFormValues) => {
     try {
       const result =
         type === "create"

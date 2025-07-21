@@ -1,6 +1,6 @@
 import { users } from "@/db/schema";
 import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 // ساخت اسکیمای اصلی از جدول users
 export const signupSchema = createInsertSchema(users, {
