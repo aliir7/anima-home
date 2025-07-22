@@ -10,8 +10,11 @@ export async function getAllProjects(): Promise<
   try {
     const data = await db.query.projects.findMany({
       with: {
-        category: true,
-        // گرفتن دسته‌بندی مربوطه با relation
+        category: {
+          with: {
+            parent: true,
+          },
+        },
       },
       orderBy: (projects, { desc }) => [desc(projects.createdAt)],
     });

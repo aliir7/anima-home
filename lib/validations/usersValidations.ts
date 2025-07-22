@@ -5,7 +5,7 @@ import { z } from "zod/v4";
 // ساخت اسکیمای اصلی از جدول users
 export const signupSchema = createInsertSchema(users, {
   name: z.string().min(3, "نام باید حداقل ۳ کاراکتر باشد"),
-  email: z.string().email("ایمیل نامعتبر است"),
+  email: z.email("ایمیل نامعتبر است"),
   password: z.string().min(6, "رمز عبور باید حداقل ۶ کاراکتر باشد"),
 });
 
@@ -36,5 +36,5 @@ export const userSchema = createInsertSchema(users).pick({
 });
 
 export const forgotPasswordSchema = z.object({
-  email: z.string().email("ایمیل معتبر وارد کنید"),
+  email: z.email("ایمیل معتبر وارد کنید"),
 });

@@ -35,6 +35,11 @@ export default function CategoryCombobox({
   onChange,
 }: CategoryComboboxProps) {
   const [open, setOpen] = useState(false);
+  const [inputValue, setInputValue] = useState("");
+
+  const normalizedCategories = categories.map((cat) => cat.name.toLowerCase());
+  const isNewValue =
+    inputValue && !normalizedCategories.includes(inputValue.toLowerCase());
 
   // اگر هیچ دسته‌ای نداریم، فقط input ساده نشون بده
   if (categories.length === 0) {
@@ -57,16 +62,18 @@ export default function CategoryCombobox({
           aria-expanded={open}
           className="w-full justify-between rounded-full"
         >
-          {value
-            ? categories.find((cat) => cat.name === value)?.name
-            : "انتخاب والد (اختیاری)"}
+          {value || "انتخاب یا وارد کردن نام والد"}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
 
       <PopoverContent className="w-full p-0">
         <Command>
-          <CommandInput placeholder="جستجوی والد..." />
+          <CommandInput
+            placeholder="جستجوی والد یا ایجاد جدید..."
+            value={inputValue}
+            onValueChange={setInputValue}
+          />
           <CommandEmpty>هیچ موردی یافت نشد.</CommandEmpty>
           <CommandGroup>
             {categories.map((cat) => (
@@ -75,6 +82,7 @@ export default function CategoryCombobox({
                 value={cat.name}
                 onSelect={(currentValue) => {
                   onChange(currentValue);
+                  setInputValue(currentValue);
                   setOpen(false);
                 }}
               >
@@ -87,6 +95,20 @@ export default function CategoryCombobox({
                 {cat.name}
               </CommandItem>
             ))}
+
+            {isNewValue && (
+              <CommandItem
+                value={inputValue}
+                onSelect={() => {
+                  onChange(inputValue);
+                  setOpen(false);
+                }}
+                className="text-primary"
+              >
+                ساخت دسته جدید با عنوان:{" "}
+                <strong className="mx-1">{inputValue}</strong>
+              </CommandItem>
+            )}
           </CommandGroup>
         </Command>
       </PopoverContent>

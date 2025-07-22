@@ -1,49 +1,31 @@
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
-import { projects } from "@/db/schema";
+import { projects } from "@/db/schema/projects";
+import { isUUID } from "./helpersValidations";
 
-// helpers
-const isUUID = (message = "شناسه معتبر نیست.") =>
-  z
-    .string()
-    .refine(
-      (val) =>
-        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
-          val,
-        ),
-      { message },
-    );
+// Create base schemas from Drizzle-zod
+const baseSelectProjectSchema = createSelectSchema(projects);
 
-const isURL = (message = "لینک معتبر نیست.") =>
-  z.string().refine(
-    (val) => {
-      try {
-        new URL(val);
-        return true;
-      } catch {
-        return false;
-      }
-    },
-    { message },
-  );
-
-// فقط برای نمایش پروژه‌ها
-export const selectProjectSchema = createSelectSchema(projects);
-
-// برای ایجاد پروژه (از طریق فرم)
-export const rawProjectSchema = createInsertSchema(projects, {
+// for select full schema
+export const selectProjectSchema = baseSelectProjectSchema;
+const baseInsertProjectSchema = createInsertSchema(projects, {
   title: z.string().min(3, "عنوان باید حداقل ۳ حرف باشد."),
   description: z.string().min(10, "توضیحات کافی نیست.").optional(),
   images: z
-    .array(isURL("لینک تصویر معتبر نیست"))
+    .array(z.string().min(1, "لینک تصویر معتبر نیست"))
     .min(1, "حداقل یک تصویر وارد کنید."),
-  videos: z.array(isURL("لینک ویدیو معتبر نیست")).optional(),
+
+  videos: z.array(z.string().min(1, "لینک ویدیو معتبر نیست")).optional(),
   categoryId: isUUID("دسته‌بندی معتبر نیست."),
 });
 
-export const insertProjectSchema = rawProjectSchema.transform((val) => val);
+export const insertProjectSchema = baseInsertProjectSchema.omit({
+  slug: true,
+  createdAt: true,
+});
 
 // برای ویرایش (update) — فقط id اجباری
-export const updateProjectSchema = rawProjectSchema.partial().extend({
-  id: rawProjectSchema.shape.id,
+export const updateProjectSchema = baseInsertProjectSchema.omit({
+  slug: true,
+  createdAt: true,
 });

@@ -16,7 +16,7 @@ import {
   signupSchema,
   userSchema,
 } from "@/lib/validations/usersValidations";
-import { z, ZodIssue } from "zod";
+import { z } from "zod/v4";
 
 // database queries types
 export type QueryResult<T> =
@@ -25,7 +25,7 @@ export type QueryResult<T> =
 
 // server action results types
 export type ActionError =
-  | { type: "zod"; issues: ZodIssue[] }
+  | { type: "zod"; issues: z.ZodError["issues"] }
   | { type: "custom"; message: string };
 export type ActionResult<T> =
   | { success: true; data: T }
@@ -48,9 +48,10 @@ export type UpdateCategoryValues = z.infer<typeof updateCategorySchema>;
 export type InsertProjectValues = z.infer<typeof insertProjectSchema>;
 export type UpdateProjectValues = z.infer<typeof updateProjectSchema>;
 export type Project = z.infer<typeof selectProjectSchema>;
+export type ProjectFormValues = z.infer<typeof insertProjectSchema>;
+
 export type ProjectWithCategory = Project & {
   category?: Category;
 };
-export type ProjectFormValues = Omit<InsertProjectValues, "slug" | "createdAt">;
 
 // product types

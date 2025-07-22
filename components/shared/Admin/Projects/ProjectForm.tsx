@@ -8,14 +8,16 @@ import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
 import { createProject, updateProject } from "@/lib/actions/project.actions";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertProjectSchema } from "@/lib/validations/projectsValidations";
+
 import { Category, ProjectFormValues } from "@/types";
-import FileUploader from "../../Account/FileUploader";
+import FileUploader from "../FileUploader";
+import { insertProjectSchema } from "@/lib/validations/projectsValidations";
 
 type ProjectFormProps = {
   onClose: () => void;
   type: "create" | "edit";
-  initialData?: ProjectFormValues;
+  initialData?: ProjectFormValues & { id?: string };
+
   categories: Category[];
 };
 
@@ -141,7 +143,7 @@ function ProjectForm({
       <Button
         type="submit"
         disabled={isSubmitting}
-        className="mt-4 w-full rounded-full"
+        className="mt-4 w-full cursor-pointer rounded-full"
       >
         {isSubmitting
           ? "در حال ذخیره..."

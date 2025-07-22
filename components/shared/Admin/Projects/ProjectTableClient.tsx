@@ -38,9 +38,9 @@ function ProjectTableClient({ categories, projects }: ProjectTableClientProps) {
   return (
     <>
       {/* دکمه ساخت پروژه */}
-      <div className="mb-4 flex justify-end">
+      <div className="mb-4 flex justify-start">
         <Button
-          className="bg-primary hover:bg-primary/80 rounded-full text-white dark:bg-neutral-800 dark:hover:bg-neutral-600"
+          className="bg-primary hover:bg-primary/80 cursor-pointer rounded-full text-white dark:bg-neutral-800 dark:hover:bg-neutral-600"
           onClick={() => setShowCreateProject(true)}
         >
           <Plus className="ml-2 h-4 w-4" /> ایجاد پروژه جدید
@@ -64,7 +64,9 @@ function ProjectTableClient({ categories, projects }: ProjectTableClientProps) {
               projects.map((project) => (
                 <TableRow key={project.id}>
                   <TableCell className="text-right">{project.title}</TableCell>
-                  <TableCell className="text-right">سرگروه</TableCell>
+                  <TableCell className="text-right">
+                    {project.category?.parentName ?? "—"}
+                  </TableCell>
                   <TableCell className="text-right">
                     {project.category?.name ?? "نامشخص"}
                   </TableCell>
@@ -99,7 +101,7 @@ function ProjectTableClient({ categories, projects }: ProjectTableClientProps) {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={4} className="py-6 text-center">
+                <TableCell colSpan={5} className="py-6 text-center">
                   هیچ پروژه‌ای یافت نشد.
                 </TableCell>
               </TableRow>

@@ -10,8 +10,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { deleteProject } from "@/lib/actions/project.actions";
-
 import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
+import { useRouter } from "next/navigation";
 
 type DeleteProjectModalProps = {
   projectId: string | null;
@@ -23,6 +23,7 @@ export default function DeleteProjectModal({
   onClose,
 }: DeleteProjectModalProps) {
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   const handleDelete = () => {
     if (!projectId) return;
@@ -32,11 +33,12 @@ export default function DeleteProjectModal({
       if (result.success) {
         showSuccessToast(result.data, "bottom-right");
         onClose();
+        router.refresh();
       } else {
         showErrorToast(
           result.error.type === "custom"
             ? result.error.message
-            : "خطا در بروزرسانی پروژه",
+            : "خطا در حذف پروژه",
           "bottom-right",
         );
       }
@@ -44,7 +46,12 @@ export default function DeleteProjectModal({
   };
 
   return (
-    <Dialog open={!!projectId} onOpenChange={() => onClose()}>
+    <Dialog
+      open={!!projectId}
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
       <DialogContent className="max-w-sm dark:text-white">
         <DialogHeader>
           <DialogTitle className="mr-4 text-right">
@@ -54,7 +61,7 @@ export default function DeleteProjectModal({
         <DialogFooter className="flex justify-end gap-2">
           <Button
             variant="outline"
-            onClick={() => onClose()}
+            onClick={onClose}
             className="cursor-pointer transition-all duration-300 dark:hover:bg-neutral-700"
           >
             انصراف
