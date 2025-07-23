@@ -9,33 +9,20 @@ type Item = {
 };
 
 type ItemListProps = {
-  category: string;
-  page: number;
+  items: Item[];
   basePath: string;
 };
 
-function ItemList({ category, basePath, page }: ItemListProps) {
-  // TODO: فراخوانی دیتابیس برای گرفتن داده با category و page
-  // نمونه داده:
-  const allItems: Item[] = Array.from({ length: 30 }).map((_, i) => ({
-    id: `${i + 1}`,
-    title: `${basePath.slice(1)} شماره ${i + 1}`,
-    description: `توضیحی برای آیتم شماره ${i + 1}`,
-    imageUrl: "/placeholder.svg",
-    slug: `${basePath.slice(1)}-${i + 1}`,
-  }));
-
-  // فیلتر بر اساس category (اگر category خالی نبود)
-  const filtered = category
-    ? allItems.filter((item) => item.id === category) // اینجا باید فیلتر واقعی بر اساس دسته‌بندی باشه
-    : allItems;
-
-  const pageSize = 6;
-  const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
+function ItemList({ items, basePath }: ItemListProps) {
+  if (!items.length) {
+    return (
+      <p className="text-muted-foreground py-8 text-center">موردی یافت نشد.</p>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      {paginated.map((item) => (
+      {items.map((item) => (
         <ItemCard
           key={item.id}
           title={item.title}

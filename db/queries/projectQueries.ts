@@ -33,6 +33,53 @@ export async function getAllProjects(): Promise<
   }
 }
 
+export async function getFilteredProjects({
+  categoryId,
+  page,
+  pageSize,
+}: {
+  categoryId?: string;
+  page?: number;
+  pageSize?: number;
+}): Promise<QueryResult<ProjectWithCategory[]>> {
+  try {
+    const offset = ((page ?? 1) - 1) * (pageSize ?? 6);
+    const whereClause = categoryId
+      ? eq(projects.categoryId, categoryId)
+      : undefined;
+    const data = await db
+      .select()
+      .from(projects)
+      .where(whereClause)
+      .limit(pageSize ?? 6)
+      .offset(offset)
+      .orderBy(projects.createdAt);
+    const normalized = (data as Partial<ProjectWithCategory>[]).map(
+      normalizeProject,
+    );
+    return { success: true, data: normalized };
+  } catch (error) {
+    console.error("Error in getFilteredProjects:", error);
+    return { success: false, error: "خطا در گرفتن لیست پروژه‌ها" };
+  }
+}
+
+export async function getProjectsCount(categoryId?: string): Promise<number> {
+  try {
+    const whereClause = categoryId
+      ? eq(projects.categoryId, categoryId)
+      : undefined;
+    const result = await db
+      .select({ count: projects.id })
+      .from(projects)
+      .where(whereClause);
+    return Number(result[0]?.count ?? 0);
+  } catch (error) {
+    console.error("Error in getProjectsCount:", error);
+    return 0;
+  }
+}
+
 export async function getProjectById(
   id: string,
 ): Promise<QueryResult<ProjectWithCategory[]>> {

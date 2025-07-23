@@ -19,8 +19,8 @@ export async function uploadMedia(
   const isDev = process.env.NODE_ENV === "development";
 
   const uploadBase = isDev
-    ? path.join(process.cwd(), "public", "uploads", folderName)
-    : `/app/uploads/${folderName}`;
+    ? path.join(process.cwd(), "public", "uploads", "media", folderName)
+    : `/app/uploads/media/${folderName}`;
   const filePath = path.join(uploadBase, filename);
 
   try {
@@ -33,5 +33,28 @@ export async function uploadMedia(
   } catch (err) {
     console.error("upload error:", err);
     return null;
+  }
+}
+
+import { unlink } from "fs/promises";
+import { join } from "path";
+
+export async function deleteFileFromDisk(fileUrl: string) {
+  try {
+    const url = new URL(fileUrl);
+    const filePath = url.pathname; // /media/project-folder/filename.jpg
+
+    const baseDir =
+      process.env.NODE_ENV === "development"
+        ? join(process.cwd(), "public")
+        : "/app";
+
+    const fullPath = join(baseDir, filePath); // نتیجه نهایی مسیر کامل
+
+    await unlink(fullPath);
+    return true;
+  } catch (error) {
+    console.error("خطا در حذف فایل:", error);
+    return false;
   }
 }

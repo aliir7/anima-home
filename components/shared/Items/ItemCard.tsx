@@ -15,6 +15,8 @@ type ItemCardProps = {
   imageUrl: string;
   href: string;
   buttonText?: string;
+  showDescription?: boolean;
+  imageHeight?: number;
 };
 
 function ItemCard({
@@ -22,6 +24,7 @@ function ItemCard({
   description,
   imageUrl,
   href,
+  showDescription = true,
   buttonText = "مشاهده",
 }: ItemCardProps) {
   return (
@@ -40,9 +43,11 @@ function ItemCard({
       </CardHeader>
       <CardContent className="space-y-2 px-4 py-4 text-right">
         <CardTitle className="text-lg">{title}</CardTitle>
-        <p className="text-muted-foreground line-clamp-2 text-sm">
-          {description}
-        </p>
+        {description && showDescription && (
+          <p className="text-muted-foreground line-clamp-2 text-sm">
+            {description}
+          </p>
+        )}
       </CardContent>
       <CardFooter className="px-4 pt-0 pb-4">
         <Button asChild className="w-full rounded-full" variant="default">

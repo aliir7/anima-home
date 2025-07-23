@@ -1,33 +1,33 @@
 "use client";
 
 import ClientWrapper from "@/components/shared/Wrapper/ClientWrapper";
-import { useSearchParams } from "next/navigation";
+import { Category, ProjectWithCategory } from "@/types";
 
-const categories = [
-  { id: "1", name: "کمد" },
-  { id: "2", name: "کابینت" },
-  { id: "3", name: "تی وی وال" },
-  { id: "4", name: "مارول شیت" },
-];
+type ProjectContentProps = {
+  categories: Category[];
+  projects: ProjectWithCategory[];
+  selectedCategory: string;
+  currentPage: number;
+  totalPages: number;
+};
 
-function ProjectContent() {
-  const searchParams = useSearchParams();
-  const category = searchParams.get("category") || "";
-  const page = Number(searchParams.get("page") || "1");
-
-  const totalItems = 50;
-  const pageSize = 6;
-  const totalPages = Math.ceil(totalItems / pageSize);
-
+function ProjectContent({
+  categories,
+  projects,
+  selectedCategory,
+  currentPage,
+  totalPages,
+}: ProjectContentProps) {
   return (
     <section className="wrapper space-y-6 py-8">
       <h2 className="text-xl font-bold">پروژه‌ها</h2>
       <ClientWrapper
         categories={categories}
-        selectedCategory={category}
-        currentPage={page}
+        selectedCategory={selectedCategory}
+        currentPage={currentPage}
         totalPages={totalPages}
         basePath="/projects"
+        items={projects}
       />
     </section>
   );
