@@ -95,3 +95,22 @@ export async function getProjectById(
     return { success: false, error: "خطا در گرفتن پروژه با آیدی" };
   }
 }
+
+export async function getProjectBySlug(
+  slug: string,
+): Promise<QueryResult<ProjectWithCategory>> {
+  try {
+    const [data] = await db
+      .select()
+      .from(projects)
+      .where(eq(projects.slug, slug));
+    if (!data) {
+      return { success: false, error: "پروژه‌ای با این اسلاگ یافت نشد" };
+    }
+    const normalized = normalizeProject(data);
+    return { success: true, data: normalized };
+  } catch (error) {
+    console.log("Error in getProjectBySlug:", error);
+    return { success: false, error: "خطا در دریافت پروژه" };
+  }
+}
