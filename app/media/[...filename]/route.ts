@@ -2,6 +2,7 @@
 import { readFile } from "fs/promises";
 import { join } from "path";
 import { NextRequest, NextResponse } from "next/server";
+import mime from "mime";
 
 export async function GET(
   req: NextRequest,
@@ -19,8 +20,11 @@ export async function GET(
 
   try {
     const buffer = await readFile(filePath);
+
+    // define file type
+    const contentType = mime.getType(filePath || "application/octet-stream");
     return new NextResponse(buffer, {
-      headers: { "Content-Type": "application/octet-stream" },
+      headers: { "Content-Type": contentType! },
       status: 200,
     });
   } catch {
