@@ -1,7 +1,9 @@
 "use client";
 
+import { Category } from "@/types";
+
 type FilterBarProps = {
-  categories: { id: string; parentName: string }[];
+  categories: Category[];
   selected: string;
   onChange: (newCategory: string) => void;
 };

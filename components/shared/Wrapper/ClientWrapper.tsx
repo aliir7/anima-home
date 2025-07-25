@@ -2,13 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ProjectWithCategory } from "@/types";
+import { Category, ProjectWithCategory } from "@/types";
 import { FilterBar } from "../Filters/FilterBar";
 import ItemCard from "../Items/ItemCard";
 import PaginationControls from "../Pagination/PaginationControls";
 
 type ClientWrapperProps = {
-  categories: { id: string; parentName: string }[];
+  categories: Category[];
   selectedCategory: string;
   currentPage: number;
   totalPages: number;
