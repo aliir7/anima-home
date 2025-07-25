@@ -25,7 +25,7 @@ function ContactPage() {
           <div className="text-muted-foreground space-y-4 text-sm">
             <div className="flex items-center gap-2 dark:text-neutral-700">
               <Mail className="text-primary h-5 w-5 dark:text-neutral-400" />
-              anima.homedecor@gmail.com
+              info@anima-home.ir
             </div>
             <div className="flex items-center gap-2 dark:text-neutral-700">
               <Phone className="text-primary h-5 w-5 dark:text-neutral-400" />
