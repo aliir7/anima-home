@@ -8,7 +8,7 @@ import ItemCard from "../Items/ItemCard";
 import PaginationControls from "../Pagination/PaginationControls";
 
 type ClientWrapperProps = {
-  categories: { id: string; name: string }[];
+  categories: { id: string; parentName: string }[];
   selectedCategory: string;
   currentPage: number;
   totalPages: number;
