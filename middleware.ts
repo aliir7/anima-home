@@ -6,11 +6,12 @@ import { authRoutes, publicRoutes, adminRoutes } from "./lib/routes";
 export async function middleware(req: NextRequest) {
   const { nextUrl } = req;
   const pathname = nextUrl.pathname;
+  const isDev = process.env.NODE_ENV === "development";
 
   const token = await getToken({
     req,
     secret: process.env.NEXTAUTH_SECRET,
-    secureCookie: true,
+    secureCookie: isDev ? false : true,
   });
 
   // console.log("🍪 TOKEN IN PROD:", token?.role);
@@ -44,6 +45,6 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!api|_next/static|_next/image|images|favicon.ico|robots.txt).*)",
+    "/((?!api|_next/static|_next/image|uploads|images|favicon.ico|robots.txt).*)",
   ],
 };

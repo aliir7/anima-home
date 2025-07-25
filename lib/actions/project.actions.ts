@@ -14,6 +14,8 @@ import { projects } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { generateUniqueSlug } from "../utils/generateSlug";
+import { ROOT_URL } from "../constants";
+import { deleteFileFromDisk } from "./media.actions";
 
 // action for create project
 export async function createProject(
@@ -104,13 +106,35 @@ export async function updateProject(
 // delete project action
 export async function deleteProject(id: string): Promise<ActionResult<string>> {
   try {
+    // ابتدا پروژه را بگیر تا به تصاویر و ویدیوها دسترسی داشته باشیم
+    const [project] = await db
+      .select()
+      .from(projects)
+      .where(eq(projects.id, id));
+
+    if (project) {
+      const allMedia: string[] = [
+        ...((project.images as string[]) || []),
+        ...((project.videos as string[]) || []),
+      ];
+
+      // حذف همه فایل‌های مربوط به پروژه از دیسک
+      for (const url of allMedia) {
+        if (typeof url === "string" && url.trim() !== "") {
+          await deleteFileFromDisk(`${ROOT_URL}${url}`);
+        }
+      }
+    }
+
+    // حذف رکورد پروژه از دیتابیس
     await db.delete(projects).where(eq(projects.id, id));
 
-    // revalidatePath after delete item
+    // بازسازی مسیر برای آپدیت UI
     revalidatePath("/admin/projects");
+
     return { success: true, data: "پروژه با موفقیت حذف شد" };
   } catch (error) {
-    console.log(error);
+    console.error("خطا در حذف پروژه:", error);
     return {
       success: false,
       error: { type: "custom", message: "خطا در حذف پروژه" },

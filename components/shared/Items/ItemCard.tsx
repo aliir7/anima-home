@@ -6,6 +6,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+// import { ROOT_URL } from "@/lib/constants";
+
 import Image from "next/image";
 import Link from "next/link";
 
@@ -27,12 +29,15 @@ function ItemCard({
   showDescription = true,
   buttonText = "مشاهده",
 }: ItemCardProps) {
+  const fullImageUrl = imageUrl.startsWith("http")
+    ? imageUrl
+    : `https://anima-home.ir${imageUrl}`;
   return (
     <Card className="overflow-hidden transition-shadow hover:shadow-xl">
       <CardHeader className="p-0">
         <div className="relative h-48 w-full">
           <Image
-            src={imageUrl}
+            src={fullImageUrl}
             alt={title}
             fill
             className="object-cover"

@@ -8,6 +8,7 @@ import { getAllCategories } from "@/db/queries/categoriesQueries";
 import { PAGE_SIZE } from "@/lib/constants";
 
 export const metadata: Metadata = { title: "پروژه‌ها" };
+export const revalidate = 60;
 
 type ProjectPageProps = {
   searchParams: Promise<{ category?: string; page?: string }>;
@@ -26,6 +27,7 @@ async function ProjectsPage({ searchParams }: ProjectPageProps) {
     }),
     getProjectsCount(category),
   ]);
+
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
   if (!categoriesRes.success || !projectsRes.success) {

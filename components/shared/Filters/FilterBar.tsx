@@ -1,7 +1,7 @@
 "use client";
 
 type FilterBarProps = {
-  categories: { id: string; name: string }[];
+  categories: { id: string; parentName: string }[];
   selected: string;
   onChange: (newCategory: string) => void;
 };
@@ -17,7 +17,7 @@ export function FilterBar({ categories, selected, onChange }: FilterBarProps) {
         <option value="">همه دسته‌بندی‌ها</option>
         {categories.map((cat) => (
           <option key={cat.id} value={cat.id}>
-            {cat.name}
+            {cat.parentName}
           </option>
         ))}
       </select>
