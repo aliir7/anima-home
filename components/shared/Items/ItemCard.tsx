@@ -8,13 +8,12 @@ import {
 } from "@/components/ui/card";
 // import { ROOT_URL } from "@/lib/constants";
 
-import Image from "next/image";
 import Link from "next/link";
 
 type ItemCardProps = {
   title: string;
   description: string;
-  imageUrl: string;
+  imageUrl: string | string[];
   href: string;
   buttonText?: string;
   showDescription?: boolean;
@@ -29,20 +28,19 @@ function ItemCard({
   showDescription = true,
   buttonText = "مشاهده",
 }: ItemCardProps) {
-  const fullImageUrl = imageUrl.startsWith("http")
-    ? imageUrl
-    : `https://anima-home.ir${imageUrl}`;
+  const firstImage = typeof imageUrl === "string" ? imageUrl : imageUrl?.at(0);
+  const fullImageUrl = firstImage?.startsWith("http")
+    ? firstImage
+    : `https://anima-home.ir${firstImage}`;
   return (
     <Card className="overflow-hidden transition-shadow hover:shadow-xl">
       <CardHeader className="p-0">
         <div className="relative h-48 w-full">
-          <Image
+          <img
             src={fullImageUrl}
             alt={title}
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, 33vw"
-            priority
+            className="h-full w-full object-center"
+            loading="lazy"
           />
         </div>
       </CardHeader>
