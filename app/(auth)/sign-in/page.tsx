@@ -1,12 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardFooter,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Metadata } from "next";
 import SignInForm from "./SignInForm";
 import logoImg from "/public/logo/logo-mini-2.png";
@@ -51,16 +45,6 @@ async function SignInPage({ searchParams }: SignInPageProps) {
         <CardContent>
           <SignInForm />
         </CardContent>
-
-        <CardFooter className="text-muted-foreground mt-4 flex flex-col items-center gap-4 pb-4 text-sm">
-          <Link href="/sign-up">
-            حساب کاربری ندارید؟{" "}
-            <span className="text-primary hover:underline">ثبت‌نام کنید</span>
-          </Link>
-          <Link href="/forgot-password" className="hover:underline">
-            رمز عبور را فراموش کرده‌اید؟
-          </Link>
-        </CardFooter>
       </Card>
     </div>
   );

@@ -17,14 +17,10 @@ import {
 import { cn } from "@/lib/utils/utils";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-type Category = {
-  id: string;
-  name: string;
-};
+import { CategoryWithParent } from "@/types";
 
 type CategoryComboboxProps = {
-  categories: Category[];
+  categories: CategoryWithParent[];
   value: string;
   onChange: (value: string) => void;
 };
@@ -37,7 +33,9 @@ export default function CategoryCombobox({
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
 
-  const normalizedCategories = categories.map((cat) => cat.name.toLowerCase());
+  const normalizedCategories = categories.map(
+    (cat) => cat.parentName ?? cat.name.toLowerCase(),
+  );
   const isNewValue =
     inputValue && !normalizedCategories.includes(inputValue.toLowerCase());
 
@@ -60,7 +58,7 @@ export default function CategoryCombobox({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between rounded-full"
+          className="w-full cursor-pointer justify-between rounded-full"
         >
           {value || "انتخاب یا وارد کردن نام والد"}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -79,20 +77,28 @@ export default function CategoryCombobox({
             {categories.map((cat) => (
               <CommandItem
                 key={cat.id}
-                value={cat.name}
+                value={cat.parentName ?? cat.name}
                 onSelect={(currentValue) => {
                   onChange(currentValue);
                   setInputValue(currentValue);
                   setOpen(false);
                 }}
+                asChild
               >
-                <Check
-                  className={cn(
-                    "ml-2 h-4 w-4",
-                    value === cat.name ? "opacity-100" : "opacity-0",
-                  )}
-                />
-                {cat.name}
+                <Button
+                  type="button"
+                  className="flex w-full items-center justify-between text-right"
+                >
+                  <Check
+                    className={cn(
+                      "ml-2 h-4 w-4",
+                      value === cat.name || cat.parentName
+                        ? "opacity-100"
+                        : "opacity-0",
+                    )}
+                  />
+                  {cat.parentName ?? cat.name}
+                </Button>
               </CommandItem>
             ))}
 
@@ -103,10 +109,13 @@ export default function CategoryCombobox({
                   onChange(inputValue);
                   setOpen(false);
                 }}
-                className="text-primary"
+                className="text-primary cursor-pointer"
+                asChild
               >
-                ساخت دسته جدید با عنوان:{" "}
-                <strong className="mx-1">{inputValue}</strong>
+                <Button className="w-full text-right" type="button">
+                  <strong className="mx-1">{inputValue}</strong>
+                  ساخت دسته جدید با عنوان:
+                </Button>
               </CommandItem>
             )}
           </CommandGroup>

@@ -13,6 +13,8 @@ import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
 import { signinWithCredentials } from "@/lib/actions/auth.actions";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
+import { CardFooter } from "@/components/ui/card";
+import Link from "next/link";
 
 function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -24,11 +26,14 @@ function SignInForm() {
   const {
     register,
     formState: { errors, isSubmitting },
+    watch,
     handleSubmit,
   } = useForm<SigninValues>({
     resolver: zodResolver(signinSchema),
     mode: "onSubmit",
   });
+
+  const email = watch("email");
 
   // sigIn handler action
   const onSubmit = async (data: SigninValues) => {
@@ -91,6 +96,20 @@ function SignInForm() {
       >
         {isSubmitting ? "در حال ورود" : "ورود"}
       </Button>
+      <div>
+        <CardFooter className="text-muted-foreground mt-4 flex flex-col items-center gap-4 pb-4 text-sm">
+          <Link href="/sign-up">
+            حساب کاربری ندارید؟{" "}
+            <span className="text-primary hover:underline">ثبت‌نام کنید</span>
+          </Link>
+          <Link
+            href={`/forgot-password${email ? `email=${encodeURIComponent(email)}` : ""}`}
+            className="hover:underline"
+          >
+            رمز عبور را فراموش کرده‌اید؟
+          </Link>
+        </CardFooter>
+      </div>
     </form>
   );
 }

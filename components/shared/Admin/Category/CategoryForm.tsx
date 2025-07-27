@@ -9,7 +9,7 @@ import {
 } from "@/lib/actions/category.actions";
 import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
 import { insertCategorySchema } from "@/lib/validations/categoryValidations";
-import { InsertCategoryValues } from "@/types";
+import { CategoryWithParent, InsertCategoryValues } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import CategoryCombobox from "./CategoryComboBox"; // این کمبو از لیست والدها یا وارد دستی استفاده میشه
@@ -18,7 +18,7 @@ type CategoryFormProps = {
   onClose: () => void;
   type: "create" | "edit";
   initialData?: InsertCategoryValues & { id?: string };
-  existingCategories?: { id: string; name: string }[];
+  existingCategories?: CategoryWithParent[];
 };
 
 function CategoryForm({
@@ -111,7 +111,7 @@ function CategoryForm({
       <Button
         type="submit"
         disabled={isSubmitting}
-        className="mt-6 mb-4 w-full rounded-full"
+        className="mt-12 mb-4 w-full rounded-full"
       >
         {isSubmitting
           ? "در حال ذخیره..."

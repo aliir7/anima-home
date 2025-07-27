@@ -107,6 +107,7 @@ function CategoryTableClient({ categories }: CategoryTableClientProps) {
         type="create"
         isOpen={createOpen}
         onClose={() => setCreateOpen(false)}
+        existingCategories={categories}
       />
 
       {/* Edit Modal */}
@@ -123,6 +124,7 @@ function CategoryTableClient({ categories }: CategoryTableClientProps) {
               }
             : undefined
         }
+        existingCategories={categories}
       />
       {/* Delete Modal */}
       <DeleteCategoryModal

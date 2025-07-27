@@ -8,13 +8,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import CategoryForm from "./CategoryForm";
-import { InsertCategoryValues } from "@/types";
+import { CategoryWithParent, InsertCategoryValues } from "@/types";
 
 type CategoryFormModalProps = {
   isOpen: boolean;
   onClose: () => void;
   type: "create" | "edit";
   initialData?: InsertCategoryValues;
+  existingCategories?: CategoryWithParent[];
 };
 
 function CategoryFormModal({
@@ -22,6 +23,7 @@ function CategoryFormModal({
   onClose,
   type,
   initialData,
+  existingCategories,
 }: CategoryFormModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -35,7 +37,12 @@ function CategoryFormModal({
           </DialogDescription>
         </DialogHeader>
 
-        <CategoryForm onClose={onClose} type={type} initialData={initialData} />
+        <CategoryForm
+          onClose={onClose}
+          type={type}
+          initialData={initialData}
+          existingCategories={existingCategories}
+        />
       </DialogContent>
     </Dialog>
   );
