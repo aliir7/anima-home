@@ -14,7 +14,7 @@ import { projects } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { generateUniqueSlug } from "../utils/generateSlug";
-import { ROOT_URL } from "../constants";
+
 import { deleteFileFromDisk } from "./media.actions";
 
 // action for create project
@@ -104,37 +104,45 @@ export async function updateProject(
 }
 
 // delete project action
+
+/**
+ * حذف یک پروژه همراه با تمام فایل‌های متصل به آن
+ */
 export async function deleteProject(id: string): Promise<ActionResult<string>> {
   try {
-    // ابتدا پروژه را بگیر تا به تصاویر و ویدیوها دسترسی داشته باشیم
+    // دریافت پروژه جهت دسترسی به تصاویر و ویدیوها
     const [project] = await db
       .select()
       .from(projects)
       .where(eq(projects.id, id));
 
     if (project) {
-      const allMedia: string[] = [
-        ...((project.images as string[]) || []),
-        ...((project.videos as string[]) || []),
-      ];
+      // اطمینان از اینکه jsonb‌ها به صورت آرایه‌های string هستند
+      const images: string[] = Array.isArray(project.images)
+        ? project.images
+        : [];
+      const videos: string[] = Array.isArray(project.videos)
+        ? project.videos
+        : [];
 
-      // حذف همه فایل‌های مربوط به پروژه از دیسک
+      const allMedia = [...images, ...videos];
+
       for (const url of allMedia) {
         if (typeof url === "string" && url.trim() !== "") {
-          await deleteFileFromDisk(`${ROOT_URL}${url}`);
+          await deleteFileFromDisk(url); // حذف از دیسک واقعی
         }
       }
     }
 
-    // حذف رکورد پروژه از دیتابیس
+    // حذف رکورد از دیتابیس
     await db.delete(projects).where(eq(projects.id, id));
 
-    // بازسازی مسیر برای آپدیت UI
+    // رفرش صفحه ادمین
     revalidatePath("/admin/projects");
 
     return { success: true, data: "پروژه با موفقیت حذف شد" };
   } catch (error) {
-    console.error("خطا در حذف پروژه:", error);
+    console.error("❌ خطا در حذف پروژه:", error);
     return {
       success: false,
       error: { type: "custom", message: "خطا در حذف پروژه" },

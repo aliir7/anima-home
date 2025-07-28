@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { users } from "@/db/schema";
+import { users, verificationTokens } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import {
@@ -17,6 +17,9 @@ import {
 import { signIn, signOut } from "../auth";
 import { getUserByEmail } from "@/db/queries/getUserByEmail";
 import { AuthError } from "next-auth";
+import generateToken from "../utils/generateToken";
+import { addMinutes } from "date-fns";
+import { sendMailAction } from "./mail.actions";
 
 // register user action
 export async function signupAction(
@@ -148,18 +151,63 @@ export async function userSignOut() {
   await signOut();
 }
 
-// forgot password
+// forgot password action
+export async function sendResetPasswordAction(
+  email: string,
+): Promise<ActionResult<string>> {
+  try {
+    // find user by email
+    const user = await getUserByEmail(email);
 
-// export async function sendResetPasswordEmailAction(
-//   email: string,
-// ): Promise<ActionResult<null>> {
-//   const user = await getUserByEmail(email);
-//   if (!user) {
-//     return {
-//       success: false,
-//       error: { type: "custom", message: "کاربری با این ایمیل یافت نشد" },
-//     };
-//   }
-//   await sendResetPasswordEmail(user.email, user.id);
-//   return { success: true, data: null };
-// }
+    if (!user) {
+      return {
+        success: false,
+        error: { type: "custom", message: "کاربری با این ایمیل وجود ندازد" },
+      };
+    }
+
+    // generate token and add expiry time
+    const token = generateToken();
+    // 30 minutes expiry date
+    const expires = addMinutes(new Date(), 30);
+
+    // add token to token table
+    await db.insert(verificationTokens).values({
+      identifier: email,
+      token,
+      expires,
+    });
+
+    //create reset link
+    const resetLink = `${process.env.NEXTAUTH_URL}/reset-password/${token}`;
+
+    // send resetPassword email
+    const subject = "بازیابی رمز عبور";
+    const html = ` <p>درخواست بازیابی رمز عبور ثبت شده است.</p> <p>برای بازیابی رمز عبور روی لینک زیر کلیک کنید:</p> <a href="${resetLink}">${resetLink}</a> <p>این لینک فقط تا ۳۰ دقیقه اعتبار دارد.</p> <br /> <p>اگر این درخواست از طرف شما نبوده، این پیام را نادیده بگیرید.</p> `;
+    // send data to send mail action
+
+    const resetPasswordEmail = await sendMailAction({ email, subject, html });
+    if (
+      !resetPasswordEmail.success &&
+      resetPasswordEmail.error.type === "custom"
+    ) {
+      return {
+        success: false,
+        error: { type: "custom", message: resetPasswordEmail.error.message },
+      };
+    }
+    // if action was successfully
+    return {
+      success: true,
+      data: `لینک ${subject} با موفقیت به ایمیل شما ارسال شد`,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        type: "custom",
+        message: `خطایی در ارسال ایمیل بازیابی رمز عبور رخ داد ${error}`,
+      },
+    };
+  }
+}

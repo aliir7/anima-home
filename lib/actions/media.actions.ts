@@ -1,10 +1,9 @@
 "use server";
-import { unlink } from "fs/promises";
-import { join } from "path";
-import { ROOT_URL } from "../constants";
+
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { v4 as uuid } from "uuid";
+import fs from "fs/promises";
 
 /**
  * آپلود فایل و برگشت مسیر عمومی (`/media/...`)
@@ -45,25 +44,17 @@ export async function uploadMedia(
 /**
  * حذف فایل از دیسک بر اساس آدرس `/media/...`
  */
-export async function deleteFileFromDisk(fileUrl: string): Promise<boolean> {
+
+export async function deleteFileFromDisk(fileUrl: string) {
   try {
-    const url = new URL(fileUrl, ROOT_URL); // برای استخراج pathname
-    const filePath = url.pathname; // /media/...
-
-    const baseDir =
-      process.env.NODE_ENV === "development"
-        ? join(process.cwd(), "public")
-        : "/app/uploads"; // چون فایل‌ها در /app/uploads/media/... ذخیره می‌شن
-
-    // تبدیل /media/... به مسیر واقعی /app/uploads/media/...
-    const realPath = filePath.replace(/^\/media/, ""); // فقط media رو حذف کن
-
-    const fullPath = join(baseDir, realPath); // مسیر کامل نهایی
-
-    await unlink(fullPath);
-    return true;
+    const filePath = path.join(process.cwd(), "public", fileUrl);
+    await fs.unlink(filePath);
   } catch (error) {
-    console.error("خطا در حذف فایل:", error);
-    return false;
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    if ((error as any)?.code === "ENOENT") {
+      console.warn("⚠️ فایل وجود ندارد:", fileUrl);
+    } else {
+      console.error("❌ خطا در حذف فایل:", error);
+    }
   }
 }

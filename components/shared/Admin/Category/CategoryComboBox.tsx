@@ -33,13 +33,12 @@ export default function CategoryCombobox({
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
 
-  const normalizedCategories = categories.map(
-    (cat) => cat.parentName ?? cat.name.toLowerCase(),
+  const normalizedCategories = categories.map((cat) =>
+    (cat.parentName ?? cat.name).toLowerCase(),
   );
   const isNewValue =
     inputValue && !normalizedCategories.includes(inputValue.toLowerCase());
 
-  // اگر هیچ دسته‌ای نداریم، فقط input ساده نشون بده
   if (categories.length === 0) {
     return (
       <Input
@@ -58,7 +57,8 @@ export default function CategoryCombobox({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full cursor-pointer justify-between rounded-full"
+          className="w-full justify-between rounded-full"
+          type="button"
         >
           {value || "انتخاب یا وارد کردن نام والد"}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -74,33 +74,28 @@ export default function CategoryCombobox({
           />
           <CommandEmpty>هیچ موردی یافت نشد.</CommandEmpty>
           <CommandGroup>
-            {categories.map((cat) => (
-              <CommandItem
-                key={cat.id}
-                value={cat.parentName ?? cat.name}
-                onSelect={(currentValue) => {
-                  onChange(currentValue);
-                  setInputValue(currentValue);
-                  setOpen(false);
-                }}
-                asChild
-              >
-                <Button
-                  type="button"
-                  className="flex w-full items-center justify-between text-right"
+            {categories.map((cat) => {
+              const catName = cat.parentName ?? cat.name;
+              return (
+                <CommandItem
+                  key={cat.id}
+                  value={catName}
+                  onSelect={() => {
+                    onChange(catName);
+                    setInputValue(catName);
+                    setOpen(false);
+                  }}
                 >
                   <Check
                     className={cn(
                       "ml-2 h-4 w-4",
-                      value === cat.name || cat.parentName
-                        ? "opacity-100"
-                        : "opacity-0",
+                      value === catName ? "opacity-100" : "opacity-0",
                     )}
                   />
-                  {cat.parentName ?? cat.name}
-                </Button>
-              </CommandItem>
-            ))}
+                  {catName}
+                </CommandItem>
+              );
+            })}
 
             {isNewValue && (
               <CommandItem
@@ -109,13 +104,10 @@ export default function CategoryCombobox({
                   onChange(inputValue);
                   setOpen(false);
                 }}
-                className="text-primary cursor-pointer"
-                asChild
+                className="text-primary"
               >
-                <Button className="w-full text-right" type="button">
-                  <strong className="mx-1">{inputValue}</strong>
-                  ساخت دسته جدید با عنوان:
-                </Button>
+                ساخت دسته جدید با عنوان:{" "}
+                <strong className="mx-1">{inputValue}</strong>
               </CommandItem>
             )}
           </CommandGroup>
