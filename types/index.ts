@@ -10,6 +10,7 @@ import {
   updateProjectSchema,
 } from "@/lib/validations/projectsValidations";
 import {
+  changePasswordSchema,
   forgotPasswordSchema,
   signinSchema,
   signupFormSchema,
@@ -37,7 +38,7 @@ export type SignupFormValues = z.infer<typeof signupFormSchema>;
 export type SignupInsert = z.infer<typeof signupSchema>;
 export type SigninValues = z.infer<typeof signinSchema>;
 export type ForgotPasswordSchema = z.infer<typeof forgotPasswordSchema>;
-
+export type ChangePasswordValues = z.infer<typeof changePasswordSchema>;
 // category types
 export type Category = z.infer<typeof selectCategorySchema>;
 export type CategoryWithParent = z.infer<typeof categoryWithParentSchema>;

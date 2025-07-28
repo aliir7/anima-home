@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import {
   Popover,
@@ -33,13 +33,13 @@ export default function CategoryCombobox({
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
 
-  const normalizedCategories = categories.map((cat) =>
-    (cat.parentName ?? cat.name).toLowerCase(),
-  );
-  const isNewValue =
-    inputValue && !normalizedCategories.includes(inputValue.toLowerCase());
+  const names = categories.map((c) => c.parentName ?? c.name.toLowerCase());
+  const isNew = inputValue && !names.includes(inputValue.toLowerCase());
 
-  // اگر هیچ دسته‌بندی‌ای وجود ندارد، فقط input نمایش بده
+  useEffect(() => {
+    if (open === false) setInputValue("");
+  }, [open]);
+
   if (categories.length === 0) {
     return (
       <Input
@@ -59,6 +59,7 @@ export default function CategoryCombobox({
           role="combobox"
           aria-expanded={open}
           className="w-full justify-between rounded-full"
+          type="button"
         >
           {value || "انتخاب یا وارد کردن نام والد"}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -74,30 +75,28 @@ export default function CategoryCombobox({
           />
           <CommandEmpty>هیچ موردی یافت نشد.</CommandEmpty>
           <CommandGroup>
-            {categories.map((cat) => {
-              const catName = cat.parentName ?? cat.name;
-              return (
-                <CommandItem
-                  key={cat.id}
-                  value={catName}
-                  onSelect={() => {
-                    onChange(catName);
-                    setInputValue(catName);
-                    setOpen(false);
-                  }}
-                >
-                  <Check
-                    className={cn(
-                      "ml-2 h-4 w-4",
-                      value === catName ? "opacity-100" : "opacity-0",
-                    )}
-                  />
-                  {catName}
-                </CommandItem>
-              );
-            })}
+            {categories.map((cat) => (
+              <CommandItem
+                key={cat.id}
+                value={cat.parentName || cat.name}
+                onSelect={(currentValue) => {
+                  console.log("✅ انتخاب شد:", currentValue);
+                  onChange(currentValue);
+                  setInputValue("");
+                  setOpen(false);
+                }}
+              >
+                <Check
+                  className={cn(
+                    "ml-2 h-4 w-4",
+                    value === cat.parentName ? "opacity-100" : "opacity-0",
+                  )}
+                />
+                {cat.parentName}
+              </CommandItem>
+            ))}
 
-            {isNewValue && (
+            {isNew && (
               <CommandItem
                 value={inputValue}
                 onSelect={() => {

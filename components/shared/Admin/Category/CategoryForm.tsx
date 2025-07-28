@@ -12,7 +12,7 @@ import { insertCategorySchema } from "@/lib/validations/categoryValidations";
 import { CategoryWithParent, InsertCategoryValues } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import CategoryCombobox from "./CategoryComboBox"; // این کمبو از لیست والدها یا وارد دستی استفاده میشه
+import CategoryCombobox from "./CategoryComboBox";
 
 type CategoryFormProps = {
   onClose: () => void;
@@ -43,6 +43,7 @@ function CategoryForm({
   });
 
   const parentName = watch("parentName");
+  console.log("🔵 مقدار فعلی parentName در فرم:", parentName); // ⬅️ اینو هم اضافه کن
 
   const onSubmit = async (values: InsertCategoryValues) => {
     const action =
@@ -98,7 +99,10 @@ function CategoryForm({
         <CategoryCombobox
           categories={existingCategories}
           value={parentName || ""}
-          onChange={(val) => setValue("parentName", val)}
+          onChange={(val) => {
+            console.log("🟢 مقدار انتخاب‌شده در فرم:", val); // ⬅️ این خطو اضافه کن
+            setValue("parentName", val, { shouldValidate: true });
+          }}
         />
         {errors.parentName && (
           <p className="text-destructive mt-1 mr-2 text-sm">
@@ -111,7 +115,7 @@ function CategoryForm({
       <Button
         type="submit"
         disabled={isSubmitting}
-        className="mt-12 mb-4 w-full rounded-full"
+        className="mt-14 mb-4 w-full rounded-full"
       >
         {isSubmitting
           ? "در حال ذخیره..."

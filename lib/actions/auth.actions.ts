@@ -152,7 +152,7 @@ export async function userSignOut() {
 }
 
 // forgot password action
-export async function sendResetPasswordAction(
+export async function sendResetPasswordEmailAction(
   email: string,
 ): Promise<ActionResult<string>> {
   try {
@@ -207,6 +207,51 @@ export async function sendResetPasswordAction(
       error: {
         type: "custom",
         message: `خطایی در ارسال ایمیل بازیابی رمز عبور رخ داد ${error}`,
+      },
+    };
+  }
+}
+
+// change password action
+export async function changePasswordAction(
+  email: string,
+  token: string,
+  newPassword: string,
+): Promise<ActionResult<string>> {
+  try {
+    // 1.checking token validation and expiry time
+    const tokenEntry = await db.query.verificationTokens.findFirst({
+      where: eq(verificationTokens.token, token),
+    });
+    if (!tokenEntry || tokenEntry.identifier !== email) {
+      return {
+        success: false,
+        error: { type: "custom", message: "توکن معتبر نیست یا منقضی شده." },
+      };
+    }
+    // 2.hashed new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // 3.update user table with new password
+    await db
+      .update(users)
+      .set({ password: hashedPassword })
+      .where(eq(users.email, email));
+
+    // 4.delete token from table
+    await db
+      .delete(verificationTokens)
+      .where(eq(verificationTokens.token, token));
+
+    // 5.return successfully message
+    return { success: true, data: "رمزعبور با موفقیت تغییر کرد" };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      error: {
+        type: "custom",
+        message: `خطایی در تغییر رمزعبور رخ داد${error}`,
       },
     };
   }

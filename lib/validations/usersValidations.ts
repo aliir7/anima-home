@@ -38,3 +38,16 @@ export const userSchema = createInsertSchema(users).pick({
 export const forgotPasswordSchema = z.object({
   email: z.email("ایمیل معتبر وارد کنید"),
 });
+
+export const changePasswordSchema = z
+  .object({
+    password: z
+      .string()
+      .min(6, "رمز عبور باید حداقل 6 کاراکتر باشد")
+      .max(50, "رمز عبور نمی‌تواند بیشتر از ۵۰ کاراکتر باشد"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "رمز عبور و تکرار آن باید برابر باشند",
+    path: ["confirmPassword"],
+  });

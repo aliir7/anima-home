@@ -14,6 +14,8 @@ export const authRoutes = [
   "/sign-up",
   "/my-account",
   "/my-account/orders",
+  "/forgot-password",
+  "/reset-password",
 ];
 export const adminRoutes = [
   "/admin",
