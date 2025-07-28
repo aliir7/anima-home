@@ -1,120 +1,126 @@
 "use client";
 
-import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from "@/components/ui/command";
-import { cn } from "@/lib/utils/utils";
-import { Check, ChevronsUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { CategoryWithParent } from "@/types";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  createCategoryAction,
+  updateCategoryAction,
+} from "@/lib/actions/category.actions";
+import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
+import { insertCategorySchema } from "@/lib/validations/categoryValidations";
+import { CategoryWithParent, InsertCategoryValues } from "@/types";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import CategoryCombobox from "./CategoryComboBox"; // این کمبو از لیست والدها یا وارد دستی استفاده میشه
 
-type CategoryComboboxProps = {
-  categories: CategoryWithParent[];
-  value: string;
-  onChange: (value: string) => void;
+type CategoryFormProps = {
+  onClose: () => void;
+  type: "create" | "edit";
+  initialData?: InsertCategoryValues & { id?: string };
+  existingCategories?: CategoryWithParent[];
 };
 
-function CategoryCombobox({
-  categories,
-  value,
-  onChange,
-}: CategoryComboboxProps) {
-  const [open, setOpen] = useState(false);
-  const [inputValue, setInputValue] = useState("");
+function CategoryForm({
+  onClose,
+  type,
+  initialData,
+  existingCategories = [],
+}: CategoryFormProps) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setValue,
+    watch,
+    reset,
+  } = useForm<InsertCategoryValues>({
+    resolver: zodResolver(insertCategorySchema),
+    defaultValues: initialData ?? {
+      name: "",
+      parentName: "",
+    },
+  });
 
-  const normalizedCategories = categories.map((cat) =>
-    (cat.parentName ?? cat.name).toLowerCase(),
-  );
-  const isNewValue =
-    inputValue && !normalizedCategories.includes(inputValue.toLowerCase());
+  const parentName = watch("parentName");
 
-  // اگر هیچ دسته‌بندی‌ای وجود ندارد، فقط input نمایش بده
-  if (categories.length === 0) {
-    return (
-      <Input
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="نام والد را وارد کنید"
-        className="rounded-full"
-      />
-    );
-  }
+  const onSubmit = async (values: InsertCategoryValues) => {
+    const action =
+      type === "create"
+        ? await createCategoryAction(values)
+        : initialData?.id
+          ? await updateCategoryAction({ ...values, id: initialData.id })
+          : null;
+
+    if (!action) {
+      showErrorToast("خطا در ذخیره دسته‌بندی", "bottom-right");
+      return;
+    }
+
+    if (action.success) {
+      showSuccessToast(
+        `دسته‌بندی با موفقیت ${type === "create" ? "ایجاد" : "ویرایش"} شد`,
+        "bottom-right",
+      );
+      reset();
+      onClose();
+    } else if (action.error.type === "custom") {
+      showErrorToast(
+        "خطا: " + (action.error.message || "عملیات ناموفق بود"),
+        "bottom-right",
+      );
+    }
+  };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-full justify-between rounded-full"
-        >
-          {value || "انتخاب یا وارد کردن نام والد"}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      {/* نام دسته‌بندی */}
+      <div className="mt-2 mr-2 mb-4 space-y-4">
+        <Label htmlFor="name" className="mr-2">
+          نام دسته‌بندی
+        </Label>
+        <Input
+          id="name"
+          {...register("name")}
+          disabled={isSubmitting}
+          className="rounded-full"
+        />
+        {errors.name && (
+          <p className="text-destructive mt-1 text-sm">{errors.name.message}</p>
+        )}
+      </div>
 
-      <PopoverContent className="w-full p-0">
-        <Command>
-          <CommandInput
-            placeholder="جستجوی والد یا ایجاد جدید..."
-            value={inputValue}
-            onValueChange={setInputValue}
-          />
-          <CommandEmpty>هیچ موردی یافت نشد.</CommandEmpty>
-          <CommandGroup>
-            {categories.map((cat) => {
-              const catName = cat.parentName ?? cat.name;
-              return (
-                <CommandItem
-                  key={cat.id}
-                  value={catName}
-                  onSelect={() => {
-                    onChange(catName);
-                    setInputValue(catName);
-                    setOpen(false);
-                  }}
-                >
-                  <Check
-                    className={cn(
-                      "ml-2 h-4 w-4",
-                      value === catName ? "opacity-100" : "opacity-0",
-                    )}
-                  />
-                  {catName}
-                </CommandItem>
-              );
-            })}
+      {/* کمبوباکس یا input برای والد */}
+      <div className="mt-6 mr-2 mb-4 space-y-4">
+        <Label htmlFor="parentName" className="mr-2">
+          دسته‌بندی والد (اختیاری)
+        </Label>
+        <CategoryCombobox
+          categories={existingCategories}
+          value={parentName || ""}
+          onChange={(val) => setValue("parentName", val)}
+        />
+        {errors.parentName && (
+          <p className="text-destructive mt-1 mr-2 text-sm">
+            {errors.parentName.message}
+          </p>
+        )}
+      </div>
 
-            {isNewValue && (
-              <CommandItem
-                value={inputValue}
-                onSelect={() => {
-                  onChange(inputValue);
-                  setOpen(false);
-                }}
-                className="text-primary"
-              >
-                ساخت دسته جدید با عنوان:{" "}
-                <strong className="mx-1">{inputValue}</strong>
-              </CommandItem>
-            )}
-          </CommandGroup>
-        </Command>
-      </PopoverContent>
-    </Popover>
+      {/* دکمه */}
+      <Button
+        type="submit"
+        disabled={isSubmitting}
+        className="mt-12 mb-4 w-full rounded-full"
+      >
+        {isSubmitting
+          ? "در حال ذخیره..."
+          : type === "create"
+            ? "ایجاد دسته‌بندی"
+            : "ذخیره تغییرات"}
+      </Button>
+    </form>
   );
 }
 
-export default CategoryCombobox;
+export default CategoryForm;

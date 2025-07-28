@@ -39,6 +39,7 @@ export default function CategoryCombobox({
   const isNewValue =
     inputValue && !normalizedCategories.includes(inputValue.toLowerCase());
 
+  // اگر هیچ دسته‌بندی‌ای وجود ندارد، فقط input نمایش بده
   if (categories.length === 0) {
     return (
       <Input
@@ -58,7 +59,6 @@ export default function CategoryCombobox({
           role="combobox"
           aria-expanded={open}
           className="w-full justify-between rounded-full"
-          type="button"
         >
           {value || "انتخاب یا وارد کردن نام والد"}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
