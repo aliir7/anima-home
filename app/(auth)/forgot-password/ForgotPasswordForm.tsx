@@ -33,14 +33,14 @@ function ForgotPasswordForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <div>
+      <div className="flex flex-col gap-2">
         <Label htmlFor="email">ایمیل</Label>
         <Input
           id="email"
           type="email"
           placeholder="ایمیل خود را وارد کنید"
           {...register("email")}
-          className="mt-2 rounded-full"
+          className="outline-light dark:outline-dark my-4 mt-2 rounded-full"
         />
         {errors.email && (
           <p className="text-destructive mt-1 text-sm">
@@ -50,7 +50,7 @@ function ForgotPasswordForm() {
       </div>
       <Button
         type="submit"
-        className="w-full rounded-full"
+        className="my-4 w-full cursor-pointer rounded-full"
         disabled={isSubmitting}
       >
         {isSubmitting ? "در حال ارسال..." : "ارسال لینک بازیابی"}

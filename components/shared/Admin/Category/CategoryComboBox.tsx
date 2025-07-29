@@ -33,14 +33,17 @@ export default function CategoryCombobox({
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
 
-  const names = categories.map((c) => c.parentName ?? c.name.toLowerCase());
-  const isNew = inputValue && !names.includes(inputValue.toLowerCase());
+  // فقط دسته‌هایی که خودشون والدی ندارن می‌تونن والد باشن
+  const parentCandidates = categories.filter((cat) => !cat.parentName);
+
+  const normalized = parentCandidates.map((c) => c.name.toLowerCase());
+  const isNew = inputValue && !normalized.includes(inputValue.toLowerCase());
 
   useEffect(() => {
-    if (open === false) setInputValue("");
+    if (!open) setInputValue("");
   }, [open]);
 
-  if (categories.length === 0) {
+  if (parentCandidates.length === 0) {
     return (
       <Input
         value={value}
@@ -69,30 +72,29 @@ export default function CategoryCombobox({
       <PopoverContent className="w-full p-0">
         <Command>
           <CommandInput
-            placeholder="جستجوی والد یا ایجاد جدید..."
+            placeholder="جستجو یا ساخت والد جدید..."
             value={inputValue}
             onValueChange={setInputValue}
           />
           <CommandEmpty>هیچ موردی یافت نشد.</CommandEmpty>
           <CommandGroup>
-            {categories.map((cat) => (
+            {parentCandidates.map((cat) => (
               <CommandItem
                 key={cat.id}
-                value={cat.parentName || cat.name}
-                onSelect={(currentValue) => {
-                  console.log("✅ انتخاب شد:", currentValue);
-                  onChange(currentValue);
-                  setInputValue("");
+                value={cat.name}
+                onSelect={() => {
+                  console.log("✅ والد انتخاب شد:", cat.name);
+                  onChange(cat.name);
                   setOpen(false);
                 }}
               >
                 <Check
                   className={cn(
                     "ml-2 h-4 w-4",
-                    value === cat.parentName ? "opacity-100" : "opacity-0",
+                    value === cat.name ? "opacity-100" : "opacity-0",
                   )}
                 />
-                {cat.parentName}
+                {cat.name}
               </CommandItem>
             ))}
 
@@ -105,7 +107,7 @@ export default function CategoryCombobox({
                 }}
                 className="text-primary"
               >
-                ساخت دسته جدید با عنوان:{" "}
+                ساخت والد جدید با عنوان:{" "}
                 <strong className="mx-1">{inputValue}</strong>
               </CommandItem>
             )}

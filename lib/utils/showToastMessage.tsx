@@ -8,9 +8,13 @@ type Position =
   | "top-left"
   | "top-right";
 
-export const showSuccessToast = (msg: string, position: Position) =>
+export const showSuccessToast = (
+  msg: string,
+  position: Position,
+  desc?: string,
+) =>
   toast.success(msg, {
-    description: msg,
+    description: desc ?? msg,
     position: position,
   });
 

@@ -43,7 +43,10 @@ function CategoryForm({
   });
 
   const parentName = watch("parentName");
-  console.log("🔵 مقدار فعلی parentName در فرم:", parentName); // ⬅️ اینو هم اضافه کن
+  const name = watch("name");
+  const description = parentName
+    ? `دسته بندی با نام ${name} و سرگروه ${parentName}`
+    : `دسته بندی با نام ${name}`;
 
   const onSubmit = async (values: InsertCategoryValues) => {
     const action =
@@ -62,6 +65,7 @@ function CategoryForm({
       showSuccessToast(
         `دسته‌بندی با موفقیت ${type === "create" ? "ایجاد" : "ویرایش"} شد`,
         "bottom-right",
+        `${description} با موفقیت ${type === "create" ? "ایجاد" : "ویرایش"}شد `,
       );
       reset();
       onClose();
@@ -100,7 +104,6 @@ function CategoryForm({
           categories={existingCategories}
           value={parentName || ""}
           onChange={(val) => {
-            console.log("🟢 مقدار انتخاب‌شده در فرم:", val); // ⬅️ این خطو اضافه کن
             setValue("parentName", val, { shouldValidate: true });
           }}
         />
