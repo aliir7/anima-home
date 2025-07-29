@@ -18,7 +18,7 @@ import { signIn, signOut } from "../auth";
 import { getUserByEmail } from "@/db/queries/getUserByEmail";
 import { AuthError } from "next-auth";
 import generateToken from "../utils/generateToken";
-import { addMinutes } from "date-fns";
+import { addHours, addMinutes } from "date-fns";
 import { sendMailAction } from "./mail.actions";
 
 // register user action
@@ -67,12 +67,42 @@ export async function signupAction(
       })
       .returning();
 
-    // automatic signIn after signUp
-    await signIn("credentials", {
-      redirect: false,
-      email,
-      password,
+    // verify email
+    // generate token
+    const token = generateToken();
+    const expires = addHours(new Date(), 24);
+
+    // add token to token table
+    await db.insert(verificationTokens).values({
+      identifier: email,
+      token,
+      expires,
     });
+
+    //create verify link
+    const verifyLink = `${process.env.NEXTAUTH_URL}/verify-email/${token}`;
+
+    // send verify email
+    const subject = "تأیید ایمیل شما در انیما هوم";
+    const html = `
+      <div style="direction: rtl; font-family: sans-serif;">
+        <h2>سلام 👋</h2>
+        <p>برای فعال‌سازی حساب خود در <strong>Anima Home</strong>، روی دکمه زیر کلیک کنید:</p>
+        <a href="${verifyLink}" 
+           style="display:inline-block;padding:10px 20px;background:#6366f1;color:white;text-decoration:none;border-radius:8px;margin-top:20px;">
+           تأیید ایمیل
+        </a>
+        <p style="margin-top:30px;">اگر این درخواست از طرف شما نبوده، لطفاً این ایمیل را نادیده بگیرید.</p>
+      </div>
+    `;
+    const sendVerifyEmail = await sendMailAction({ email, subject, html });
+
+    if (!sendVerifyEmail.success && sendVerifyEmail.error.type === "custom") {
+      return {
+        success: false,
+        error: { type: "custom", message: sendVerifyEmail.error.message },
+      };
+    }
 
     return {
       success: true,
