@@ -14,7 +14,7 @@ export const showSuccessToast = (
   desc?: string,
 ) =>
   toast.success(msg, {
-    description: desc ?? msg,
+    description: desc ?? "",
     position: position,
   });
 

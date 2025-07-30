@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏠 پروژه انیما هوم (Anima Home)
 
-## Getting Started
+این پروژه با استفاده از فریم‌ورک قدرتمند [Next.js 15](https://nextjs.org) و تایپ‌اسکریپت توسعه داده شده و در حال حاضر به‌صورت آنلاین روی دامنه [`anima-home.ir`](https://anima-home.ir) میزبانی می‌شود.
 
-First, run the development server:
+> **✔️ این پروژه بر بستر سرویس ابری لیارا (Liara) پیاده‌سازی شده است.**
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠️ تکنولوژی‌ها و ابزارهای استفاده‌شده (Tech Stack)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- [Next.js 15](https://nextjs.org)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Tailwind CSS v4](https://tailwindcss.com)
+- [ShadCN/UI](https://ui.shadcn.com/)
+- [Drizzle ORM](https://orm.drizzle.team)
+- [PostgreSQL](https://www.postgresql.org/)
+- [Zod](https://zod.dev)
+- [NextAuth v5](https://authjs.dev)
+- [Vazirmatn Font](https://github.com/rastikerdar/vazirmatn) (فونت فارسی پروژه)
+- [Liara Platform](https://liara.ir)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## ✨ درباره پروژه
 
-To learn more about Next.js, take a look at the following resources:
+در پروژه انیما هوم، ویژگی‌های زیر پیاده‌سازی شده‌اند:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- مدیریت کاربران با احراز هویت مبتنی بر ایمیل (ثبت‌نام، ورود، تأیید ایمیل)
+- بازیابی رمز عبور با ارسال لینک به ایمیل کاربر
+- پنل ادمین برای مدیریت محصولات، دسته‌بندی‌ها، تصاویر، پروژه‌ها و سفارشات
+- بارگذاری و پیش‌نمایش تصاویر و ویدیوها در صفحات پروژه و محصول
+- پیاده‌سازی فرم‌ها با استفاده از React Hook Form و اعتبارسنجی Zod
+- ساختار تمیز فولدرها با رویکرد app-router و Server Actions
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 💡 چیزهایی که در این پروژه یاد گرفتم
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- استفاده پیشرفته از **Drizzle ORM** برای طراحی و مدیریت دیتابیس PostgreSQL
+- پیاده‌سازی کامل **احراز هویت با ایمیل** به کمک NextAuth v5
+- استفاده از **Server Actions** و **Server Components** در معماری جدید Next.js
+- کار با فرم‌های پیچیده و تایید اعتبار داده‌ها با ترکیب **drizzle-zod** و React Hook Form
+- مدیریت فایل‌های مدیا (تصاویر/ویدیوها) با آپلود مستقیم و اتصال به فضای ذخیره‌سازی ابری لیارا
+- بهینه‌سازی ساختار و استایل‌دهی با **Tailwind CSS v4** و طراحی UI با Shadcn
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 🔗 مستندات و منابع
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Drizzle ORM Docs](https://orm.drizzle.team/docs)
+- [TailwindCSS v4 Docs](https://tailwindcss.com/docs)
+- [NextAuth v5 Docs](https://authjs.dev/getting-started/)
+- [Shadcn UI](https://ui.shadcn.com/docs)
+- [Zod Validation](https://zod.dev/)
+- [Tanstack Query](https://tanstack.com/query/latest)
+- [Liara Docs](https://docs.liara.ir)
+
+---
+
+## 🚧 در حال حاضر در حال توسعه بر روی این ریپازیتوری هستم:
+
+📌 [github.com/aliir7/anima-home](https://github.com/aliir7/anima-home)
+
+---
+
+## 🤝 مشارکت
+
+اگر مشکلی یا بهبودی در سورس‌کد مشاهده کردید، بسیار خوشحال می‌شوم از طریق [Issues](https://github.com/aliir7/anima-home/issues) یا Pull Request با من در میان بگذارید. 🌟

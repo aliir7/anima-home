@@ -2,7 +2,7 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -16,12 +16,26 @@ import { Eye, EyeOff } from "lucide-react";
 import { CardFooter } from "@/components/ui/card";
 import Link from "next/link";
 
-function SignInForm() {
+type SignInFormProps = {
+  verified?: boolean;
+  callbackUrl?: string;
+};
+
+function SignInForm({ verified }: SignInFormProps) {
   const [showPassword, setShowPassword] = useState(false);
 
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
   const router = useRouter();
+
+  useEffect(() => {
+    if (verified) {
+      showSuccessToast(
+        "ایمیل شما با موفقیت تأیید شد ✅ اکنون می‌توانید وارد شوید.",
+        "top-right",
+      );
+    }
+  }, [verified]);
 
   const {
     register,
@@ -35,7 +49,7 @@ function SignInForm() {
 
   const email = watch("email");
 
-  // sigIn handler action
+  // signin handler action
   const onSubmit = async (data: SigninValues) => {
     const result = await signinWithCredentials(data);
     if (result.success) {

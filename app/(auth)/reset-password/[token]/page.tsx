@@ -1,10 +1,8 @@
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { db } from "@/db";
-import { verificationTokens } from "@/db/schema";
-import { eq } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import ResetPasswordForm from "./ResetPasswordForm";
+import { verifyResetToken } from "@/lib/auth/verifyResetToken";
 
 export const metadata: Metadata = {
   title: "تغییر رمز عبور",
@@ -22,17 +20,18 @@ export default async function ResetPasswordPage({
   if (session) {
     redirect("/");
   }
+
   const { token } = await params;
-  const tokenEntry = await db.query.verificationTokens.findFirst({
-    where: eq(verificationTokens.token, token),
-  });
-  if (!tokenEntry || new Date(tokenEntry.expires) < new Date()) {
+  const email = await verifyResetToken(token);
+
+  if (!email) {
     redirect("/sign-in?error=token-expired");
   }
+
   return (
     <div className="mx-auto my-12 w-full max-w-md px-4">
       <h3 className="mb-6 text-center text-xl font-bold">تغییر رمز عبور</h3>
-      <ResetPasswordForm email={tokenEntry.identifier} token={token} />
+      <ResetPasswordForm email={email} token={token} />
     </div>
   );
 }

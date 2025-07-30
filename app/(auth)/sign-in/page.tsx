@@ -12,16 +12,16 @@ export const metadata: Metadata = {
 };
 
 type SignInPageProps = {
-  searchParams: Promise<{ callbackUrl: string }>;
+  searchParams: Promise<{ callbackUrl?: string; verified?: string }>;
 };
 
 async function SignInPage({ searchParams }: SignInPageProps) {
   // get session for redirect user to home page
-  const { callbackUrl } = await searchParams;
+  const { callbackUrl = "/", verified } = await searchParams;
   const session = await auth();
 
   if (session) {
-    redirect(callbackUrl || "/");
+    redirect(callbackUrl);
   }
   return (
     <div className="mx-auto my-12 w-full max-w-md px-4">
@@ -43,7 +43,7 @@ async function SignInPage({ searchParams }: SignInPageProps) {
         </CardHeader>
 
         <CardContent>
-          <SignInForm />
+          <SignInForm verified={verified === "1"} />
         </CardContent>
       </Card>
     </div>

@@ -19,7 +19,7 @@ const mailFrom = process.env.MAIL_FROM;
 
 const transporter = nodemailer.createTransport({
   host: mailHost,
-  secure: false,
+  secure: true,
   port: Number(mailPort),
   auth: { user: mailUsername, pass: mailPassword },
 });

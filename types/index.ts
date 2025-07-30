@@ -24,6 +24,9 @@ export type QueryResult<T> =
   | { success: true; data: T }
   | { success: false; error: string };
 
+export type VerifyEmailResult =
+  | { success: true; message: string }
+  | { success: false; message: string };
 // server action results types
 export type ActionError =
   | { type: "zod"; issues: z.ZodError["issues"] }

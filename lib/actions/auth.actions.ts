@@ -154,6 +154,17 @@ export async function signinWithCredentials(
       };
     }
 
+    // ✅ بررسی تأیید بودن ایمیل
+    if (!user.emailVerified) {
+      return {
+        success: false,
+        error: {
+          type: "custom",
+          message: "لطفاً ابتدا ایمیل خود را تأیید کنید.",
+        },
+      };
+    }
+
     await signIn("credentials", {
       redirect: false,
       email,
