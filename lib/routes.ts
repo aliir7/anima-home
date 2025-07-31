@@ -5,20 +5,21 @@ export const publicRoutes = [
   "/blog",
   "/faq",
   "/projects",
-  "projects/[slug]",
   "/products",
   "/tools",
   "/materials",
 ];
+
 export const authRoutes = [
   "/sign-in",
   "/sign-up",
-  "/my-account",
-  "/my-account/orders",
   "/forgot-password",
   "/reset-password",
-  "verify-email",
+  "/verify-email",
+  "/my-account",
+  "/my-account/orders",
 ];
+
 export const adminRoutes = [
   "/admin",
   "/admin/projects",

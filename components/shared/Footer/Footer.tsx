@@ -64,8 +64,7 @@ export default function Footer() {
               09129277302
             </li>
             <li className="flex items-center gap-2">
-              <Mail className="h-4 w-4 cursor-pointer" />{" "}
-              anima.homedecor@gmail.com
+              <Mail className="h-4 w-4 cursor-pointer" /> info@anima-home.ir
             </li>
           </ul>
         </div>

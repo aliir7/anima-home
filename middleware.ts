@@ -11,31 +11,38 @@ export async function middleware(req: NextRequest) {
   const token = await getToken({
     req,
     secret: process.env.NEXTAUTH_SECRET,
-    secureCookie: isDev ? false : true,
+    secureCookie: !isDev,
   });
-
-  // console.log("🍪 TOKEN IN PROD:", token?.role);
-  // console.log("📍 PATH:", pathname);
 
   const isLoggedIn = !!token;
   const isAdmin = token?.role === "admin";
 
-  const isPublic = publicRoutes.includes(pathname);
-  const isAuthRoute = authRoutes.includes(pathname);
-  const isAdminRoute = adminRoutes.includes(pathname);
+  const matchesRoute = (pathname: string, routes: string[]) => {
+    return routes.some(
+      (route) => pathname === route || pathname.startsWith(`${route}/`),
+    );
+  };
 
+  const isPublic = matchesRoute(pathname, publicRoutes);
+  const isAuthRoute = matchesRoute(pathname, authRoutes);
+  const isAdminRoute = matchesRoute(pathname, adminRoutes);
+
+  // ✅ مسیرهای عمومی → دسترسی آزاد
   if (isPublic) {
     return NextResponse.next();
   }
 
+  // 🔒 مسیرهای ادمین فقط برای ادمین‌ها
   if (isAdminRoute && !isAdmin) {
     return NextResponse.redirect(new URL("/", nextUrl));
   }
 
+  // 🔄 مسیرهای احراز هویت برای کاربران لاگین‌نشده
   if (isAuthRoute && isLoggedIn) {
     return NextResponse.redirect(new URL("/", nextUrl));
   }
 
+  // 🔐 مسیرهای محافظت‌شده برای کاربران لاگین‌نشده
   if (!isPublic && !isAuthRoute && !isLoggedIn) {
     return NextResponse.redirect(new URL("/sign-in", nextUrl));
   }
