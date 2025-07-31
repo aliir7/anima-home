@@ -104,6 +104,14 @@ export async function signupAction(
       };
     }
 
+    if (user.emailVerified) {
+      await signIn("credentials", {
+        redirect: false,
+        email,
+        password,
+      });
+    }
+
     return {
       success: true,
       data: {

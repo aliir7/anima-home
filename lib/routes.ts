@@ -5,6 +5,7 @@ export const publicRoutes = [
   "/blog",
   "/faq",
   "/projects",
+  "projects/[slug]",
   "/products",
   "/tools",
   "/materials",

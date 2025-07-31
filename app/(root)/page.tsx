@@ -1,3 +1,4 @@
+import CabinetOfferSection from "@/components/shared/CabinetOfferSection";
 import HeroSection from "@/components/shared/HeroSection";
 import ServicesSection from "@/components/shared/Services/ServicesSection";
 
@@ -12,6 +13,7 @@ export default function HomePage() {
     <div className="space-y-12 md:space-y-6">
       <HeroSection />
       <ServicesSection />
+      <CabinetOfferSection />
     </div>
   );
 }
