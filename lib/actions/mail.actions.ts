@@ -12,14 +12,14 @@ type SendMailActionProps = {
 };
 
 const mailHost = process.env.MAIL_HOST;
-const mailPort = process.env.MAIL_PORT || 465;
+const mailPort = process.env.MAIL_PORT || 587;
 const mailUsername = process.env.MAIL_USERNAME;
 const mailPassword = process.env.MAIL_PASSWORD;
 const mailFrom = process.env.MAIL_FROM;
 
 const transporter = nodemailer.createTransport({
   host: mailHost,
-  secure: true,
+  secure: false,
   port: Number(mailPort),
   auth: { user: mailUsername, pass: mailPassword },
 });
