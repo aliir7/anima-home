@@ -4,7 +4,11 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { uploadMedia, uploadMultipleMedia } from "@/lib/actions/media.actions";
+import {
+  uploadSingleFile,
+  multipleUploadClient,
+} from "@/lib/utils/clientUpload"; // مسیر درست
+import { showErrorToast } from "@/lib/utils/showToastMessage";
 
 type FileUploaderProps = {
   label: string;
@@ -17,8 +21,8 @@ type FileUploaderProps = {
 function FileUploader({
   label,
   accept,
-  folderName = "media",
   multiple = false,
+  folderName = "media",
   onUploaded,
 }: FileUploaderProps) {
   const [uploading, setUploading] = useState(false);
@@ -29,48 +33,41 @@ function FileUploader({
     if (!files || files.length === 0) return;
 
     setUploading(true);
-    setProgress(0);
+    setProgress(10);
 
-    const formData = new FormData();
-
-    if (multiple) {
-      for (let i = 0; i < files.length; i++) {
-        formData.append("files", files[i]);
+    try {
+      if (multiple) {
+        const urls = await multipleUploadClient(Array.from(files), folderName);
+        onUploaded(urls);
+      } else {
+        const url = await uploadSingleFile(files[0], folderName);
+        onUploaded([url]);
       }
-
-      const urls = await uploadMultipleMedia(formData, folderName);
       setProgress(100);
+    } catch (err) {
+      console.error(err);
+      showErrorToast("خطا در آپلود فایل", "top-right");
+    } finally {
       setUploading(false);
-      setTimeout(() => setProgress(0), 500);
-      onUploaded(urls);
-    } else {
-      formData.append("file", files[0]);
-      const url = await uploadMedia(formData, folderName);
-      setProgress(100);
-      setUploading(false);
-      setTimeout(() => setProgress(0), 500);
-      if (url) onUploaded([url]);
+      setTimeout(() => setProgress(0), 1000);
     }
   };
 
   return (
     <div className="space-y-2">
-      <Label className="block font-medium">{label}</Label>
+      <Label className="font-medium">{label}</Label>
       <Input
         type="file"
         accept={accept}
-        onChange={handleUpload}
         multiple={multiple}
+        onChange={handleUpload}
       />
       {uploading && (
-        <div className="pt-1">
-          <Progress
-            value={progress}
-            className="bg-primary dark:bg-neutral-700"
-          />
-          <p className="text-muted-foreground text-sm md:text-lg">
+        <div className="space-y-1">
+          <Progress value={progress} />
+          <div className="text-muted-foreground text-center text-sm">
             {progress}%
-          </p>
+          </div>
         </div>
       )}
     </div>

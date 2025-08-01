@@ -48,7 +48,7 @@ async function UserDropdown({ user }: UserDropdownProps) {
           {admin ? (
             <Link href="/admin">پنل مدیریت</Link>
           ) : (
-            <Link href="my-account">پروفایل من</Link>
+            <Link href="/my-account">پروفایل من</Link>
           )}
         </DropdownMenuItem>
         {!admin && (

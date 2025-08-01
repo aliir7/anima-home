@@ -110,7 +110,7 @@ function ProjectForm({
           <option value="">انتخاب کنید...</option>
           {categories.map((cat) => (
             <option key={cat.id} value={cat.id}>
-              {cat.parentName}
+              {cat.name}
             </option>
           ))}
         </select>

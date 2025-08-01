@@ -120,16 +120,30 @@ export async function deleteProject(id: string): Promise<ActionResult<string>> {
       // اطمینان از اینکه jsonb‌ها به صورت آرایه‌های string هستند
       const images: string[] = Array.isArray(project.images)
         ? project.images
-        : [];
+        : typeof project.images === "string"
+          ? [project.images]
+          : [];
+
       const videos: string[] = Array.isArray(project.videos)
         ? project.videos
-        : [];
+        : typeof project.videos === "string"
+          ? [project.videos]
+          : [];
 
       const allMedia = [...images, ...videos];
 
       for (const url of allMedia) {
         if (typeof url === "string" && url.trim() !== "") {
-          await deleteFileFromDisk(url); // حذف از دیسک واقعی
+          const deleted = await deleteFileFromDisk(url); // حذف از دیسک واقعی
+          if (!deleted) {
+            return {
+              success: false,
+              error: {
+                type: "custom",
+                message: `حذف فایل ${url} با خطا مواجه شد`,
+              },
+            };
+          }
         }
       }
     }

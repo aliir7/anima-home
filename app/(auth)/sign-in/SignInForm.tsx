@@ -53,10 +53,7 @@ function SignInForm({ verified }: SignInFormProps) {
   const onSubmit = async (data: SigninValues) => {
     const result = await signinWithCredentials(data);
     if (result.success) {
-      showSuccessToast(
-        "ثبت‌نام موفق بود. لطفاً ایمیل خود را برای تأیید بررسی کنید ✉️",
-        "top-right",
-      );
+      showSuccessToast("با موفقیت وارد شدید", "top-right");
       router.push(callbackUrl);
     }
     if (!result.success && result.error.type === "custom") {
