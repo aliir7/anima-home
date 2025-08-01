@@ -23,7 +23,7 @@ export async function GET(
 
     // define file type
     const contentType = mime.getType(filePath || "application/octet-stream");
-    return new NextResponse(buffer, {
+    return new NextResponse(new Uint8Array(buffer), {
       headers: { "Content-Type": contentType! },
       status: 200,
     });
