@@ -1,4 +1,9 @@
 import ComingSoon from "@/components/shared/ComingSoon";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "تنظیمات",
+};
 
 function AdminSettingsPage() {
   return (

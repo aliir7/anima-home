@@ -2,7 +2,7 @@ import ProjectTable from "@/components/shared/Admin/Projects/ProjectTable";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "پنل مدیریت / پروژه‌ها",
+  title: "پروژه‌ها",
 };
 export const dynamic = "force-dynamic";
 export const revalidate = 0;

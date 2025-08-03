@@ -5,7 +5,7 @@ import { BarChartCard } from "@/components/shared/Admin/BarChartCart";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "داشبورد",
+  title: "داشبورد - پنل مدیریت",
 };
 
 function AdminDashboardPage() {

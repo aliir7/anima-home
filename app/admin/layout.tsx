@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 export const metadata: Metadata = {
   title: {
     template: `پنل مدیریت - %s`,
-    default: "پنل مدریت",
+    default: "پنل مدیریت",
   },
 };
 
