@@ -8,6 +8,8 @@ export const publicRoutes = [
   "/products",
   "/tools",
   "/materials",
+  "/my-account",
+  "/my-account/orders",
 ];
 
 export const authRoutes = [
@@ -16,8 +18,6 @@ export const authRoutes = [
   "/forgot-password",
   "/reset-password",
   "/verify-email",
-  "/my-account",
-  "/my-account/orders",
 ];
 
 export const adminRoutes = [

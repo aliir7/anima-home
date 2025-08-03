@@ -18,7 +18,12 @@ export const showSuccessToast = (
     position: position,
   });
 
-export const showErrorToast = (msg: string, position: Position) =>
+export const showErrorToast = (
+  msg: string,
+  position: Position,
+  desc?: string,
+) =>
   toast.error(msg, {
     position: position,
+    description: desc ?? "",
   });

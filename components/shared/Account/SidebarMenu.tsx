@@ -8,7 +8,7 @@ function SidebarMenu() {
       {menu.map((item, index) => (
         <Link
           key={index}
-          href={`${item.sectionId}`}
+          href={`${item.sectionLink}`}
           className="hover:text-primary flex items-center gap-2 pb-4 text-sm transition dark:hover:text-neutral-300"
         >
           {<item.icon />}

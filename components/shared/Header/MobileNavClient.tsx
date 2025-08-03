@@ -48,7 +48,7 @@ function MobileNavClient({ user }: MobileNavClientProps) {
       </SheetTrigger>
       <SheetContent
         side="right"
-        className="flex h-full w-72 flex-col justify-start px-6 py-4 transition-all duration-300 ease-in-out data-[state=false]:translate-x-full data-[state=true]:translate-x-0 dark:text-white"
+        className="flex h-full w-72 flex-col justify-start px-6 py-4 transition-all duration-300 ease-in-out data-[state=false]:translate-x-full data-[state=true]:translate-x-0 dark:bg-neutral-950 dark:text-white"
       >
         <SheetTitle /> {/* User Header */}
         <div className="mt-8 flex items-center justify-between">
@@ -75,7 +75,7 @@ function MobileNavClient({ user }: MobileNavClientProps) {
           <Accordion type="single" collapsible>
             <AccordionItem value="services">
               <AccordionTrigger className="text-base">خدمات</AccordionTrigger>
-              <AccordionContent className="data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up my-2 mr-4 transition-all duration-500">
+              <AccordionContent className="data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up my-2 mr-4 transition-all duration-500 dark:bg-neutral-950 dark:text-white">
                 <ul className="space-y-2 pr-2 text-sm">
                   {services.map((item) => (
                     <li key={item.title}>

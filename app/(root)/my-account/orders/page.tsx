@@ -12,9 +12,11 @@ async function UserOrdersPage() {
   if (!session) {
     redirect("/");
   }
-  <section className="wrapper py-12">
-    <ComingSoon />
-  </section>;
+  return (
+    <section className="wrapper py-12">
+      <ComingSoon />
+    </section>
+  );
 }
 
 export default UserOrdersPage;

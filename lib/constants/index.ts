@@ -26,9 +26,9 @@ export const PAGE_SIZE = 5;
 // static data
 // user sidebar menu
 export const menu = [
-  { label: "اطلاعات حساب", icon: User, sectionId: "profile" },
-  { label: "سفارش‌ها", icon: Package, sectionId: "orders" },
-  { label: "خروج از حساب", icon: LogOut, sectionId: "logout" },
+  { label: "اطلاعات حساب", icon: User, sectionLink: "profile" },
+  { label: "سفارش‌ها", icon: Package, sectionLink: "/my-account/orders" },
+  { label: "خروج از حساب", icon: LogOut, sectionLink: "logout" },
 ];
 
 // categories items in categories menu

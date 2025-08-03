@@ -1,6 +1,6 @@
 function OrderList() {
   return (
-    <section id="orders">
+    <section>
       <h2 className="h3-bold text-primary mx-4 mb-4 dark:text-neutral-900">
         سفارش‌ها
       </h2>

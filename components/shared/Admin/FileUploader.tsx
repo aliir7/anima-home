@@ -16,6 +16,7 @@ type FileUploaderProps = {
   multiple?: boolean;
   folderName?: string;
   onUploaded: (urls: string[]) => void;
+  mode: "image" | "video";
 };
 
 function FileUploader({
@@ -24,6 +25,7 @@ function FileUploader({
   multiple = false,
   folderName = "media",
   onUploaded,
+  mode,
 }: FileUploaderProps) {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -36,17 +38,37 @@ function FileUploader({
     setProgress(10);
 
     try {
-      if (multiple) {
-        const urls = await multipleUploadClient(Array.from(files), folderName);
-        onUploaded(urls);
+      if (mode === "video") {
+        const formData = new FormData();
+        formData.append("file", files[0]);
+
+        const res = await fetch("/api/upload-video", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "خطا در آپلود ویدیو");
+
+        onUploaded([data.url]);
+
+        // image upload
       } else {
-        const url = await uploadSingleFile(files[0], folderName);
-        onUploaded([url]);
+        if (multiple) {
+          const urls = await multipleUploadClient(
+            Array.from(files),
+            folderName,
+          );
+          onUploaded(urls);
+        } else {
+          const url = await uploadSingleFile(files[0], folderName);
+          onUploaded([url]);
+        }
       }
       setProgress(100);
     } catch (err) {
       console.error(err);
-      showErrorToast("خطا در آپلود فایل", "top-right");
+      showErrorToast("خطا در آپلود فایل", "top-right", `${err}`);
     } finally {
       setUploading(false);
       setTimeout(() => setProgress(0), 1000);

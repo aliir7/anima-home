@@ -1,8 +1,15 @@
 // app/(admin)/layout.tsx
 import AdminSidebar from "@/app/admin/AdminSidebar";
-
+import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
+
+export const metadata: Metadata = {
+  title: {
+    template: `پنل مدیریت - %s`,
+    default: "پنل مدریت",
+  },
+};
 
 async function AdminLayout({
   children,

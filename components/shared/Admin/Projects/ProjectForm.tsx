@@ -118,6 +118,7 @@ function ProjectForm({
 
       <div className="space-y-2">
         <FileUploader
+          mode="image"
           label="آپلود تصاویر"
           folderName="projects"
           accept="image/*"
@@ -130,6 +131,7 @@ function ProjectForm({
 
       <div className="space-y-2">
         <FileUploader
+          mode="video"
           label="آپلود ویدیو"
           folderName="projects"
           accept="video/*"
