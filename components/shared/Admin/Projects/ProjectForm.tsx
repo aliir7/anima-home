@@ -10,8 +10,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Category, ProjectFormValues } from "@/types";
-import FileUploader from "../FileUploader";
+
 import { insertProjectSchema } from "@/lib/validations/projectsValidations";
+import FileUploader from "../FileUploader";
 
 type ProjectFormProps = {
   onClose: () => void;
@@ -32,8 +33,8 @@ function ProjectForm({
     handleSubmit,
     formState: { errors, isSubmitting },
     register,
-    setValue,
-    getValues,
+    // setValue,
+    // getValues,
   } = useForm<ProjectFormValues>({
     resolver: zodResolver(insertProjectSchema),
     mode: "onSubmit",
@@ -118,26 +119,24 @@ function ProjectForm({
 
       <div className="space-y-2">
         <FileUploader
-          mode="image"
           label="آپلود تصاویر"
           folderName="projects"
           accept="image/*"
           multiple
-          onUploaded={(urls) => {
-            setValue("images", [...getValues("images"), ...urls]);
+          onUploaded={(files) => {
+            console.log("آپلود شده‌ها:", files);
           }}
         />
       </div>
 
       <div className="space-y-2">
         <FileUploader
-          mode="video"
           label="آپلود ویدیو"
           folderName="projects"
           accept="video/*"
           multiple
-          onUploaded={(urls) => {
-            setValue("videos", [...(getValues("videos") ?? []), ...urls]);
+          onUploaded={(files) => {
+            console.log("آپلود شده‌ها:", files);
           }}
         />
       </div>

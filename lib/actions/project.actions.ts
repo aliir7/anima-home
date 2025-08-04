@@ -15,8 +15,6 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { generateUniqueSlug } from "../utils/generateSlug";
 
-import { deleteFileFromDisk } from "./media.actions";
-
 // action for create project
 export async function createProject(
   data: InsertProjectValues,
@@ -117,42 +115,16 @@ export async function deleteProject(id: string): Promise<ActionResult<string>> {
       .where(eq(projects.id, id));
 
     if (project) {
-      // اطمینان از اینکه jsonb‌ها به صورت آرایه‌های string هستند
-      const images: string[] = Array.isArray(project.images)
-        ? project.images
-        : typeof project.images === "string"
-          ? [project.images]
-          : [];
-
-      const videos: string[] = Array.isArray(project.videos)
-        ? project.videos
-        : typeof project.videos === "string"
-          ? [project.videos]
-          : [];
-
-      const allMedia = [...images, ...videos];
-
-      for (const url of allMedia) {
-        if (typeof url === "string" && url.trim() !== "") {
-          const deleted = await deleteFileFromDisk(url); // حذف از دیسک واقعی
-          if (!deleted) {
-            return {
-              success: false,
-              error: {
-                type: "custom",
-                message: `حذف فایل ${url} با خطا مواجه شد`,
-              },
-            };
-          }
-        }
-      }
+      // حذف رکورد از دیتابیس
+      await db.delete(projects).where(eq(projects.id, id));
+      // رفرش صفحه ادمین
+      revalidatePath("/admin/projects");
+    } else {
+      return {
+        success: false,
+        error: { type: "custom", message: "پروژه یافت نشد" },
+      };
     }
-
-    // حذف رکورد از دیتابیس
-    await db.delete(projects).where(eq(projects.id, id));
-
-    // رفرش صفحه ادمین
-    revalidatePath("/admin/projects");
 
     return { success: true, data: "پروژه با موفقیت حذف شد" };
   } catch (error) {

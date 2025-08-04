@@ -4,94 +4,73 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import {
-  uploadSingleFile,
-  multipleUploadClient,
-} from "@/lib/utils/clientUpload"; // مسیر درست
-import { showErrorToast } from "@/lib/utils/showToastMessage";
 
 type FileUploaderProps = {
   label: string;
   accept: string;
   multiple?: boolean;
-  folderName?: string;
-  onUploaded: (urls: string[]) => void;
-  mode: "image" | "video";
+  folderName: string;
+  onUploaded: (files: { url: string; key: string }[]) => void;
 };
 
 function FileUploader({
   label,
   accept,
   multiple = false,
-  folderName = "media",
+  folderName,
   onUploaded,
-  mode,
 }: FileUploaderProps) {
-  const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (!files || files.length === 0) return;
+    if (!files) return;
 
-    setUploading(true);
-    setProgress(10);
+    const xhr = new XMLHttpRequest();
+    const formData = new FormData();
 
-    try {
-      if (mode === "video") {
-        const formData = new FormData();
-        formData.append("file", files[0]);
+    Array.from(files).forEach((file) => formData.append("files", file));
+    formData.append("folder", folderName);
 
-        const res = await fetch("/api/upload-video", {
-          method: "POST",
-          body: formData,
-        });
-
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "خطا در آپلود ویدیو");
-
-        onUploaded([data.url]);
-
-        // image upload
-      } else {
-        if (multiple) {
-          const urls = await multipleUploadClient(
-            Array.from(files),
-            folderName,
-          );
-          onUploaded(urls);
-        } else {
-          const url = await uploadSingleFile(files[0], folderName);
-          onUploaded([url]);
-        }
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) {
+        const percent = Math.round((event.loaded * 100) / event.total);
+        setProgress(percent);
       }
-      setProgress(100);
-    } catch (err) {
-      console.error(err);
-      showErrorToast("خطا در آپلود فایل", "top-right", `${err}`);
-    } finally {
-      setUploading(false);
-      setTimeout(() => setProgress(0), 1000);
-    }
+    };
+
+    xhr.onload = () => {
+      setIsUploading(false);
+      if (xhr.status === 200) {
+        const res = JSON.parse(xhr.responseText);
+        onUploaded(res.files);
+      } else {
+        console.error("Upload failed", xhr.responseText);
+      }
+    };
+
+    xhr.onerror = () => {
+      console.error("Upload error");
+      setIsUploading(false);
+    };
+
+    xhr.open("POST", "/api/upload");
+    setIsUploading(true);
+    xhr.send(formData);
   };
 
   return (
     <div className="space-y-2">
-      <Label className="font-medium">{label}</Label>
+      <Label>{label}</Label>
       <Input
         type="file"
         accept={accept}
         multiple={multiple}
         onChange={handleUpload}
+        disabled={isUploading}
       />
-      {uploading && (
-        <div className="space-y-1">
-          <Progress value={progress} />
-          <div className="text-muted-foreground text-center text-sm">
-            {progress}%
-          </div>
-        </div>
-      )}
+      {isUploading && <Progress value={progress} />}
     </div>
   );
 }
