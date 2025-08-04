@@ -55,7 +55,7 @@ function FileUploader({
       setIsUploading(false);
     };
 
-    xhr.open("POST", "/api/upload");
+    xhr.open("POST", "/api/storage/upload");
     setIsUploading(true);
     xhr.send(formData);
   };
