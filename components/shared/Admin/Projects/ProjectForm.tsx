@@ -18,7 +18,6 @@ type ProjectFormProps = {
   onClose: () => void;
   type: "create" | "edit";
   initialData?: ProjectFormValues & { id?: string };
-
   categories: Category[];
 };
 
@@ -33,8 +32,8 @@ function ProjectForm({
     handleSubmit,
     formState: { errors, isSubmitting },
     register,
-    // setValue,
-    // getValues,
+    setValue,
+    getValues,
   } = useForm<ProjectFormValues>({
     resolver: zodResolver(insertProjectSchema),
     mode: "onSubmit",
@@ -46,6 +45,15 @@ function ProjectForm({
       videos: [],
     },
   });
+
+  const handleUploadMedia = (
+    files: { url: string; key: string }[],
+    field: "images" | "videos",
+  ) => {
+    const current = getValues(field) || [];
+    const newFiles = files.map((file) => file.url);
+    setValue(field, [...current, ...newFiles], { shouldValidate: true });
+  };
 
   const onSubmit = async (values: ProjectFormValues) => {
     try {
@@ -78,7 +86,7 @@ function ProjectForm({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 px-4 py-2">
       <div className="space-y-2">
         <Label htmlFor="title">عنوان پروژه</Label>
         <Input id="title" {...register("title")} disabled={isSubmitting} />
@@ -123,9 +131,7 @@ function ProjectForm({
           folderName="projects"
           accept="image/*"
           multiple
-          onUploaded={(files) => {
-            console.log("آپلود شده‌ها:", files);
-          }}
+          onUploaded={(files) => handleUploadMedia(files, "images")}
         />
       </div>
 
@@ -135,9 +141,7 @@ function ProjectForm({
           folderName="projects"
           accept="video/*"
           multiple
-          onUploaded={(files) => {
-            console.log("آپلود شده‌ها:", files);
-          }}
+          onUploaded={(files) => handleUploadMedia(files, "videos")}
         />
       </div>
 

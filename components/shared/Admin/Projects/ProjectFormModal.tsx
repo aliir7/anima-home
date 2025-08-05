@@ -27,9 +27,9 @@ function ProjectFormModal({
 }: ProjectFormModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-h-[80vh] max-w-2xl overflow-y-auto py-4">
         <DialogHeader>
-          <DialogTitle className="mt-4 mb-2 text-right">
+          <DialogTitle className="mx-2 mt-6 mb-4 text-right">
             {type === "create" ? "ایجاد پروژه جدید" : "ویرایش پروژه"}
           </DialogTitle>
           <DialogDescription className="text-muted-foreground mt-1 mr-2 text-right text-sm">

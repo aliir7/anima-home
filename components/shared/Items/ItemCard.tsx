@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import Image from "next/image";
 // import { ROOT_URL } from "@/lib/constants";
 
 import Link from "next/link";
@@ -36,11 +37,13 @@ function ItemCard({
     <Card className="overflow-hidden transition-shadow hover:shadow-xl">
       <CardHeader className="p-0">
         <div className="relative h-48 w-full">
-          <img
+          <Image
             src={fullImageUrl}
             alt={title}
+            fill
+            sizes="(max-width: 768px) 100vw, 33vw"
+            priority={false}
             className="h-full w-full object-center"
-            loading="lazy"
           />
         </div>
       </CardHeader>

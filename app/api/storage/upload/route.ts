@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     await s3.send(command);
 
     results.push({
-      url: `${process.env.NEXT_PUBLIC_SERVER_URL}/${fileName}`,
+      url: `${process.env.LIARA_ENDPOINT_PUBLIC_URL}/${fileName}`,
       key: fileName,
     });
   }

@@ -7,7 +7,7 @@ export default defineConfig({
 
   dialect: "postgresql",
   dbCredentials: {
-    url: process.env.DATABASE_URL!,
+    url: "postgresql://root:jcBqCiXH7Y0bCJHHWH2L1yEH@etna.liara.cloud:34417/postgres",
   },
   strict: true,
   verbose: true,

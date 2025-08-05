@@ -5,9 +5,13 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
+        hostname: "anima-home.storage.c2.liara.space",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
         hostname: "anima-home.ir",
-        port: "",
-        pathname: "/**", // برای اطمینان از نمایش همه‌ی مسیرها
+        pathname: "/**",
       },
     ],
   },
