@@ -27,10 +27,10 @@ async function ProjectDetailsPage({ params }: ProjectDetailsPageProps) {
         </p>
       </div>
 
-      {Array.isArray(project.images) && project.images.length > 0 && (
+      {project.images.length > 0 && (
         <div className="space-y-6">
           <h3 className="text-right text-xl font-semibold">گالری تصاویر</h3>
-          <ImageGallery images={project.images as string[]} />
+          <ImageGallery images={project.images} />
         </div>
       )}
 
@@ -46,7 +46,7 @@ async function ProjectDetailsPage({ params }: ProjectDetailsPageProps) {
         </div>
       )}
 
-      {Array.isArray(project.videos) && project.videos.length > 0 && (
+      {project.videos && project.videos?.length > 0 && (
         <div className="space-y-6">
           <h3 className="text-right text-xl font-semibold">ویدیو پروژه</h3>
           <VideoPlayer src={project.videos} />

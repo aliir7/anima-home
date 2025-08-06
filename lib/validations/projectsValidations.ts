@@ -4,7 +4,10 @@ import { projects } from "@/db/schema/projects";
 import { isUUID } from "./helpersValidations";
 
 // Create base schemas from Drizzle-zod
-const baseSelectProjectSchema = createSelectSchema(projects);
+const baseSelectProjectSchema = createSelectSchema(projects).extend({
+  images: z.array(z.string()),
+  videos: z.array(z.string()).optional(),
+});
 
 // for select full schema
 export const selectProjectSchema = baseSelectProjectSchema;
