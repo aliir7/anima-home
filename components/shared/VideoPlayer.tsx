@@ -1,7 +1,7 @@
 "use client";
 
 type VideoPlayerProps = {
-  src: string;
+  src: string | string[];
   poster?: string;
   className?: string;
 };
@@ -11,19 +11,26 @@ export default function VideoPlayer({
   poster,
   className,
 }: VideoPlayerProps) {
+  const sources = Array.isArray(src) ? src : [src];
+
   return (
-    <div
-      className={`relative w-full overflow-hidden rounded-lg border ${className}`}
-    >
-      <video
-        controls
-        preload="metadata"
-        className="h-auto w-full rounded-lg"
-        poster={poster}
-      >
-        <source src={src} type="video/mp4" />
-        مرورگر شما از پخش ویدیو پشتیبانی نمی‌کند.
-      </video>
+    <div className="space-y-6">
+      {sources.map((videoSrc, index) => (
+        <div
+          key={index}
+          className={`relative w-full overflow-hidden rounded-lg border ${className}`}
+        >
+          <video
+            controls
+            preload="metadata"
+            className="h-auto w-full rounded-lg"
+            poster={poster}
+          >
+            <source src={videoSrc} type="video/mp4" />
+            مرورگر شما از پخش ویدیو پشتیبانی نمی‌کند.
+          </video>
+        </div>
+      ))}
     </div>
   );
 }

@@ -46,8 +46,9 @@ async function ProjectDetailsPage({ params }: ProjectDetailsPageProps) {
         </div>
       )}
 
-      {project.videos && (
+      {Array.isArray(project.videos) && project.videos.length > 0 && (
         <div className="space-y-6">
+          <h3 className="text-right text-xl font-semibold">ویدیو پروژه</h3>
           <VideoPlayer src={project.videos} />
         </div>
       )}
