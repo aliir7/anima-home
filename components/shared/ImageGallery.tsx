@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import Image from "next/image";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
@@ -26,7 +26,7 @@ function ImageGallery({ images }: ImageGalleryProps) {
               alt={`project image ${idx + 1}`}
               width={500}
               height={500}
-              className="h-auto w-full object-cover"
+              className="h-max w-max object-fill"
             />
           </div>
         ))}
@@ -38,6 +38,7 @@ function ImageGallery({ images }: ImageGalleryProps) {
         onOpenChange={() => setSelectedImage(null)}
       >
         <DialogContent className="max-w-4xl">
+          <DialogTitle />
           {selectedImage && (
             <div className="h-[80vh] w-full overflow-hidden rounded-md">
               <TransformWrapper
