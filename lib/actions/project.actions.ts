@@ -12,6 +12,7 @@ import {
 import { db } from "@/db";
 import { projects } from "@/db/schema";
 import { eq } from "drizzle-orm";
+
 import { revalidatePath } from "next/cache";
 import { generateUniqueSlug } from "../utils/generateSlug";
 
@@ -101,30 +102,54 @@ export async function updateProject(
   }
 }
 
-// delete project action
+// actions/deleteProject.ts
 
-/**
- * حذف یک پروژه همراه با تمام فایل‌های متصل به آن
- */
 export async function deleteProject(id: string): Promise<ActionResult<string>> {
   try {
-    // دریافت پروژه جهت دسترسی به تصاویر و ویدیوها
     const [project] = await db
       .select()
       .from(projects)
       .where(eq(projects.id, id));
 
-    if (project) {
-      // حذف رکورد از دیتابیس
-      await db.delete(projects).where(eq(projects.id, id));
-      // رفرش صفحه ادمین
-      revalidatePath("/admin/projects");
-    } else {
+    if (!project) {
       return {
         success: false,
         error: { type: "custom", message: "پروژه یافت نشد" },
       };
     }
+
+    const images: string[] = Array.isArray(project.images)
+      ? project.images
+      : [];
+    const videos: string[] = Array.isArray(project.videos)
+      ? project.videos
+      : [];
+
+    // تبدیل URL کامل به مسیر داخل باکت مثل projects/filename.jpg
+    const extractKey = (url: string) =>
+      url.replace("https://anima-home.storage.c2.liara.space/", "");
+
+    const fileKeys = [...images, ...videos].map(extractKey);
+
+    if (fileKeys.length > 0) {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/storage/delete`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ keys: fileKeys }),
+        },
+      );
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        throw new Error(result.error || "خطا در حذف فایل‌ها");
+      }
+    }
+
+    await db.delete(projects).where(eq(projects.id, id));
+    revalidatePath("/admin/projects");
 
     return { success: true, data: "پروژه با موفقیت حذف شد" };
   } catch (error) {
