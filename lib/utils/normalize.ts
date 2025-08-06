@@ -18,8 +18,16 @@ export function normalizeProject(
 ): ProjectWithCategory {
   return {
     ...project,
-    images: Array.isArray(project.images) ? project.images : [],
-    videos: Array.isArray(project.videos) ? project.videos : [],
+    images:
+      Array.isArray(project.images) &&
+      project.images.every((i) => typeof i === "string")
+        ? project.images
+        : [],
+    videos:
+      Array.isArray(project.videos) &&
+      project.videos.every((v) => typeof v === "string")
+        ? project.videos
+        : [],
     category: project.category ?? undefined,
   } as ProjectWithCategory;
 }

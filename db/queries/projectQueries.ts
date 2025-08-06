@@ -109,7 +109,14 @@ export async function getProjectBySlug(
     if (!data) {
       return { success: false, error: "پروژه‌ای با این اسلاگ یافت نشد" };
     }
-    const normalized = normalizeProject(data);
+    // ✅ Explicitly cast images and videos
+    const fixedData = {
+      ...data,
+      images: data.images as unknown as string[],
+      videos: data.videos as unknown as string[],
+    };
+
+    const normalized = normalizeProject(fixedData);
     return { success: true, data: normalized };
   } catch (error) {
     console.log("Error in getProjectBySlug:", error);
