@@ -7,6 +7,10 @@ export const signupSchema = createInsertSchema(users, {
   name: z.string().min(3, "نام باید حداقل ۳ کاراکتر باشد"),
   email: z.email("ایمیل نامعتبر است"),
   password: z.string().min(6, "رمز عبور باید حداقل ۶ کاراکتر باشد"),
+}).pick({
+  name: true,
+  email: true,
+  password: true,
 });
 
 // اسکیمایی که توی فرم استفاده می‌کنیم و confirmPassword داره
