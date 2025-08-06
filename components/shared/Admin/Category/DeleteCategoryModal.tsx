@@ -52,7 +52,7 @@ function DeleteCategoryModal({
       <DialogContent className="max-w-sm dark:text-white">
         <DialogHeader>
           <DialogTitle className="mr-4 text-right">
-            آیا از حذف پروژه مطمئن هستید؟
+            آیا از حذف دسته بندی مطمئن هستید؟
           </DialogTitle>
           <DialogDescription></DialogDescription>
         </DialogHeader>

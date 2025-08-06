@@ -118,8 +118,8 @@ function CategoryTableClient({ categories }: CategoryTableClientProps) {
         initialData={
           editCategory
             ? {
+                id: editCategory.id,
                 name: editCategory.name,
-
                 parentName: editCategory.parentName ?? "",
               }
             : undefined

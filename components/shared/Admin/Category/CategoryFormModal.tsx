@@ -8,13 +8,17 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import CategoryForm from "./CategoryForm";
-import { CategoryWithParent, InsertCategoryValues } from "@/types";
+import {
+  CategoryWithParent,
+  InsertCategoryValues,
+  UpdateCategoryValues,
+} from "@/types";
 
 type CategoryFormModalProps = {
   isOpen: boolean;
   onClose: () => void;
   type: "create" | "edit";
-  initialData?: InsertCategoryValues;
+  initialData?: InsertCategoryValues | UpdateCategoryValues;
   existingCategories?: CategoryWithParent[];
 };
 

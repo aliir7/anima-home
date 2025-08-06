@@ -1,6 +1,7 @@
 import { createSelectSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { categories } from "@/db/schema/categories";
+import { isUUID } from "./helpersValidations";
 
 //for insert
 
@@ -27,5 +28,5 @@ export const categoryWithParentSchema = selectCategorySchema.extend({
 
 // for update
 export const updateCategorySchema = insertCategorySchema.extend({
-  id: z.string().uuid({ message: "شناسه نامعتبر است." }),
+  id: isUUID("شناسه نامعتبر است"),
 });
