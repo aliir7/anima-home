@@ -27,7 +27,7 @@ async function ProjectDetailsPage({ params }: ProjectDetailsPageProps) {
         </p>
       </div>
 
-      {project.images?.length > 0 && (
+      {project.images && (
         <div className="space-y-6">
           <h3 className="text-right text-xl font-semibold">گالری تصاویر</h3>
           <ImageGallery images={project.images} />
@@ -35,7 +35,7 @@ async function ProjectDetailsPage({ params }: ProjectDetailsPageProps) {
       )}
 
       {/* خط چین زیبا بین تصاویر و ویدیو */}
-      {project.images?.length > 0 && project.videos?.length > 0 && (
+      {project.images && project.videos && (
         <div className="relative py-6">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-dashed border-gray-300 dark:border-gray-600" />
@@ -46,7 +46,7 @@ async function ProjectDetailsPage({ params }: ProjectDetailsPageProps) {
         </div>
       )}
 
-      {project.videos?.length > 0 && (
+      {project.videos && (
         <div className="space-y-6">
           <VideoPlayer src={project.videos} />
         </div>
