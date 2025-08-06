@@ -118,7 +118,6 @@ export async function signupAction(
         ...user,
         name: user.name ?? "",
         password: user.password ?? "",
-        address: user.address ?? undefined,
       },
     };
   } catch (err) {
