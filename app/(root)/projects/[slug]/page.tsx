@@ -30,7 +30,7 @@ async function ProjectDetailsPage({ params }: ProjectDetailsPageProps) {
       {Array.isArray(project.images) && project.images.length > 0 && (
         <div className="space-y-6">
           <h3 className="text-right text-xl font-semibold">گالری تصاویر</h3>
-          <ImageGallery images={project.images} />
+          <ImageGallery images={project.images as string[]} />
         </div>
       )}
 
