@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "anima-home.storage.c2.liara.space",
+        port: "",
         pathname: "/**",
       },
       {

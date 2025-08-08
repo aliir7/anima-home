@@ -6,11 +6,7 @@ type VideoPlayerProps = {
   className?: string;
 };
 
-export default function VideoPlayer({
-  src,
-  poster,
-  className,
-}: VideoPlayerProps) {
+function VideoPlayer({ src, poster, className }: VideoPlayerProps) {
   const sources = Array.isArray(src) ? src : [src];
 
   return (
@@ -34,3 +30,5 @@ export default function VideoPlayer({
     </div>
   );
 }
+
+export default VideoPlayer;
