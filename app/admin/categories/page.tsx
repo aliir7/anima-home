@@ -1,11 +1,13 @@
 import CategoryTable from "@/components/shared/Admin/Category/CategoryTable";
+import { DYNAMIC_PAGES } from "@/lib/revalidate.config";
 import { Metadata } from "next";
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: "دسته بندی ها",
 };
+
+export const dynamic = DYNAMIC_PAGES.ADMIN.dynamic;
+export const revalidate = DYNAMIC_PAGES.ADMIN.revalidate;
 
 function AdminCategoriesPage() {
   return (

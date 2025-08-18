@@ -3,10 +3,14 @@ import { dummyProjects } from "@/db/sampleData";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChartCard } from "@/components/shared/Admin/BarChartCart";
 import { Metadata } from "next";
+import { DYNAMIC_PAGES } from "@/lib/revalidate.config";
 
 export const metadata: Metadata = {
   title: "داشبورد - پنل مدیریت",
 };
+
+export const dynamic = DYNAMIC_PAGES.ADMIN.dynamic;
+export const revalidate = DYNAMIC_PAGES.ADMIN.revalidate;
 
 function AdminDashboardPage() {
   const totalProjects = dummyProjects;

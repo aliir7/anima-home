@@ -1,12 +1,14 @@
 import CabinetOfferSection from "@/components/shared/CabinetOfferSection";
 import HeroSection from "@/components/shared/HeroSection";
 import ServicesSection from "@/components/shared/Services/ServicesSection";
-
+import { REVALIDATE } from "@/lib/revalidate.config";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "صفحه اصلی",
 };
+
+export const revalidate = REVALIDATE.HOME;
 
 export default function HomePage() {
   return (

@@ -3,10 +3,14 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import ResetPasswordForm from "./ResetPasswordForm";
 import { verifyResetToken } from "@/lib/auth/verifyResetToken";
+import { DYNAMIC_PAGES } from "@/lib/revalidate.config";
 
 export const metadata: Metadata = {
   title: "تغییر رمز عبور",
 };
+
+export const dynamic = DYNAMIC_PAGES.AUTH.dynamic;
+export const revalidate = DYNAMIC_PAGES.AUTH.revalidate;
 
 type ResetPasswordPageProps = {
   params: Promise<{ token: string }>;
