@@ -43,6 +43,7 @@ function ItemCard({
             fill
             unoptimized
             placeholder="blur"
+            blurDataURL={fullImageUrl}
             sizes="(max-width: 768px) 100vw, 33vw"
             priority={false}
             className="h-full w-full object-center"

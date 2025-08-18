@@ -56,9 +56,10 @@ function ImageGallery({ images, title }: ImageGalleryProps) {
               width={500}
               height={500}
               unoptimized
-              placeholder="blur"
               priority={false}
               className="h-48 w-full object-cover"
+              placeholder="blur"
+              blurDataURL={img}
             />
           </div>
         ))}
@@ -66,7 +67,7 @@ function ImageGallery({ images, title }: ImageGalleryProps) {
 
       {/* Dialog for full screen preview */}
       <Dialog open={!!selectedImage} onOpenChange={closeModal}>
-        <DialogContent className="z-[99999] w-full max-w-5xl rounded-lg bg-white p-2 sm:p-4">
+        <DialogContent className="w-full max-w-5xl rounded-lg bg-white p-2 sm:p-4">
           <DialogTitle className="text-primary my-2 mr-2.5 px-6 py-2 text-lg dark:text-neutral-700">
             {title ?? ""}
           </DialogTitle>
@@ -76,7 +77,7 @@ function ImageGallery({ images, title }: ImageGalleryProps) {
               <Button
                 variant="ghost"
                 onClick={showPrev}
-                className="hover:bg-muted absolute top-1/2 left-2 -translate-y-1/2 rounded-full bg-white shadow-md"
+                className="hover:bg-muted absolute top-1/2 left-2 z-10 -translate-y-1/2 rounded-full bg-white shadow-md"
                 size="icon"
               >
                 <ChevronLeft className="h-6 w-6" />
@@ -91,8 +92,9 @@ function ImageGallery({ images, title }: ImageGalleryProps) {
                     width={1200}
                     height={800}
                     unoptimized
-                    priority={false}
                     placeholder="blur"
+                    blurDataURL={selectedImage}
+                    priority={false}
                     className="max-h-[70vh] w-auto object-contain"
                   />
                 </TransformComponent>
@@ -102,7 +104,7 @@ function ImageGallery({ images, title }: ImageGalleryProps) {
               <Button
                 variant="ghost"
                 onClick={showNext}
-                className="hover:bg-muted absolute top-1/2 right-2 -translate-y-1/2 rounded-full bg-white shadow-md"
+                className="hover:bg-muted absolute z-10 top-1/2 right-2 -translate-y-1/2 rounded-full bg-white shadow-md"
                 size="icon"
               >
                 <ChevronRight className="h-6 w-6" />
