@@ -4,6 +4,8 @@ import ComingSoon from "@/components/shared/ComingSoon";
 
 const pageTitle = services.at(1)?.title;
 
+export const revalidate = 86400; // 1 day
+
 export const metadata: Metadata = {
   title: pageTitle || "متریال",
 };

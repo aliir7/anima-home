@@ -3,14 +3,13 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import ForgotPasswordForm from "./ForgotPasswordForm";
-import { DYNAMIC_PAGES } from "@/lib/revalidate.config";
 
 export const metadata: Metadata = { title: "فراموشی رمز عبور" };
 
-export const dynamic = DYNAMIC_PAGES.AUTH.dynamic;
-export const revalidate = DYNAMIC_PAGES.AUTH.revalidate;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
-export async function ForgotPasswordPage() {
+async function ForgotPasswordPage() {
   const session = await auth();
 
   // if user logged in redirect to homepage

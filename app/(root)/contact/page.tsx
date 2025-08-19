@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { REVALIDATE } from "@/lib/revalidate.config";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { Metadata } from "next";
 
@@ -9,7 +8,7 @@ export const metadata: Metadata = {
   title: "تماس با ما",
 };
 
-export const revalidate = REVALIDATE.CONTACT_PAGE;
+export const revalidate = 86400; // 1 day
 
 function ContactPage() {
   return (

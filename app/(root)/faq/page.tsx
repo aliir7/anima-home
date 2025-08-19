@@ -6,6 +6,8 @@ import {
 } from "@/components/ui/accordion";
 import { Metadata } from "next";
 
+export const revalidate = 86400; // 1 day
+
 export const metadata: Metadata = {
   title: "سوالات متداول",
 };

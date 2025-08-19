@@ -6,10 +6,9 @@ import {
 } from "@/db/queries/projectQueries";
 import { getAllCategories } from "@/db/queries/categoriesQueries";
 import { PAGE_SIZE } from "@/lib/constants";
-import { REVALIDATE } from "@/lib/revalidate.config";
 
 export const metadata: Metadata = { title: "پروژه‌ها" };
-export const revalidate = REVALIDATE.PROJECTS_LIST;
+export const revalidate = 3600; // 1hour
 
 type ProjectPageProps = {
   searchParams: Promise<{ category?: string; page?: string }>;

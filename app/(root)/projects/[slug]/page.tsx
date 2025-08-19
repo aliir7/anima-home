@@ -1,7 +1,6 @@
 import ImageGallery from "@/components/shared/ImageGallery";
 import VideoPlayer from "@/components/shared/VideoPlayer";
 import { getProjectBySlug } from "@/db/queries/projectQueries";
-import { REVALIDATE } from "@/lib/revalidate.config";
 import generateMetadata from "@/lib/utils/generateMetadata";
 import { notFound } from "next/navigation";
 
@@ -9,7 +8,7 @@ type ProjectDetailsPageProps = {
   params: Promise<{ slug: string }>;
 };
 
-export const revalidate = REVALIDATE.PROJECT_DETAILS;
+export const revalidate = 3600; // 1hour
 
 async function ProjectDetailsPage({ params }: ProjectDetailsPageProps) {
   const slug = (await params).slug;

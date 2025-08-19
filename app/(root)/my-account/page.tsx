@@ -5,14 +5,13 @@ import UserDetails from "@/components/shared/Account/UserDetails";
 import OrderList from "@/components/shared/Account/OrderList";
 import LogoutSection from "@/components/shared/Account/LogoutSection";
 import { Metadata } from "next/";
-import { DYNAMIC_PAGES } from "@/lib/revalidate.config";
 
 export const metadata: Metadata = {
   title: "حساب کاربری",
 };
 
-export const dynamic = DYNAMIC_PAGES.ACCOUNT.dynamic;
-export const revalidate = DYNAMIC_PAGES.ACCOUNT.revalidate;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 async function MyAccountPage() {
   const session = await auth();

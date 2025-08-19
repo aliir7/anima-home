@@ -3,22 +3,19 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import ResetPasswordForm from "./ResetPasswordForm";
 import { verifyResetToken } from "@/lib/auth/verifyResetToken";
-import { DYNAMIC_PAGES } from "@/lib/revalidate.config";
 
 export const metadata: Metadata = {
   title: "تغییر رمز عبور",
 };
 
-export const dynamic = DYNAMIC_PAGES.AUTH.dynamic;
-export const revalidate = DYNAMIC_PAGES.AUTH.revalidate;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 type ResetPasswordPageProps = {
   params: Promise<{ token: string }>;
 };
 
-export default async function ResetPasswordPage({
-  params,
-}: ResetPasswordPageProps) {
+async function ResetPasswordPage({ params }: ResetPasswordPageProps) {
   // if user logged in redirect to homepage
   const session = await auth();
   if (session) {
@@ -39,3 +36,5 @@ export default async function ResetPasswordPage({
     </div>
   );
 }
+
+export default ResetPasswordPage;

@@ -1,11 +1,10 @@
 import { Metadata } from "next";
-import { REVALIDATE } from "@/lib/revalidate.config";
 
 export const metadata: Metadata = {
   title: "درباره ما",
 };
 
-export const revalidate = REVALIDATE.ABOUT_PAGE;
+export const revalidate = 86400; // 1 day
 
 function AboutPage() {
   return (

@@ -8,6 +8,8 @@ export const metadata: Metadata = {
   title: pageTitle || "محصولات",
 };
 
+export const revalidate = 3600; // 1hour
+
 function ProductsPage() {
   return (
     <section className="wrapper py-12">

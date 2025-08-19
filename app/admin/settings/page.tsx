@@ -1,13 +1,12 @@
 import ComingSoon from "@/components/shared/ComingSoon";
-import { DYNAMIC_PAGES } from "@/lib/revalidate.config";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "تنظیمات",
 };
 
-export const dynamic = DYNAMIC_PAGES.ADMIN.dynamic;
-export const revalidate = DYNAMIC_PAGES.ADMIN.revalidate;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 function AdminSettingsPage() {
   return (

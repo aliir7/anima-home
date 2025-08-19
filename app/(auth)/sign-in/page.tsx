@@ -6,14 +6,13 @@ import SignInForm from "./SignInForm";
 import logoImg from "/public/logo/logo-mini-2.png";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { DYNAMIC_PAGES } from "@/lib/revalidate.config";
 
 export const metadata: Metadata = {
   title: "ورود",
 };
 
-export const dynamic = DYNAMIC_PAGES.AUTH.dynamic;
-export const revalidate = DYNAMIC_PAGES.AUTH.revalidate;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 type SignInPageProps = {
   searchParams: Promise<{ callbackUrl?: string; verified?: string }>;

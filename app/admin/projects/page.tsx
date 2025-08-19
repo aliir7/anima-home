@@ -1,13 +1,12 @@
 import ProjectTable from "@/components/shared/Admin/Projects/ProjectTable";
-import { DYNAMIC_PAGES } from "@/lib/revalidate.config";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "پروژه‌ها",
 };
 
-export const dynamic = DYNAMIC_PAGES.ADMIN.dynamic;
-export const revalidate = DYNAMIC_PAGES.ADMIN.revalidate;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 function AdminProjectsPage() {
   return (

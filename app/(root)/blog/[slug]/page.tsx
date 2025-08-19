@@ -2,6 +2,8 @@ import Image from "next/image";
 import { Calendar, User } from "lucide-react";
 import { notFound } from "next/navigation";
 
+export const revalidate = 86400; // 1 day
+
 // فرضی: دیتای ثابت (بعداً به API یا DB وصل میشه)
 const BLOGS = [
   {
