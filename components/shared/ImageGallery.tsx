@@ -10,7 +10,7 @@ type ImageGalleryProps = {
   title?: string;
 };
 
-function ImageGallery({ images, title }: ImageGalleryProps) {
+function ImageGallery({ images }: ImageGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const selectedImage = selectedIndex !== null ? images[selectedIndex] : null;
 
@@ -71,11 +71,11 @@ function ImageGallery({ images, title }: ImageGalleryProps) {
           </button>
 
           {/* Title */}
-          {title && (
-            <h2 className="absolute top-4 left-1/2 -translate-x-1/2 text-lg font-semibold text-white">
+          {/* {title && (
+            <h2 className="absolute top-4 left-1/2 -translate-x-1/2 text-lg font-semibold text-white md:top-2">
               {title}
             </h2>
-          )}
+          )} */}
 
           {/* Prev Button */}
           <button

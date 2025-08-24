@@ -49,6 +49,8 @@ function ClientWrapper({
             key={item.id}
             title={item.title}
             description={item.description!}
+            showDescription={true}
+            buttonText="مشاهده بیشتر"
             imageUrl={item.images?.[0] || "/placeholder.svg"}
             href={`${basePath}/${item.slug}`}
           />
