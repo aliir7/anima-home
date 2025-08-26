@@ -65,9 +65,9 @@ function ImageGallery({ images }: ImageGalleryProps) {
           {/* Close Button */}
           <button
             onClick={closeLightbox}
-            className="absolute top-4 right-4 z-50 rounded-full bg-white/80 p-2 hover:bg-white"
+            className="bg-primary/80 hover:bg-primary absolute top-4 right-4 z-50 rounded-full p-2 dark:bg-white/80 dark:hover:bg-white"
           >
-            <X className="h-6 w-6 text-black" />
+            <X className="h-6 w-6 text-neutral-100 dark:text-neutral-950" />
           </button>
 
           {/* Title */}
@@ -80,9 +80,9 @@ function ImageGallery({ images }: ImageGalleryProps) {
           {/* Prev Button */}
           <button
             onClick={showPrev}
-            className="absolute top-1/2 left-4 z-50 -translate-y-1/2 rounded-full bg-white/80 p-2 hover:bg-white"
+            className="bg-primary/80 hover:bg-primary absolute top-1/2 left-4 z-50 -translate-y-1/2 rounded-full p-2 dark:bg-white/80 dark:hover:bg-white"
           >
-            <ChevronLeft className="h-6 w-6 text-black" />
+            <ChevronLeft className="h-6 w-6 text-neutral-100 dark:text-neutral-950" />
           </button>
 
           {/* Image */}
@@ -104,9 +104,9 @@ function ImageGallery({ images }: ImageGalleryProps) {
           {/* Next Button */}
           <button
             onClick={showNext}
-            className="absolute top-1/2 right-4 z-50 -translate-y-1/2 rounded-full bg-white/80 p-2 hover:bg-white"
+            className="bg-primary/80 hover:bg-primary absolute top-1/2 right-4 z-50 -translate-y-1/2 rounded-full p-2 dark:bg-white/80 dark:hover:bg-white"
           >
-            <ChevronRight className="h-6 w-6 text-black" />
+            <ChevronRight className="h-6 w-6 text-neutral-100 dark:text-neutral-950" />
           </button>
         </div>
       )}

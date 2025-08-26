@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Vazir from "next/font/local";
 import "./globals.css";
-import { APP_DESCRIPTION, APP_NAME } from "@/lib/constants";
+import { APP_DESCRIPTION, APP_NAME, ROOT_URL } from "@/lib/constants";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/Toaster";
 
@@ -16,6 +16,30 @@ export const metadata: Metadata = {
     default: APP_NAME,
   },
   description: `${APP_DESCRIPTION}`,
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
+  keywords: [
+    "انیماهوم",
+    "دکوراسیون داخلی",
+    "کابینت",
+    "کمد دیواری",
+    "تی وی وال",
+  ],
+  applicationName: APP_NAME,
+  metadataBase: new URL(ROOT_URL),
+  openGraph: {
+    title: {
+      template: `آنیما هوم - %s`,
+      default: APP_NAME,
+    },
+    description: `${APP_DESCRIPTION}`,
+    url: `${ROOT_URL}`,
+    siteName: APP_NAME,
+    locale: "fa_IR",
+    type: "website",
+  },
 };
 
 export default function RootLayout({

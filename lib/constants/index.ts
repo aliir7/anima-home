@@ -19,9 +19,9 @@ export const SERVER_URL =
 export const ROOT_URL = "https://anima-home.ir";
 export const APP_DESCRIPTION =
   process.env.NEXT_PUBLIC_APP_DESCRIPTION ||
-  "انیما هوم؛ طراحی و اجرای تخصصی دکوراسیون داخلی، کمد، کابینت و تی‌وی‌وال با متریال روز و کیفیت بالا. مشاهده نمونه‌کارها ";
+  "انیما هوم؛ طراحی و اجرای تخصصی دکوراسیون داخلی، کمد، کابینت و تی‌وی‌وال با متریال روز و کیفیت بالا.";
 
-export const PAGE_SIZE = 5;
+export const PAGE_SIZE = 6;
 
 // static data
 // user sidebar menu

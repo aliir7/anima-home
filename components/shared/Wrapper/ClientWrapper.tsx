@@ -43,7 +43,7 @@ function ClientWrapper({
         selected={category}
         onChange={onCategoryChange}
       />
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((item) => (
           <ItemCard
             key={item.id}
