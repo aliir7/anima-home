@@ -1,5 +1,6 @@
 "use client";
 
+import BreadcrumbSection from "@/components/shared/BreadcrumbSection";
 import ClientWrapper from "@/components/shared/Wrapper/ClientWrapper";
 import { Category, ProjectWithCategory } from "@/types";
 
@@ -27,6 +28,7 @@ function ProjectContent({
   }
   return (
     <section className="wrapper space-y-6 py-8">
+      <BreadcrumbSection />
       <h2 className="text-xl font-bold">پروژه‌ها</h2>
 
       <ClientWrapper
