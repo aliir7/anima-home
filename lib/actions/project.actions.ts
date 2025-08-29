@@ -15,6 +15,7 @@ import { eq } from "drizzle-orm";
 
 import { revalidatePath } from "next/cache";
 import { generateUniqueSlug } from "../utils/generateSlug";
+import { projectRedirects } from "@/db/schema/projectRedirects";
 
 // action for create project
 export async function createProject(
@@ -77,7 +78,7 @@ export async function updateProject(
   values: UpdateProjectValues,
 ): Promise<ActionResult<string>> {
   try {
-    // validation update values
+    // اعتبارسنجی داده‌ها
     const validated = updateProjectSchema.safeParse(values);
     if (!validated.success) {
       return {
@@ -89,8 +90,40 @@ export async function updateProject(
       };
     }
 
-    // update project with id in database
-    await db.update(projects).set(validated.data).where(eq(projects.id, id));
+    // پیدا کردن پروژه فعلی
+    const [existing] = await db
+      .select()
+      .from(projects)
+      .where(eq(projects.id, id));
+    if (!existing) {
+      return {
+        success: false,
+        error: { type: "custom", message: "پروژه یافت نشد" },
+      };
+    }
+
+    let newSlug = existing.slug;
+
+    // اگر عنوان تغییر کرده بود، اسلاگ جدید بساز و اسلاگ قبلی را ذخیره کن
+    if (validated.data.title && validated.data.title !== existing.title) {
+      newSlug = await generateUniqueSlug(validated.data.title);
+      if (newSlug !== existing.slug) {
+        await db.insert(projectRedirects).values({
+          projectId: existing.id,
+          oldSlug: existing.slug,
+        });
+      }
+    }
+
+    // آپدیت پروژه با داده‌های جدید و اسلاگ جدید
+    await db
+      .update(projects)
+      .set({
+        ...validated.data,
+        slug: newSlug,
+      })
+      .where(eq(projects.id, id));
+
     revalidatePath("/admin/projects");
     return { success: true, data: "پروژه با موفقیت ویرایش شد" };
   } catch (error) {

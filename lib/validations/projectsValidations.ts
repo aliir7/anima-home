@@ -3,6 +3,9 @@ import { z } from "zod/v4";
 import { projects } from "@/db/schema/projects";
 import { isUUID } from "./helpersValidations";
 
+const youtubeAparatRegex =
+  /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be|aparat\.com)\/.+$/;
+
 // Create base schemas from Drizzle-zod
 const baseSelectProjectSchema = createSelectSchema(projects).extend({
   images: z.array(z.string()),
@@ -18,7 +21,18 @@ const baseInsertProjectSchema = createInsertSchema(projects, {
     .array(z.string().min(1, "لینک تصویر معتبر نیست"))
     .min(1, "حداقل یک تصویر وارد کنید."),
 
-  videos: z.array(z.string().min(1, "لینک ویدیو معتبر نیست")).optional(),
+  videos: z
+    .array(
+      z
+        .string()
+        .min(1, "لینک ویدیو معتبر نیست")
+        .refine(
+          (val) =>
+            val.startsWith("https://uploads/") || youtubeAparatRegex.test(val),
+          "فقط لینک یوتیوب، آپارات یا فایل آپلود شده معتبر است",
+        ),
+    )
+    .optional(),
   categoryId: isUUID("دسته‌بندی معتبر نیست."),
 });
 

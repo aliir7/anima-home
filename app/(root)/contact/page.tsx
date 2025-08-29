@@ -1,3 +1,4 @@
+import BreadcrumbSection from "@/components/shared/BreadcrumbSection";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,7 +13,13 @@ export const revalidate = 86400; // 1 day
 
 function ContactPage() {
   return (
-    <div className="rtl container space-y-12 px-4 py-16">
+    <section className="rtl wrapper space-y-12 px-4 py-16">
+      <BreadcrumbSection
+        items={[
+          { label: "صفحه اصلی ", href: "/" },
+          { label: "تماس با ما", href: "/contact" },
+        ]}
+      />
       <h1 className="text-primary pb-4 text-center text-2xl font-bold md:text-4xl dark:text-neutral-900">
         تماس با ما
       </h1>
@@ -71,7 +78,7 @@ function ContactPage() {
           </Button>
         </form>
       </div>
-    </div>
+    </section>
   );
 }
 

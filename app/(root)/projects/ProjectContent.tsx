@@ -28,8 +28,13 @@ function ProjectContent({
   }
   return (
     <section className="wrapper space-y-6 py-8">
-      <BreadcrumbSection />
-      <h2 className="text-xl font-bold">پروژه‌ها</h2>
+      <BreadcrumbSection
+        items={[
+          { label: "صفحه اصلی", href: "/" },
+          { label: "پروژه‌ها", href: "/projects" },
+        ]}
+      />
+      <h2 className="mt-2 text-xl font-bold">پروژه‌های آنیماهوم</h2>
 
       <ClientWrapper
         categories={categories}

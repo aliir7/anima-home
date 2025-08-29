@@ -1,3 +1,4 @@
+import BreadcrumbSection from "@/components/shared/BreadcrumbSection";
 import {
   Accordion,
   AccordionItem,
@@ -14,7 +15,16 @@ export const metadata: Metadata = {
 
 function FAQPage() {
   return (
-    <div className="container mx-auto px-4 py-16">
+    <div className="wrapper mx-auto px-4 py-16">
+      <BreadcrumbSection
+        items={[
+          { label: "صفحه اصلی ", href: "/" },
+          {
+            label: "سوالات متداول",
+            href: "/faq",
+          },
+        ]}
+      />
       <h1 className="text-primary mb-8 pb-4 text-center text-3xl font-bold sm:mb-10 sm:text-2xl dark:text-neutral-900">
         سوالات متداول
       </h1>

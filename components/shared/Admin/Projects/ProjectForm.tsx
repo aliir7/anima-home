@@ -36,7 +36,7 @@ function ProjectForm({
     getValues,
   } = useForm<ProjectFormValues>({
     resolver: zodResolver(insertProjectSchema),
-    mode: "onSubmit",
+    mode: "onBlur",
     defaultValues: initialData ?? {
       title: "",
       description: "",

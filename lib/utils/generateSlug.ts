@@ -5,7 +5,7 @@ import { projects } from "@/db/schema/projects";
 import { eq } from "drizzle-orm";
 
 export async function generateUniqueSlug(title: string): Promise<string> {
-  const baseSlug = slugify(title, { lower: true, strict: true });
+  const baseSlug = slugify(title, { lower: true, strict: true, locale: "fa" });
   let uniqueSlug = baseSlug;
   let counter = 1;
 

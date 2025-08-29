@@ -8,6 +8,7 @@ import { products } from "./products";
 import { projects } from "./projects";
 import { sessions } from "./sessions";
 import { users } from "./user";
+import { projectRedirects } from "./projectRedirects";
 
 // accounts
 export const accountRelations = relations(accounts, ({ one }) => ({
@@ -56,12 +57,25 @@ export const productRelations = relations(products, ({ one }) => ({
 }));
 
 // projects
-export const projectsRelations = relations(projects, ({ one }) => ({
+// projects
+export const projectsRelations = relations(projects, ({ one, many }) => ({
   category: one(categories, {
     fields: [projects.categoryId],
     references: [categories.id],
   }),
+  redirects: many(projectRedirects), // 👈 پروژه چند redirect دارد
 }));
+
+// projectRedirects
+export const projectRedirectsRelations = relations(
+  projectRedirects,
+  ({ one }) => ({
+    project: one(projects, {
+      fields: [projectRedirects.projectId],
+      references: [projects.id],
+    }),
+  }),
+);
 
 // sessions
 export const sessionRelations = relations(sessions, ({ one }) => ({

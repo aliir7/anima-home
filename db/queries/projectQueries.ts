@@ -1,6 +1,7 @@
 import { ProjectWithCategory, QueryResult } from "@/types";
 import { db } from "..";
 import { projects } from "../schema/projects";
+import { projectRedirects } from "../schema/projectRedirects";
 import { normalizeProject } from "@/lib/utils/normalize";
 import { eq, sql } from "drizzle-orm";
 
@@ -121,5 +122,26 @@ export async function getProjectBySlug(
   } catch (error) {
     console.log("Error in getProjectBySlug:", error);
     return { success: false, error: "خطا در دریافت پروژه" };
+  }
+}
+
+// گرفتن اسلاگ جدید اگر اسلاگ قدیمی وجود داشت
+export async function getRedirectedSlug(
+  oldSlug: string,
+): Promise<string | null> {
+  try {
+    const [redirectRow] = await db
+      .select()
+      .from(projectRedirects)
+      .where(eq(projectRedirects.oldSlug, oldSlug));
+    if (!redirectRow) return null;
+    const [project] = await db
+      .select()
+      .from(projects)
+      .where(eq(projects.id, redirectRow.projectId));
+    return project?.slug ?? null;
+  } catch (error) {
+    console.error("Error in getRedirectedSlug:", error);
+    return null;
   }
 }

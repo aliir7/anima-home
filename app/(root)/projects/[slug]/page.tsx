@@ -1,8 +1,16 @@
+import BreadcrumbSection from "@/components/shared/BreadcrumbSection";
+import { redirect } from "next/navigation";
 import ImageGallery from "@/components/shared/ImageGallery";
 import VideoPlayer from "@/components/shared/VideoPlayer";
 import { getProjectBySlug } from "@/db/queries/projectQueries";
+import { getRedirectedSlug } from "@/db/queries/projectQueries";
 import generateMetadata from "@/lib/utils/generateMetadata";
+import { Metadata } from "next";
 import { notFound } from "next/navigation";
+
+export const metadata: Metadata = {
+  title: "جزئیات پروژه",
+};
 
 type ProjectDetailsPageProps = {
   params: Promise<{ slug: string }>;
@@ -12,8 +20,14 @@ export const revalidate = 3600; // 1hour
 
 async function ProjectDetailsPage({ params }: ProjectDetailsPageProps) {
   const slug = (await params).slug;
-  const res = await getProjectBySlug(slug);
 
+  // چک کردن اسلاگ قدیمی و ریدایرکت به اسلاگ جدید با استفاده از helper
+  const redirectedSlug = await getRedirectedSlug(slug);
+  if (redirectedSlug) {
+    redirect(`/projects/${redirectedSlug}`); // ریدایرکت 301
+  }
+
+  const res = await getProjectBySlug(slug);
   if (!res.success || !res.data) return notFound();
 
   // if data fetched successfully
@@ -22,6 +36,13 @@ async function ProjectDetailsPage({ params }: ProjectDetailsPageProps) {
 
   return (
     <section className="wrapper space-y-10 py-12">
+      <BreadcrumbSection
+        items={[
+          { label: "صفحه اصلی", href: "/" },
+          { label: "پروژه‌ها", href: "/projects" },
+          { label: project.title },
+        ]}
+      />
       <div className="space-y-6 text-right">
         <h2 className="text-primary pt-2 text-2xl font-bold md:text-3xl dark:text-neutral-900">
           {project.title}

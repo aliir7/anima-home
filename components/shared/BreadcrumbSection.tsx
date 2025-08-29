@@ -7,22 +7,36 @@ import {
   BreadcrumbItem,
 } from "../ui/breadcrumb";
 
-function BreadcrumbSection() {
+type BreadcrumbItemType = {
+  label: string;
+  href?: string;
+};
+
+type BreadcrumbSectionProps = {
+  items: BreadcrumbItemType[];
+};
+
+export default function BreadcrumbSection({ items }: BreadcrumbSectionProps) {
   return (
     <Breadcrumb>
       <BreadcrumbList>
-        <BreadcrumbItem>
-          <BreadcrumbLink href="/">صفحه اصلی</BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbSeparator>
-          <ChevronLeft />
-        </BreadcrumbSeparator>
-        <BreadcrumbItem>
-          <BreadcrumbLink href="/projects">پروژه ها</BreadcrumbLink>
-        </BreadcrumbItem>
+        {items.map((item, index) => (
+          <div key={index} className="flex items-center">
+            <BreadcrumbItem>
+              {item.href ? (
+                <BreadcrumbLink href={item.href}>{item.label}</BreadcrumbLink>
+              ) : (
+                <span>{item.label}</span>
+              )}
+            </BreadcrumbItem>
+            {index < items.length - 1 && (
+              <BreadcrumbSeparator className="mx-2">
+                <ChevronLeft />
+              </BreadcrumbSeparator>
+            )}
+          </div>
+        ))}
       </BreadcrumbList>
     </Breadcrumb>
   );
 }
-
-export default BreadcrumbSection;

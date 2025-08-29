@@ -1,3 +1,4 @@
+import BreadcrumbSection from "@/components/shared/BreadcrumbSection";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -8,7 +9,13 @@ export const revalidate = 86400; // 1 day
 
 function AboutPage() {
   return (
-    <div className="rtl container space-y-12 px-4 py-16">
+    <section className="rtl wrapper space-y-12 px-4 py-16">
+      <BreadcrumbSection
+        items={[
+          { label: "صفحه اصلی", href: "/" },
+          { label: "درباره ما", href: "/about" },
+        ]}
+      />
       <h1 className="text-primary py-4 text-center text-3xl font-bold md:text-4xl dark:text-neutral-900">
         درباره ما
       </h1>
@@ -68,7 +75,7 @@ function AboutPage() {
           <p className="text-muted-foreground mt-2 text-sm">سفارش موفق</p>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
 
