@@ -6,6 +6,7 @@ export function normalizeProjectForForm(
   return {
     id: project.id,
     title: project.title,
+    seoSlug: project.seoSlug ?? "",
     description: project.description ?? "",
     images: Array.isArray(project.images) ? project.images : [],
     videos: Array.isArray(project.videos) ? project.videos : [],
