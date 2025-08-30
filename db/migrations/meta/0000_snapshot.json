@@ -1,5 +1,5 @@
 {
-  "id": "45e13219-a37f-48c8-84e6-79b38e44c5cd",
+  "id": "5385731c-71de-42fd-ab86-059bccc5a771",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -440,6 +440,59 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.project_redirects": {
+      "name": "project_redirects",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "project_id": {
+          "name": "project_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "old_slug": {
+          "name": "old_slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "project_redirects_project_id_projects_id_fk": {
+          "name": "project_redirects_project_id_projects_id_fk",
+          "tableFrom": "project_redirects",
+          "tableTo": "projects",
+          "columnsFrom": [
+            "project_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.projects": {
       "name": "projects",
       "schema": "",
@@ -468,6 +521,13 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "seo_slug": {
+          "name": "seo_slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
         },
         "images": {
           "name": "images",
@@ -520,6 +580,13 @@
           "nullsNotDistinct": false,
           "columns": [
             "slug"
+          ]
+        },
+        "projects_seo_slug_unique": {
+          "name": "projects_seo_slug_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "seo_slug"
           ]
         }
       },

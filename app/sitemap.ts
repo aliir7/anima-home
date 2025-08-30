@@ -7,8 +7,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://anima-home.ir";
 
   // کوئری همه پروژه‌ها برای گرفتن slug
-  const allProjects = await db.select({ slug: projects.slug }).from(projects);
-
+  const allProjects = await db
+    .select({ seoSlug: projects.seoSlug })
+    .from(projects);
   return [
     // صفحات استاتیک
     {
@@ -44,7 +45,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     // صفحات داینامیک پروژه‌ها
     ...allProjects.map((project) => ({
-      url: `${baseUrl}/projects/${project.slug}`,
+      url: `${baseUrl}/projects/${project.seoSlug}`,
       lastModified: new Date(),
       changeFrequency: "weekly" as const,
       priority: 0.8,

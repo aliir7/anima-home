@@ -1,38 +1,61 @@
 import BreadcrumbSection from "@/components/shared/BreadcrumbSection";
-import { redirect } from "next/navigation";
 import ImageGallery from "@/components/shared/ImageGallery";
 import VideoPlayer from "@/components/shared/VideoPlayer";
-import { getProjectBySlug } from "@/db/queries/projectQueries";
-import { getRedirectedSlug } from "@/db/queries/projectQueries";
-import generateMetadata from "@/lib/utils/generateMetadata";
+import { getProjectBySeoSlug } from "@/db/queries/projectQueries";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "جزئیات پروژه",
-};
-
-type ProjectDetailsPageProps = {
-  params: Promise<{ slug: string }>;
-};
-
 export const revalidate = 3600; // 1hour
 
-async function ProjectDetailsPage({ params }: ProjectDetailsPageProps) {
-  const slug = (await params).slug;
+type ProjectDetailsPageProps = {
+  params: Promise<{ seoSlug: string }>;
+};
+// Next.js will call this automatically
+export async function generateMetadata({
+  params,
+}: ProjectDetailsPageProps): Promise<Metadata> {
+  const seoSlug = (await params).seoSlug;
 
-  // چک کردن اسلاگ قدیمی و ریدایرکت به اسلاگ جدید با استفاده از helper
-  const redirectedSlug = await getRedirectedSlug(slug);
-  if (redirectedSlug) {
-    redirect(`/projects/${redirectedSlug}`); // ریدایرکت 301
+  const res = await getProjectBySeoSlug(seoSlug);
+  if (!res.success || !res.data) {
+    return { title: "پروژه پیدا نشد" };
   }
 
-  const res = await getProjectBySlug(slug);
+  const project = res.data;
+  const canonical = `https://anima-home.ir/projects/${project.seoSlug}`;
+
+  return {
+    title: "جزییات پروژه ها",
+    description: project.description ?? "",
+    alternates: { canonical },
+    openGraph: {
+      title: project.title,
+      description: project.description ?? "",
+      url: canonical,
+      images: project.images?.length
+        ? [
+            {
+              url: project.images[0].startsWith("http")
+                ? project.images[0]
+                : `https://anima-home.ir${project.images[0]}`,
+              width: 1200,
+              height: 630,
+              alt: project.title,
+            },
+          ]
+        : undefined,
+    },
+  };
+}
+
+async function ProjectDetailsPage({ params }: ProjectDetailsPageProps) {
+  const seoSlug = (await params).seoSlug;
+
+  const res = await getProjectBySeoSlug(seoSlug);
   if (!res.success || !res.data) return notFound();
 
   // if data fetched successfully
   const project = res.data;
-  generateMetadata(params);
 
   return (
     <section className="wrapper space-y-10 py-12">

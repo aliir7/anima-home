@@ -1,34 +1,31 @@
 "use client";
 
+import React from "react";
+import ReactPlayer from "react-player";
+
 type VideoPlayerProps = {
   src: string | string[];
-  poster?: string;
   className?: string;
 };
 
-function VideoPlayer({ src, poster, className }: VideoPlayerProps) {
+export default function VideoPlayer({ src, className }: VideoPlayerProps) {
   const sources = Array.isArray(src) ? src : [src];
 
   return (
-    <div className="space-y-6">
+    <div className={`grid gap-6 md:grid-cols-2 ${className || ""}`}>
       {sources.map((videoSrc, index) => (
         <div
           key={index}
-          className={`relative w-full overflow-hidden rounded-lg border ${className}`}
+          className="relative aspect-video w-full overflow-hidden rounded-xl border shadow"
         >
-          <video
+          <ReactPlayer
+            src={videoSrc} // توجه: باید url باشه
             controls
-            preload="metadata"
-            className="h-auto w-full rounded-lg"
-            poster={poster}
-          >
-            <source src={videoSrc} type="video/mp4" />
-            مرورگر شما از پخش ویدیو پشتیبانی نمی‌کند.
-          </video>
+            width="100%"
+            height="100%"
+          />
         </div>
       ))}
     </div>
   );
 }
-
-export default VideoPlayer;

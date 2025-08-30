@@ -10,6 +10,7 @@ const youtubeAparatRegex =
 const baseSelectProjectSchema = createSelectSchema(projects).extend({
   images: z.array(z.string()),
   videos: z.array(z.string()).optional(),
+  seoSlug: z.string().optional(), // برای select می‌تونه خالی باشه
 });
 
 // for select full schema
@@ -17,6 +18,12 @@ export const selectProjectSchema = baseSelectProjectSchema;
 const baseInsertProjectSchema = createInsertSchema(projects, {
   title: z.string().min(3, "عنوان باید حداقل ۳ حرف باشد."),
   description: z.string().min(10, "توضیحات کافی نیست.").optional(),
+  seoSlug: z
+    .string()
+    .min(3, "لینک سئو باید حداقل ۳ کاراکتر باشد.")
+    .max(100, "لینک سئو خیلی طولانی است.")
+    .regex(/^[a-z0-9-]+$/, "فقط حروف انگلیسی کوچک، عدد و خط تیره مجاز است"),
+
   images: z
     .array(z.string().min(1, "لینک تصویر معتبر نیست"))
     .min(1, "حداقل یک تصویر وارد کنید."),
@@ -28,7 +35,8 @@ const baseInsertProjectSchema = createInsertSchema(projects, {
         .min(1, "لینک ویدیو معتبر نیست")
         .refine(
           (val) =>
-            val.startsWith("https://uploads/") || youtubeAparatRegex.test(val),
+            val.startsWith("https://anima-home.storage.c2.liara.space/") ||
+            youtubeAparatRegex.test(val),
           "فقط لینک یوتیوب، آپارات یا فایل آپلود شده معتبر است",
         ),
     )

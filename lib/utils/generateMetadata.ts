@@ -1,11 +1,8 @@
-import { getProjectBySlug } from "@/db/queries/projectQueries";
+import { getProjectBySeoSlug } from "@/db/queries/projectQueries";
 import { Metadata } from "next";
 
-async function generateMetadata(
-  params: Promise<{ slug: string }>,
-): Promise<Metadata> {
-  const slug = (await params).slug;
-  const res = await getProjectBySlug(slug);
+export async function generateMetadata(seoSlug: string): Promise<Metadata> {
+  const res = await getProjectBySeoSlug(seoSlug);
 
   if (!res.success || !res.data) {
     return {
@@ -17,7 +14,10 @@ async function generateMetadata(
 
   return {
     title: project.title,
-    description: project.description,
+    description: project.description ?? "",
+    alternates: {
+      canonical: `https://anima-home.ir/projects/${project.seoSlug}`,
+    },
     openGraph: {
       title: project.title,
       description: project.description ?? "",
@@ -34,5 +34,3 @@ async function generateMetadata(
     },
   };
 }
-
-export default generateMetadata;

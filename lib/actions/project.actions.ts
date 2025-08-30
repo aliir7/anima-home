@@ -15,7 +15,6 @@ import { eq } from "drizzle-orm";
 
 import { revalidatePath } from "next/cache";
 import { generateUniqueSlug } from "../utils/generateSlug";
-import { projectRedirects } from "@/db/schema/projectRedirects";
 
 // action for create project
 export async function createProject(
@@ -35,7 +34,7 @@ export async function createProject(
     }
 
     // if validation passed
-    const { title } = validated.data;
+    const { title, seoSlug } = validated.data;
     // checking new project not duplicated
     const [existing] = await db
       .select()
@@ -52,16 +51,31 @@ export async function createProject(
       };
     }
 
+    // چک کردن یکتا بودن seoSlug
+    const [existingSeo] = await db
+      .select()
+      .from(projects)
+      .where(eq(projects.seoSlug, seoSlug));
+
+    if (existingSeo) {
+      return {
+        success: false,
+        error: { type: "custom", message: "این SEO Slug قبلا استفاده شده است" },
+      };
+    }
+
     const slug = await generateUniqueSlug(title);
+
     const [newProject] = await db
       .insert(projects)
       .values({
         ...data,
         slug,
+        seoSlug: seoSlug,
       })
       .returning();
 
-    revalidatePath("admin/projects");
+    revalidatePath("/admin/projects");
     return { success: true, data: newProject };
   } catch (error) {
     console.log(error);
@@ -90,6 +104,8 @@ export async function updateProject(
       };
     }
 
+    const { seoSlug, title } = validated.data;
+
     // پیدا کردن پروژه فعلی
     const [existing] = await db
       .select()
@@ -102,25 +118,41 @@ export async function updateProject(
       };
     }
 
-    let newSlug = existing.slug;
+    // اگر seoSlug تغییر کرده بود چک کنیم یکتا باشه
+    if (seoSlug && seoSlug !== existing.seoSlug) {
+      const [seoExists] = await db
+        .select()
+        .from(projects)
+        .where(eq(projects.seoSlug, seoSlug));
 
-    // اگر عنوان تغییر کرده بود، اسلاگ جدید بساز و اسلاگ قبلی را ذخیره کن
-    if (validated.data.title && validated.data.title !== existing.title) {
-      newSlug = await generateUniqueSlug(validated.data.title);
-      if (newSlug !== existing.slug) {
-        await db.insert(projectRedirects).values({
-          projectId: existing.id,
-          oldSlug: existing.slug,
-        });
+      if (seoExists) {
+        return {
+          success: false,
+          error: {
+            type: "custom",
+            message: "این SEO Slug قبلا استفاده شده است",
+          },
+        };
       }
     }
 
-    // آپدیت پروژه با داده‌های جدید و اسلاگ جدید
+    let newSlug = existing.slug;
+
+    if (
+      title &&
+      title !== existing.title &&
+      seoSlug &&
+      seoSlug !== existing.seoSlug
+    ) {
+      newSlug = await generateUniqueSlug(title);
+    }
+
     await db
       .update(projects)
       .set({
         ...validated.data,
         slug: newSlug,
+        seoSlug: seoSlug,
       })
       .where(eq(projects.id, id));
 
@@ -135,8 +167,7 @@ export async function updateProject(
   }
 }
 
-// actions/deleteProject.ts
-
+//delete project action
 export async function deleteProject(id: string): Promise<ActionResult<string>> {
   try {
     const [project] = await db
@@ -158,11 +189,15 @@ export async function deleteProject(id: string): Promise<ActionResult<string>> {
       ? project.videos
       : [];
 
-    // تبدیل URL کامل به مسیر داخل باکت مثل projects/filename.jpg
-    const extractKey = (url: string) =>
-      url.replace("https://anima-home.storage.c2.liara.space/", "");
+    // فقط فایل‌هایی که روی باکت ذخیره شدن حذف می‌کنیم
+    const BUCKET_URL = "https://anima-home.storage.c2.liara.space/";
 
-    const fileKeys = [...images, ...videos].map(extractKey);
+    const extractKey = (url: string) => url.replace(BUCKET_URL, "");
+
+    // فقط لینک‌هایی که با آدرس باکت شروع میشن
+    const fileKeys = [...images, ...videos]
+      .filter((url) => url.startsWith(BUCKET_URL))
+      .map(extractKey);
 
     if (fileKeys.length > 0) {
       const res = await fetch(

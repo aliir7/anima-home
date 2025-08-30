@@ -1,7 +1,6 @@
 import { ProjectWithCategory, QueryResult } from "@/types";
 import { db } from "..";
 import { projects } from "../schema/projects";
-import { projectRedirects } from "../schema/projectRedirects";
 import { normalizeProject } from "@/lib/utils/normalize";
 import { eq, sql } from "drizzle-orm";
 
@@ -103,18 +102,28 @@ export async function getProjectBySlug(
   slug: string,
 ): Promise<QueryResult<ProjectWithCategory>> {
   try {
-    const [data] = await db
+    // 1) تلاش با seoSlug (کاننیکال)
+    let [row] = await db
       .select()
       .from(projects)
-      .where(eq(projects.slug, slug));
-    if (!data) {
-      return { success: false, error: "پروژه‌ای با این اسلاگ یافت نشد" };
+      .where(eq(projects.seoSlug, slug));
+
+    // 2) اگر پیدا نشد، fallback به slug قدیمی (legacy)
+    if (!row) {
+      const [legacy] = await db
+        .select()
+        .from(projects)
+        .where(eq(projects.slug, slug));
+      if (!legacy) {
+        return { success: false, error: "پروژه‌ای با این اسلاگ یافت نشد" };
+      }
+      row = legacy;
     }
-    // ✅ Explicitly cast images and videos
+
     const fixedData = {
-      ...data,
-      images: data.images as unknown as string[],
-      videos: data.videos as unknown as string[],
+      ...row,
+      images: row.images as unknown as string[],
+      videos: (row.videos as unknown as string[]) ?? [],
     };
 
     const normalized = normalizeProject(fixedData);
@@ -125,23 +134,29 @@ export async function getProjectBySlug(
   }
 }
 
-// گرفتن اسلاگ جدید اگر اسلاگ قدیمی وجود داشت
-export async function getRedirectedSlug(
-  oldSlug: string,
-): Promise<string | null> {
+export async function getProjectBySeoSlug(
+  seoSlug: string,
+): Promise<QueryResult<ProjectWithCategory>> {
   try {
-    const [redirectRow] = await db
-      .select()
-      .from(projectRedirects)
-      .where(eq(projectRedirects.oldSlug, oldSlug));
-    if (!redirectRow) return null;
-    const [project] = await db
+    const [data] = await db
       .select()
       .from(projects)
-      .where(eq(projects.id, redirectRow.projectId));
-    return project?.slug ?? null;
+      .where(eq(projects.seoSlug, seoSlug));
+
+    if (!data) {
+      return { success: false, error: "پروژه‌ای با این اسلاگ یافت نشد" };
+    }
+
+    const fixedData = {
+      ...data,
+      images: data.images as unknown as string[],
+      videos: data.videos as unknown as string[],
+    };
+
+    const normalized = normalizeProject(fixedData);
+    return { success: true, data: normalized };
   } catch (error) {
-    console.error("Error in getRedirectedSlug:", error);
-    return null;
+    console.error("Error in getProjectBySeoSlug:", error);
+    return { success: false, error: "خطا در دریافت پروژه" };
   }
 }
