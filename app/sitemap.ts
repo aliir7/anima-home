@@ -1,7 +1,7 @@
 // app/sitemap.ts
 import { MetadataRoute } from "next";
 import { db } from "@/db";
-import { projects } from "@/db/schema"; // مسیر دقیق اسکیما
+import { projects } from "@/db/schema/projects"; // مسیر دقیق اسکیما
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://anima-home.ir";
