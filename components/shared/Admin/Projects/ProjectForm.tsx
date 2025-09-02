@@ -61,7 +61,7 @@ export default function ProjectForm({
     control,
   } = useForm<RHFProjectFormValues>({
     resolver: rhfResolver,
-    mode: "onSubmit",
+    mode: "onBlur",
     defaultValues: {
       title: initialData?.title ?? "",
       description: initialData?.description ?? "",

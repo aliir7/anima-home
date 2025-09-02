@@ -6,15 +6,15 @@ import { isUUID } from "./helpersValidations";
 const youtubeAparatRegex =
   /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be|aparat\.com)\/.+$/;
 
-// Create base schemas from Drizzle-zod
+// SELECT
 const baseSelectProjectSchema = createSelectSchema(projects).extend({
   images: z.array(z.string()),
   videos: z.array(z.string()).optional(),
-  seoSlug: z.string().optional(), // برای select می‌تونه خالی باشه
+  seoSlug: z.string().optional(),
 });
-
-// for select full schema
 export const selectProjectSchema = baseSelectProjectSchema;
+
+// INSERT (ایجاد)
 const baseInsertProjectSchema = createInsertSchema(projects, {
   title: z.string().min(3, "عنوان باید حداقل ۳ حرف باشد."),
   description: z.string().min(10, "توضیحات کافی نیست.").optional(),
@@ -23,11 +23,9 @@ const baseInsertProjectSchema = createInsertSchema(projects, {
     .min(3, "لینک سئو باید حداقل ۳ کاراکتر باشد.")
     .max(100, "لینک سئو خیلی طولانی است.")
     .regex(/^[a-z0-9-]+$/, "فقط حروف انگلیسی کوچک، عدد و خط تیره مجاز است"),
-
   images: z
     .array(z.string().min(1, "لینک تصویر معتبر نیست"))
     .min(1, "حداقل یک تصویر وارد کنید."),
-
   videos: z
     .array(
       z
@@ -43,14 +41,12 @@ const baseInsertProjectSchema = createInsertSchema(projects, {
     .optional(),
   categoryId: isUUID("دسته‌بندی معتبر نیست."),
 });
-
 export const insertProjectSchema = baseInsertProjectSchema.omit({
   slug: true,
   createdAt: true,
 });
 
-// برای ویرایش (update) — فقط id اجباری
-export const updateProjectSchema = baseInsertProjectSchema.omit({
-  slug: true,
-  createdAt: true,
-});
+// UPDATE (ویرایش) — همه فیلدها اختیاری و **بدون id**
+export const updateProjectSchema = baseInsertProjectSchema
+  .omit({ slug: true, createdAt: true })
+  .partial();
