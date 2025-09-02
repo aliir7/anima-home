@@ -2,19 +2,17 @@ import type { MetadataRoute } from "next";
 import { db } from "@/db";
 import { projects } from "@/db/schema";
 
-// everyday
-export const revalidate = 86400;
+export const revalidate = 86400; // روزی یکبار آپدیت
+export const dynamic = "force-dynamic"; // جلوگیری از prerender-error
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://anima-home.ir";
 
-  // گرفتن seoSlug همه پروژه‌ها
   const allProjects = await db
     .select({ seoSlug: projects.seoSlug })
     .from(projects);
 
   return [
-    // صفحات استاتیک
     {
       url: `${baseUrl}/`,
       lastModified: new Date(),
@@ -45,10 +43,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly",
       priority: 0.7,
     },
-
-    // صفحات داینامیک پروژه‌ها
-    ...allProjects.map((project) => ({
-      url: `${baseUrl}/projects/${project.seoSlug}`,
+    ...allProjects.map((p) => ({
+      url: `${baseUrl}/projects/${p.seoSlug}`,
       lastModified: new Date(),
       changeFrequency: "weekly" as const,
       priority: 0.8,
