@@ -40,6 +40,9 @@ export const metadata: Metadata = {
     locale: "fa_IR",
     type: "website",
   },
+  twitter: {
+    card: "summary_large_image",
+  },
 };
 
 export default function RootLayout({
@@ -49,7 +52,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fa" dir="rtl" suppressHydrationWarning={true}>
-      <body className={`${vazir.className}`}>
+      <body className={`${vazir.className} scroll-smooth`}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           {children}
           <Toaster />

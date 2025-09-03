@@ -12,8 +12,8 @@ export default function robots(): MetadataRoute.Robots {
         disallow: [
           "/admin",
           "/admin/*",
-          "/signin",
-          "/signup",
+          "/sign-in",
+          "/sign-up",
           "/reset-password",
           "/forgot-password",
           "/my-account",
