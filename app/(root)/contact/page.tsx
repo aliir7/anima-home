@@ -7,6 +7,7 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "تماس با ما",
+  description: "اطلاعات تماس و ارتباط با آنیماهوم",
 };
 
 export const revalidate = 86400; // 1 day
@@ -44,7 +45,9 @@ function ContactPage() {
             </div>
             <div className="flex items-center gap-2 dark:text-neutral-700">
               <MapPin className="text-primary h-5 w-5 dark:text-neutral-400" />
-              تهران، خیابان شهرک صنعتی چهاردانگه خیابان بیست و چهارم
+              <address>
+                تهران، خیابان شهرک صنعتی چهاردانگه خیابان بیست و چهارم
+              </address>
             </div>
           </div>
         </div>

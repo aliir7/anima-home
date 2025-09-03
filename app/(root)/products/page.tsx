@@ -6,6 +6,10 @@ const pageTitle = services.at(2)?.title;
 
 export const metadata: Metadata = {
   title: pageTitle || "محصولات",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export const revalidate = 3600; // 1hour

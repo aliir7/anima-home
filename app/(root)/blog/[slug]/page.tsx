@@ -1,9 +1,16 @@
 import Image from "next/image";
 import { Calendar, User } from "lucide-react";
 import { notFound } from "next/navigation";
+import { Metadata } from "next";
 
 export const revalidate = 86400; // 1 day
-
+export const metadata: Metadata = {
+  title: "بلاگ",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 // فرضی: دیتای ثابت (بعداً به API یا DB وصل میشه)
 const BLOGS = [
   {

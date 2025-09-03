@@ -52,6 +52,7 @@ function ImageGallery({ images }: ImageGalleryProps) {
               alt={`تصویر ${idx + 1}`}
               width={500}
               height={500}
+              loading="lazy"
               unoptimized
               className="h-48 w-full object-cover"
             />
@@ -94,6 +95,7 @@ function ImageGallery({ images }: ImageGalleryProps) {
                   alt="پیش‌نمایش"
                   width={1200}
                   height={800}
+                  loading="eager"
                   unoptimized
                   className="max-h-[90vh] w-auto object-contain"
                 />

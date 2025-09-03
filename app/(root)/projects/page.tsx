@@ -7,7 +7,10 @@ import {
 import { getAllCategories } from "@/db/queries/categoriesQueries";
 import { PAGE_SIZE } from "@/lib/constants";
 
-export const metadata: Metadata = { title: "پروژه‌ها" };
+export const metadata: Metadata = {
+  title: "پروژه‌ها",
+  description: "پروژه های اجرا شده توسط تیم انیماهوم",
+};
 export const revalidate = 3600; // 1hour
 
 type ProjectPageProps = {

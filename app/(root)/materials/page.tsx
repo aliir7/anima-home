@@ -8,6 +8,10 @@ export const revalidate = 86400; // 1 day
 
 export const metadata: Metadata = {
   title: pageTitle || "متریال",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 function MaterialsPage() {

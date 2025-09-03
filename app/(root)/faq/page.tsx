@@ -11,6 +11,7 @@ export const revalidate = 86400; // 1 day
 
 export const metadata: Metadata = {
   title: "سوالات متداول",
+  description: "سوالاتی که از آنیماهوم پرسیدید",
 };
 
 function FAQPage() {

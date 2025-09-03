@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     apple: "/apple-touch-icon.png",
   },
   keywords: [
-    "انیماهوم",
+    "آنیماهوم",
     "دکوراسیون داخلی",
     "کابینت",
     "کمد دیواری",
@@ -35,6 +35,7 @@ export const metadata: Metadata = {
       default: APP_NAME,
     },
     description: `${APP_DESCRIPTION}`,
+    images: "/opengraph-image.png",
     url: `${ROOT_URL}`,
     siteName: APP_NAME,
     locale: "fa_IR",

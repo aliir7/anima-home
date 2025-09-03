@@ -8,6 +8,10 @@ export const revalidate = 3600; // 1hour
 
 export const metadata: Metadata = {
   title: pageTitle || "ابزارآلات",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 function ToolsPage() {

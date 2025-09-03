@@ -3,6 +3,7 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "درباره ما",
+  description: "هرآنچه باید از تیم آنیماهوم بدانید",
 };
 
 export const revalidate = 86400; // 1 day

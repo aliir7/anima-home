@@ -1,15 +1,19 @@
 import Image from "next/image";
-import heroImg from "../../public/images/hero.png";
 
 function HeroSection() {
   return (
     <section className="bg-background text-foreground dark:bg-muted relative w-full overflow-hidden rounded-lg">
       {/* تصویر */}
       <Image
-        src={heroImg}
+        src="/images/hero.webp"
         alt="hero-image"
+        width={1200}
         height={600}
-        priority
+        decoding="async"
+        sizes="(min-width: 1280px) 700px, (min-width: 768px) 50vw, 100vw"
+        fetchPriority="high"
+        priority={true}
+        loading="eager"
         className="w-full object-cover"
       />
 

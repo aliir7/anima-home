@@ -57,7 +57,7 @@ function MobileNavClient({ user }: MobileNavClientProps) {
               <>
                 <Avatar className="h-8 w-8">
                   <AvatarImage
-                    src={user.image || "/images/user.png"}
+                    src={user.image || ""}
                     alt={user.name || "کاربر"}
                   />
                   <AvatarFallback>
