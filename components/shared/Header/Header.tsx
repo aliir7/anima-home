@@ -12,7 +12,7 @@ async function Header() {
   return (
     <header className="bg-primary dark:bg-muted w-full border-b text-white shadow-md">
       <div className="wrapper flex-between">
-        <div className="flex-start gap-8">
+        <div className="flex-start gap-2 md:gap-8">
           <div className="md:hidden">
             <MobileNav />
           </div>
