@@ -45,9 +45,7 @@ function ContactPage() {
             </div>
             <div className="flex items-center gap-2 dark:text-neutral-700">
               <MapPin className="text-primary h-5 w-5 dark:text-neutral-400" />
-              <address>
-                تهران، خیابان شهرک صنعتی چهاردانگه خیابان بیست و چهارم
-              </address>
+              <address>تهران، شهرک صنعتی چهاردانگه خیابان بیست و چهارم</address>
             </div>
           </div>
         </div>

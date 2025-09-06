@@ -10,6 +10,7 @@ export const publicRoutes = [
   "/materials",
   "/my-account",
   "/my-account/orders",
+  "/sitemap.xml",
 ];
 
 export const authRoutes = [

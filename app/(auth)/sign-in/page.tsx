@@ -3,7 +3,7 @@ import Image from "next/image";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Metadata } from "next";
 import SignInForm from "./SignInForm";
-import logoImg from "/public/logo/logo-mini-2.png";
+
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
@@ -32,7 +32,7 @@ async function SignInPage({ searchParams }: SignInPageProps) {
         <CardHeader className="text-center">
           <Link href="/" className="mb-4 inline-block">
             <Image
-              src={logoImg}
+              src="logo/logo-mini-2.png"
               alt="Anima Home Logo"
               width={120}
               height={40}
