@@ -1,124 +1,77 @@
 "use client";
 
-import { useState } from "react";
+import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronUp } from "lucide-react";
-import { cn } from "@/lib/utils/utils";
+import { plans } from "@/lib/constants";
+import Link from "next/link";
 
-export default function CabinetOfferSection() {
-  const [open, setOpen] = useState(false);
-
+function CabinetOfferSection() {
   return (
-    <section className="bg-muted/40 mx-auto mt-10 max-w-4xl rounded-3xl px-6 py-10 shadow-lg">
-      <h2 className="mb-4 text-center text-2xl font-bold">
-        🛠️ پکیج خدمات اقتصادی کابینت
+    <section className="mx-auto mt-10 max-w-6xl px-6 py-12">
+      <h2 className="text:2xl mb-6 text-center font-bold lg:text-3xl">
+        🛠️ جدول پکیج خدمات کابینت
       </h2>
-
-      <p className="text-muted-foreground mb-6 text-center">
-        راه‌حلی ساده و مقرون‌به‌صرفه برای نوسازی آشپزخانه شما بدون تخریب!
+      <p className="text-muted-foreground mb-12 text-center sm:text-xs md:text-sm">
+        انتخاب پکیج مناسب برای آشپزخانه شما. به شما کمک می‌کنیم بدون تخریب و با
+        کم‌ترین هزینه، ظاهر و کارایی آشپزخانه‌تان را به‌روز کنید.
       </p>
 
-      <div
-        className={cn(
-          "transition-all duration-300",
-          open
-            ? "max-h-fit"
-            : "pointer-events-none max-h-[120px] overflow-hidden blur-sm select-none",
-        )}
-      >
-        <div dir="rtl" className="space-y-4 text-sm leading-7">
-          <p>
-            در بازار امروز، نوسازی کامل کابینت‌ها هزینه‌بر و زمان‌بر شده. ما در{" "}
-            <strong>آنیما هوم</strong> با طراحی یک پکیج خدماتی اقتصادی و تخصصی،
-            به شما کمک می‌کنیم بدون تخریب و با کم‌ترین هزینه، ظاهر و کارایی
-            آشپزخانه‌تان را به‌روز کنید.
-          </p>
+      <div className="mx-auto flex items-center justify-center gap-8">
+        {plans.map((plan, i) => (
+          <div
+            key={i}
+            className={`relative flex flex-col rounded-3xl border bg-white p-8 shadow-md transition hover:shadow-xl dark:border-neutral-800 ${
+              plan.popular
+                ? "border-primary ring-primary shadow-lg ring-2"
+                : "border-muted"
+            }`}
+          >
+            {plan.popular && (
+              <span className="bg-primary absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-3 py-1 text-xs font-semibold text-white dark:bg-neutral-950">
+                محبوب‌ترین
+              </span>
+            )}
 
-          <div>
-            <h3 className="text-base font-semibold">🔧 خدمات این پکیج:</h3>
-            <ul className="list-disc space-y-1 pr-5">
-              <li>تعمیر کابینت‌های آسیب‌دیده یا فرسوده</li>
-              <li>تعویض یراق‌آلات قدیمی (لولا، ریل، جک و...)</li>
-              <li>تعویض صفحه کابینت با مدل‌های متنوع</li>
-              <li>مقاوم‌سازی پایه‌ها و اتصالات کابینت</li>
-              <li>تعویض درب‌ها بدون تعویض بدنه</li>
-              <li>ایجاد فضا برای نصب تجهیزات جدید</li>
+            <h3 className="mb-5 text-center text-lg font-bold md:mb-3 md:text-xl">
+              {plan.title}
+            </h3>
+            <p className="text-muted-foreground mb-6 text-center text-xs md:text-sm dark:text-neutral-500">
+              {plan.description}
+            </p>
+            {/* {plans.price && (
+              <p className="text-primary mb-6 text-center text-2xl font-bold">
+                {plan.price}
+              </p>
+            )} */}
+
+            <ul className="mb-8 flex-1 space-y-2 text-xs md:text-sm">
+              {plan.features.map((feature, idx) => (
+                <li key={idx} className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-green-500" />
+                  <span>{feature}</span>
+                </li>
+              ))}
             </ul>
+
+            <Button
+              asChild
+              className={`w-full rounded-full py-2 text-xs md:text-sm dark:bg-neutral-950 dark:hover:bg-neutral-700 ${
+                plan.popular ? "bg-primary text-white" : "bg-muted"
+              }`}
+            >
+              <Link
+                target="_blank"
+                href="https://wa.me/989129277302"
+                aria-label="Whatsapp"
+              >
+                انتخاب پلن و ثبت سفارش
+              </Link>
+            </Button>
           </div>
-
-          <div>
-            <h3 className="text-base font-semibold">✅ مزایا:</h3>
-            <ul className="list-disc space-y-1 pr-5">
-              <li>بدون تخریب یا بازسازی کامل</li>
-              <li>اقتصادی‌تر از نصب کابینت نو</li>
-              <li>مناسب برای خانه‌های اجاره‌ای یا کوچک</li>
-              <li>اجرای سریع (کمتر از یک روز)</li>
-              <li>سفارشی‌سازی خدمات</li>
-              <li>اجرای تمیز توسط استادکار با‌تجربه</li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-base font-semibold">👥 مناسب برای:</h3>
-            <ul className="list-disc space-y-1 pr-5">
-              <li>خانواده‌هایی با بودجه محدود</li>
-              <li>افرادی که قصد اجاره یا فروش خانه دارند</li>
-              <li>زوج‌های جوان و مستأجران</li>
-              <li>مشتریان قدیمی ما</li>
-            </ul>
-          </div>
-
-          <p>📍 مناطق تحت پوشش: کل استان تهران + شهرهای اطراف</p>
-
-          <div>
-            <h3 className="text-base font-semibold">📝 مراحل اجرا:</h3>
-            <ol className="list-decimal space-y-1 pr-5">
-              <li>بازدید حضوری</li>
-              <li>ارائه پیش‌فاکتور</li>
-              <li>قرارداد و ۵۰٪ پیش‌پرداخت</li>
-              <li>تولید و اجرا (۱۰ تا ۱۵ روز)</li>
-              <li>۲۵٪ حین اجرا</li>
-              <li>۲۵٪ نهایی پس از تحویل</li>
-            </ol>
-          </div>
-
-          <p>
-            💬 <strong>هزینه بازدید:</strong> ۱۵۰ هزار تومان (در صورت قرارداد از
-            فاکتور کسر می‌شود)
-          </p>
-
-          <div>
-            <h3 className="text-base font-semibold">🎁 تخفیف‌های پلکانی:</h3>
-            <ul className="list-disc space-y-1 pr-5">
-              <li>بالای ۱۵ میلیون تومان: ۳٪</li>
-              <li>بالای ۲۵ میلیون تومان: ۵٪</li>
-              <li>بالای ۳۵ میلیون تومان: ۷٪ (تا سقف ۲ میلیون)</li>
-            </ul>
-          </div>
-
-          <p className="mt-4">
-            📞 برای رزرو بازدید، از طریق واتس‌اپ با ما در تماس باشید.
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-6 flex justify-center">
-        <Button
-          variant="outline"
-          onClick={() => setOpen((prev) => !prev)}
-          className="rounded-full"
-        >
-          {open ? (
-            <>
-              بستن اطلاعات <ChevronUp className="mr-2 h-4 w-4" />
-            </>
-          ) : (
-            <>
-              اطلاعات بیشتر <ChevronDown className="mr-2 h-4 w-4" />
-            </>
-          )}
-        </Button>
+        ))}
       </div>
     </section>
   );
 }
+
+export default CabinetOfferSection;

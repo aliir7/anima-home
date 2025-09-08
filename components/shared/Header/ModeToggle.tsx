@@ -17,6 +17,7 @@ function ModeToggle() {
 
   return (
     <Button
+      aria-label="تغییر تم"
       className="rounded-full p-2 transition focus-visible:ring-0 focus-visible:ring-offset-0"
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
       variant="ghost"

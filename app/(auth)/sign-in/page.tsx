@@ -6,6 +6,7 @@ import SignInForm from "./SignInForm";
 
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import logoImg from "@/public/images/logo/logo.png";
 
 export const metadata: Metadata = {
   title: "ورود",
@@ -32,7 +33,7 @@ async function SignInPage({ searchParams }: SignInPageProps) {
         <CardHeader className="text-center">
           <Link href="/" className="mb-4 inline-block">
             <Image
-              src="logo/logo-mini-2.png"
+              src={logoImg}
               alt="Anima Home Logo"
               width={120}
               height={40}

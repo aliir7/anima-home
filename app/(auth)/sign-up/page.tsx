@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Image from "next/image";
-
+import logoImg from "@/public/images/logo/logo.png";
 import SignUpForm from "./SignUpForm";
 import {
   CardTitle,
@@ -38,7 +38,7 @@ async function SignUpPage({ searchParams }: SignUpPageProps) {
         <CardHeader className="text-center">
           <Link href="/" className="mb-4 inline-block">
             <Image
-              src="logo/logo-mini-2.png"
+              src={logoImg}
               alt="Anima Home Logo"
               width={120}
               height={40}

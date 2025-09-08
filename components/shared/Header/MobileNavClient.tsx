@@ -47,6 +47,7 @@ function MobileNavClient({ user }: MobileNavClientProps) {
         </Button>
       </SheetTrigger>
       <SheetContent
+        aria-label="منوی موبایل"
         side="right"
         className="flex h-full w-72 flex-col justify-start px-6 py-4 transition-all duration-300 ease-in-out data-[state=false]:translate-x-full data-[state=true]:translate-x-0 dark:bg-neutral-950 dark:text-white"
       >

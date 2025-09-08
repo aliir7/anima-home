@@ -40,6 +40,7 @@ function ItemCard({
           <Image
             src={fullImageUrl}
             alt={title}
+            title={title}
             fill
             unoptimized
             placeholder="blur"

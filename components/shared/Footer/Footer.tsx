@@ -76,7 +76,7 @@ export default function Footer() {
           </h4>
           <div className="flex gap-4">
             <Link
-              href="https://www.instagram.com/anima.home.official?utm_source=qr&igsh=YTB4eHhmdG82bnpn"
+              href="https://www.instagram.com/anima.home.ir?igsh=YTB4eHhmdG82bnpn"
               aria-label="Instagram"
               className="hover:text-primary active:text-primary transition"
             >

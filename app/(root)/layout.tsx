@@ -10,7 +10,9 @@ export default function RootLayout({
     <div className="flex min-h-screen flex-col">
       <Header />
 
-      <main className="container mx-auto px-4">{children}</main>
+      <main className="container mx-auto px-4" aria-label="محتوای اصلی">
+        {children}
+      </main>
       <Footer />
     </div>
   );
