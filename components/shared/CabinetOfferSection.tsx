@@ -7,11 +7,11 @@ import Link from "next/link";
 
 function CabinetOfferSection() {
   return (
-    <section className="mx-auto mt-10 max-w-6xl px-6 py-12">
+    <section className="mx-auto mt-10 max-w-2xl px-6 py-12">
       <h2 className="text:2xl mb-6 text-center font-bold lg:text-3xl">
         🛠️ جدول پکیج خدمات کابینت
       </h2>
-      <p className="text-muted-foreground mb-12 text-center sm:text-xs md:text-sm">
+      <p className="text-muted-foreground mb-12 text-center sm:text-xs md:text-sm dark:text-neutral-500">
         انتخاب پکیج مناسب برای آشپزخانه شما. به شما کمک می‌کنیم بدون تخریب و با
         کم‌ترین هزینه، ظاهر و کارایی آشپزخانه‌تان را به‌روز کنید.
       </p>
@@ -64,7 +64,7 @@ function CabinetOfferSection() {
                 href="https://wa.me/989129277302"
                 aria-label="Whatsapp"
               >
-                انتخاب پلن و ثبت سفارش
+                دریافت مشاوره
               </Link>
             </Button>
           </div>

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Vazir from "next/font/local";
 import "./globals.css";
 import { APP_DESCRIPTION, APP_NAME, ROOT_URL } from "@/lib/constants";
+import openGraphImg from "@/public/opengraph-image.png";
+
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/Toaster";
 
@@ -34,8 +36,10 @@ export const metadata: Metadata = {
       template: `آنیما هوم - %s`,
       default: APP_NAME,
     },
+
     description: `${APP_DESCRIPTION}`,
-    images: "/opengraph-image.png",
+    images: `${openGraphImg}`,
+
     url: `${ROOT_URL}`,
     siteName: APP_NAME,
     locale: "fa_IR",

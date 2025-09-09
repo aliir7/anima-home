@@ -22,7 +22,7 @@ async function UserDropdown({ user }: UserDropdownProps) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <div className="flex cursor-pointer items-center gap-2">
-          <Avatar className="h-8 w-8">
+          <Avatar aria-label="آواتار کاربر" className="h-8 w-8">
             <AvatarImage src={user.image || ""} alt={user.name || "user"} />
             <AvatarFallback className="text-primary dark:text-primaryDark">
               {user.name?.charAt(0).toUpperCase() || "U"}
