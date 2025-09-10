@@ -8,14 +8,6 @@ import Link from "next/link";
 function CabinetOfferSection() {
   return (
     <section className="mx-auto mt-10 max-w-2xl px-6 py-12">
-      <h2 className="text:2xl mb-6 text-center font-bold lg:text-3xl">
-        🛠️ جدول پکیج خدمات کابینت
-      </h2>
-      <p className="text-muted-foreground mb-12 text-center sm:text-xs md:text-sm dark:text-neutral-500">
-        انتخاب پکیج مناسب برای آشپزخانه شما. به شما کمک می‌کنیم بدون تخریب و با
-        کم‌ترین هزینه، ظاهر و کارایی آشپزخانه‌تان را به‌روز کنید.
-      </p>
-
       <div className="mx-auto flex items-center justify-center gap-8">
         {plans.map((plan, i) => (
           <div
@@ -32,10 +24,10 @@ function CabinetOfferSection() {
               </span>
             )}
 
-            <h3 className="mb-5 text-center text-lg font-bold md:mb-3 md:text-xl">
+            <h3 className="mb-6 text-center text-lg font-bold md:mb-3 md:text-xl">
               {plan.title}
             </h3>
-            <p className="text-muted-foreground mb-6 text-center text-xs md:text-sm dark:text-neutral-500">
+            <p className="text-muted-foreground mb-8 text-center text-xs md:text-sm dark:text-neutral-500">
               {plan.description}
             </p>
             {/* {plans.price && (
@@ -44,7 +36,7 @@ function CabinetOfferSection() {
               </p>
             )} */}
 
-            <ul className="mb-8 flex-1 space-y-2 text-xs md:text-sm">
+            <ul className="mb-10 flex-1 space-y-2 text-xs md:text-sm">
               {plan.features.map((feature, idx) => (
                 <li key={idx} className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-green-500" />

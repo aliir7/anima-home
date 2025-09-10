@@ -21,7 +21,7 @@ async function UserDropdown({ user }: UserDropdownProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <div className="flex cursor-pointer items-center gap-2">
+        <div className="flex cursor-pointer items-center gap-2" role="کاربر">
           <Avatar aria-label="آواتار کاربر" className="h-8 w-8">
             <AvatarImage src={user.image || ""} alt={user.name || "user"} />
             <AvatarFallback className="text-primary dark:text-primaryDark">

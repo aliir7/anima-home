@@ -14,10 +14,11 @@ const vazir = Vazir({
 
 export const metadata: Metadata = {
   title: {
-    template: `آنیما هوم - %s`,
+    template: `آنیما هوم | %s`,
     default: APP_NAME,
   },
   description: `${APP_DESCRIPTION}`,
+
   icons: {
     icon: "/favicon.ico",
     apple: "/apple-touch-icon.png",
@@ -38,15 +39,26 @@ export const metadata: Metadata = {
     },
 
     description: `${APP_DESCRIPTION}`,
-    images: `${openGraphImg}`,
+    images: [
+      {
+        url: openGraphImg.src,
+        width: 1200,
+        height: 630,
+        alt: APP_NAME,
+      },
+    ],
 
     url: `${ROOT_URL}`,
     siteName: APP_NAME,
+
     locale: "fa_IR",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
+    images: [`${openGraphImg.src}`],
+    title: APP_NAME,
+    description: APP_DESCRIPTION,
   },
 };
 
