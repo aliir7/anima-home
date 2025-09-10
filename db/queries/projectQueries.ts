@@ -2,7 +2,7 @@ import { ProjectWithCategory, QueryResult } from "@/types";
 import { db } from "..";
 import { projects } from "../schema/projects";
 import { normalizeProject } from "@/lib/utils/normalize";
-import { eq, sql } from "drizzle-orm";
+import { desc, eq, sql } from "drizzle-orm";
 
 export async function getAllProjects(): Promise<
   QueryResult<ProjectWithCategory[]>
@@ -53,7 +53,7 @@ export async function getFilteredProjects({
       .where(whereClause)
       .limit(pageSize ?? 6)
       .offset(offset)
-      .orderBy(projects.createdAt);
+      .orderBy(projects.categoryId, desc(projects.createdAt));
     const normalized = (data as Partial<ProjectWithCategory>[]).map(
       normalizeProject,
     );
