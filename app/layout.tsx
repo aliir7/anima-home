@@ -54,6 +54,7 @@ export const metadata: Metadata = {
     locale: "fa_IR",
     type: "website",
   },
+
   twitter: {
     card: "summary_large_image",
     images: [`${openGraphImg.src}`],

@@ -9,3 +9,4 @@ export { verificationTokens } from "./verificationToken";
 export { projects } from "./projects";
 export { categories } from "./categories";
 export { projectRedirects } from "./projectRedirects";
+export { materials } from "./materials";
