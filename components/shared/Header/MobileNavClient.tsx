@@ -131,14 +131,14 @@ function MobileNavClient({ user }: MobileNavClientProps) {
           {!user ? (
             <>
               <Button
-                className="bg-primary mb-2 w-full text-white dark:text-neutral-900"
+                className="bg-primary mb-2 w-full cursor-pointer rounded-full text-white dark:text-neutral-900"
                 onClick={() => handleNavigate("/sign-up")}
               >
                 <LogIn className="ml-2 h-4 w-4" /> ثبت‌نام
               </Button>
               <Button
                 variant="outline"
-                className="mb-6 w-full cursor-pointer"
+                className="mb-6 w-full cursor-pointer rounded-full"
                 onClick={() => handleNavigate("/sign-in")}
               >
                 <User className="ml-2 h-4" /> ورود

@@ -4,7 +4,10 @@ import {
   selectCategorySchema,
   updateCategorySchema,
 } from "@/lib/validations/categoryValidations";
-import { insertMaterialSchema } from "@/lib/validations/materialsValidations";
+import {
+  insertMaterialSchema,
+  selectMaterialSchema,
+} from "@/lib/validations/materialsValidations";
 import {
   insertProjectSchema,
   selectProjectSchema,
@@ -60,6 +63,7 @@ export type ProjectWithCategory = Project & {
 };
 
 // materials types
+export type Material = z.infer<typeof selectMaterialSchema>;
 export type MaterialFormValues = z.infer<typeof insertMaterialSchema>;
 
 // product types

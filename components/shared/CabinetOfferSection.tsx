@@ -18,11 +18,10 @@ function CabinetOfferSection() {
                 : "border-muted"
             }`}
           >
-            {plan.popular && (
+            {/* {plan.popular && (
               <span className="bg-primary absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-3 py-1 text-xs font-semibold text-white dark:bg-neutral-950">
-                محبوب‌ترین
-              </span>
-            )}
+                {/* محبوب‌ترین */}
+            {/* </span> */}
 
             <h3 className="mb-6 text-center text-lg font-bold md:mb-3 md:text-xl">
               {plan.title}

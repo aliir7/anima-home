@@ -18,7 +18,7 @@ export default function HomePage() {
       <HeroSection />
       <Divider text="خدمات ما" />
       <ServicesSection />
-      <Divider text="پکیج ها" />
+      <Divider text="   " />
       <CabinetOfferSection />
     </div>
   );

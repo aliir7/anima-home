@@ -7,7 +7,7 @@ function ServicesSection() {
   return (
     <section className="bg-muted/60 rounded-lg px-6 py-16 dark:bg-[#1a1a1a]">
       <div className="wrapper text-center">
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-4">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-2 md:items-center md:justify-around">
           {services.map((service, index) => {
             const Icon = service.icon;
             return (

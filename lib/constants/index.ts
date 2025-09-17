@@ -6,7 +6,7 @@ import {
   Boxes,
   Layers3,
   FolderCheck,
-  ShoppingBag,
+  // ShoppingBag,
   Drill,
   BookImage,
   FolderKanban,
@@ -53,20 +53,20 @@ export const services = [
     btnText: "برو بریم",
     href: "/materials",
   },
-  {
-    icon: ShoppingBag,
-    title: "محصولات",
-    description: "مدل‌های آماده‌ای که می‌تونن برای فضای شما سفارشی بشن",
-    btnText: "برو بریم",
-    href: "/products",
-  },
-  {
-    icon: Drill,
-    title: "یراق‌آلات",
-    description: "انتخاب و سفارش انواع یراق‌آلات مخصوص کابینت و دکوراسیون",
-    btnText: "برو بریم",
-    href: "/tools",
-  },
+  // {
+  //   icon: ShoppingBag,
+  //   title: "محصولات",
+  //   description: "مدل‌های آماده‌ای که می‌تونن برای فضای شما سفارشی بشن",
+  //   btnText: "برو بریم",
+  //   href: "/products",
+  // },
+  // {
+  //   icon: Drill,
+  //   title: "یراق‌آلات",
+  //   description: "انتخاب و سفارش انواع یراق‌آلات مخصوص کابینت و دکوراسیون",
+  //   btnText: "برو بریم",
+  //   href: "/tools",
+  // },
 ];
 
 // plans for packages
