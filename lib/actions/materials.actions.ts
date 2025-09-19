@@ -4,50 +4,14 @@ import { db } from "@/db";
 import { materials } from "@/db/schema/index";
 import {
   ActionResult,
-  Material,
   MaterialFormValues,
-  QueryResult,
+  UpdateMaterialValues,
 } from "@/types";
-import { desc, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { insertMaterialSchema } from "../validations/materialsValidations";
 import { revalidatePath } from "next/cache";
 
-export async function getAllMaterials(): Promise<QueryResult<Material[]>> {
-  try {
-    const data = await db.query.materials.findMany({
-      orderBy: (materials, { desc }) => [desc(materials.createdAt)],
-    });
-    if (!data) {
-      return { success: false, error: "خطا در دریافت اطلاعات رخ داد" };
-    }
-    return { success: true, data: data };
-  } catch (error) {
-    console.error("Error in getAllMaterials:", error);
-    return { success: false, error: "خطا در گرفتن لیست متریال ها" };
-  }
-}
-
-export async function getMaterialById(
-  id: string,
-): Promise<QueryResult<Material>> {
-  try {
-    const whereClause = id ? eq(materials.id, id) : undefined;
-    const [material] = await db
-      .select()
-      .from(materials)
-      .where(whereClause)
-      .orderBy(desc(materials.createdAt));
-
-    if (!material) {
-      return { success: false, error: "خطا در دریافت اطلاعات رخ داد" };
-    }
-    return { success: true, data: material };
-  } catch (error) {
-    console.error("Error in getMaterialById:", error);
-    return { success: false, error: "خطا در گرفتن متریال با شناسه" };
-  }
-}
-
+// create new material action
 export async function createMaterial(
   formData: MaterialFormValues,
 ): Promise<ActionResult<unknown>> {
@@ -66,6 +30,7 @@ export async function createMaterial(
 
     // if validation passed
     const { title } = validated.data;
+
     // checking new material not duplicated
     const [existing] = await db
       .select()
@@ -88,7 +53,7 @@ export async function createMaterial(
       .values(formData)
       .returning();
 
-    // revalidate pass
+    // revalidate path
     revalidatePath("/admin/materials");
 
     return { success: true, data: newMaterial };
@@ -101,39 +66,109 @@ export async function createMaterial(
   }
 }
 
-export async function deleteMaterial(id: string) {
-  const [material] = await db
-    .select()
-    .from(materials)
-    .where(eq(materials.id, id));
+export async function deleteMaterial(
+  id: string,
+): Promise<ActionResult<string>> {
+  try {
+    const [material] = await db
+      .select()
+      .from(materials)
+      .where(eq(materials.id, id));
 
-  if (!material) return;
+    if (!material) {
+      return {
+        success: false,
+        error: { type: "custom", message: "متریال یافت نشد" },
+      };
+    }
 
-  const fileKeys: string[] = [];
+    // delete files from bucket
+    const image: string = material.image ?? "";
+    const pdfUrl: string = material.pdfUrl ?? "";
+    const BUCKET_URL = process.env.LIARA_ENDPOINT_PUBLIC_URL;
 
-  if (
-    material.image?.startsWith("https://anima-home.storage.c2.liara.space/")
-  ) {
-    fileKeys.push(
-      material.image.replace("https://anima-home.storage.c2.liara.space/", ""),
-    );
+    const extractKey = (url: string) => url.replace(BUCKET_URL!, "");
+
+    const fileKeys = [image, pdfUrl]
+      .filter((url) => url.startsWith(BUCKET_URL!))
+      .map(extractKey);
+
+    if (fileKeys.length > 0) {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/storage/delete`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ keys: fileKeys }),
+        },
+      );
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        throw new Error(result.error || "خطا در حذف فایل‌ها");
+      }
+    }
+
+    // delete material from db
+    await db.delete(materials).where(eq(materials.id, id));
+    revalidatePath("/admin/materials");
+
+    return { success: true, data: "متریال با موفقیت حذف شد" };
+  } catch (error) {
+    console.error("❌ خطا در حذف پروژه:", error);
+    return {
+      success: false,
+      error: { type: "custom", message: "خطا در حذف متریال رخ داد" },
+    };
   }
-  if (
-    material.pdfUrl?.startsWith("https://anima-home.storage.c2.liara.space/")
-  ) {
-    fileKeys.push(
-      material.pdfUrl.replace("https://anima-home.storage.c2.liara.space/", ""),
-    );
-  }
+}
 
-  if (fileKeys.length > 0) {
-    await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/storage/delete`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ keys: fileKeys }),
-    });
-  }
+// update material action
+export async function updateMaterial(
+  formData: UpdateMaterialValues,
+  id: string,
+): Promise<ActionResult<string>> {
+  try {
+    // validation data
+    const validated = insertMaterialSchema.safeParse(formData);
+    if (!validated.success) {
+      return {
+        success: false,
+        error: {
+          type: "zod",
+          issues: validated.error.issues,
+        },
+      };
+    }
 
-  await db.delete(materials).where(eq(materials.id, id));
-  revalidatePath("/admin/materials");
+    // checking for find material
+    const [existing] = await db
+      .select()
+      .from(materials)
+      .where(eq(materials.id, id));
+    if (!existing) {
+      return {
+        success: false,
+        error: { type: "custom", message: "متریال یافت نشد" },
+      };
+    }
+
+    // update material
+    await db
+      .update(materials)
+      .set({ ...validated.data })
+      .where(eq(materials.id, id));
+
+    // revalidate path
+    revalidatePath("/admin/materials");
+
+    return { success: true, data: "متریال با موفقیت ویرایش شد" };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      error: { type: "custom", message: "خطا در ویرایش متریال رخ داد" },
+    };
+  }
 }

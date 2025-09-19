@@ -2,12 +2,17 @@ import { ProjectWithCategory, QueryResult } from "@/types";
 import { db } from "..";
 import { projects } from "../schema/projects";
 import { normalizeProject } from "@/lib/utils/normalize";
-import { desc, eq, sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
-export async function getAllProjects(): Promise<
-  QueryResult<ProjectWithCategory[]>
-> {
+export async function getAllProjects({
+  page,
+  pageSize,
+}: {
+  page?: number;
+  pageSize?: number;
+}): Promise<QueryResult<ProjectWithCategory[]>> {
   try {
+    const offset = ((page ?? 1) - 1) * (pageSize ?? 6);
     const data = await db.query.projects.findMany({
       with: {
         category: {
@@ -17,6 +22,8 @@ export async function getAllProjects(): Promise<
         },
       },
       orderBy: (projects, { desc }) => [desc(projects.createdAt)],
+      limit: pageSize ?? 6,
+      offset,
     });
 
     const normalized = (data as Partial<ProjectWithCategory>[]).map(
@@ -44,19 +51,28 @@ export async function getFilteredProjects({
 }): Promise<QueryResult<ProjectWithCategory[]>> {
   try {
     const offset = ((page ?? 1) - 1) * (pageSize ?? 6);
-    const whereClause = categoryId
-      ? eq(projects.categoryId, categoryId)
-      : undefined;
-    const data = await db
-      .select()
-      .from(projects)
-      .where(whereClause)
-      .limit(pageSize ?? 6)
-      .offset(offset)
-      .orderBy(projects.categoryId, desc(projects.createdAt));
+
+    const data = await db.query.projects.findMany({
+      where: categoryId ? eq(projects.categoryId, categoryId) : undefined,
+      with: {
+        category: {
+          with: {
+            parent: true, // دقیقا مثل getAllProjects
+          },
+        },
+      },
+      orderBy: (projects, { desc }) => [
+        projects.categoryId,
+        desc(projects.createdAt),
+      ],
+      limit: pageSize ?? 6,
+      offset,
+    });
+
     const normalized = (data as Partial<ProjectWithCategory>[]).map(
       normalizeProject,
     );
+
     return { success: true, data: normalized };
   } catch (error) {
     console.error("Error in getFilteredProjects:", error);

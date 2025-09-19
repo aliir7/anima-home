@@ -1,9 +1,11 @@
 import { Metadata } from "next";
-import { services } from "@/lib/constants";
-import { getAllMaterials } from "@/lib/actions/materials.actions";
+import { PAGE_SIZE, services } from "@/lib/constants";
+import {
+  getAllMaterials,
+  getMaterialsCount,
+} from "@/db/queries/materialsQueries";
 import { Material } from "@/types";
-import ItemCard from "@/components/shared/Items/ItemCard";
-import BreadcrumbSection from "@/components/shared/BreadcrumbSection";
+import MaterialsPageContent from "./MaterialsPageContent";
 
 const pageTitle = services.at(1)?.title;
 
@@ -13,8 +15,18 @@ export const metadata: Metadata = {
   title: pageTitle || "متریال",
 };
 
-async function MaterialsPage() {
-  const materialsResult = await getAllMaterials();
+type MaterialsPageProps = {
+  searchParams: Promise<{ id?: string; page?: string }>;
+};
+
+async function MaterialsPage({ searchParams }: MaterialsPageProps) {
+  const page = (await searchParams)?.page ?? 1;
+  const currentPage = Number(page);
+  const materialsId = (await searchParams).id ?? "";
+  const [materialsResult, totalCount] = await Promise.all([
+    getAllMaterials({ page: currentPage, pageSize: PAGE_SIZE }),
+    getMaterialsCount(materialsId),
+  ]);
   if (!materialsResult.success) {
     return (
       <p className="wrapper text-destructive space-y-6 py-6 text-xl font-bold">
@@ -32,29 +44,14 @@ async function MaterialsPage() {
   }
 
   const materials: Material[] = materialsResult.data;
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
   return (
-    <section className="wrapper space-y-8 py-8">
-      <BreadcrumbSection
-        items={[
-          { label: "صفحه اصلی", href: "/" },
-          { label: "متریال ها", href: "/materials" },
-        ]}
-      />
-      <h2 className="mt-2 text-xl font-bold">متریال ها</h2>
-
-      <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-        {materials.map((mat) => (
-          <ItemCard
-            key={mat.id}
-            title={mat.title}
-            description={mat.description ?? ""}
-            imageUrl={mat.image ?? ""}
-            href={mat.pdfUrl}
-            buttonText="نمایش کاتولوگ"
-          />
-        ))}
-      </div>
-    </section>
+    <MaterialsPageContent
+      materials={materials}
+      currentPage={currentPage}
+      totalPages={totalPages}
+      basePath="/materials"
+    />
   );
 }
 

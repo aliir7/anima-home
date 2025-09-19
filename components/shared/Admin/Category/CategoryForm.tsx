@@ -65,7 +65,7 @@ function CategoryForm({
       showSuccessToast(
         `دسته‌بندی با موفقیت ${type === "create" ? "ایجاد" : "ویرایش"} شد`,
         "bottom-right",
-        `${description} با موفقیت ${type === "create" ? "ایجاد" : "ویرایش"}شد `,
+        `${description} با موفقیت ${type === "create" ? "ایجاد" : "ویرایش"} شد `,
       );
       reset();
       onClose();

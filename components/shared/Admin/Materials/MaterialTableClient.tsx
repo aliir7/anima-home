@@ -1,6 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableHeader,
@@ -9,43 +16,30 @@ import {
   TableBody,
   TableCell,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Pencil, Trash2, MoreVertical, Plus } from "lucide-react";
-import DeleteProjectModal from "./DeleteProjectModal";
-import ProjectFormModal from "./ProjectFormModal";
-import { Category, ProjectWithCategory } from "@/types";
-import { normalizeProjectForForm } from "@/lib/utils/normalize";
-import { useRouter } from "next/navigation";
+import { Material } from "@/types";
+import { MoreVertical, Pencil, Plus, Trash2 } from "lucide-react";
+import { useState } from "react";
+import MaterialFormModal from "./MaterialFormModal";
+import DeleteMaterialModal from "./DeleteMaterialModal";
 import PaginationControls from "../../Pagination/PaginationControls";
-// import Image from "next/image";
+import { normalizeMaterialForForm } from "@/lib/utils/normalize";
 
-type ProjectTableClientProps = {
-  categories: Category[];
-  projects: ProjectWithCategory[];
+type MaterialTableClientProps = {
+  materials: Material[];
   currentPage: number;
   totalPages: number;
   basePath?: string;
 };
 
-function ProjectTableClient({
-  categories,
-  projects,
+function MaterialTableClient({
+  materials,
   currentPage,
   totalPages,
   basePath,
-}: ProjectTableClientProps) {
-  const [showCreateProject, setShowCreateProject] = useState(false);
-  const [editProject, setEditProject] = useState<ProjectWithCategory | null>(
-    null,
-  );
-  const [deleteProjectId, setDeleteProjectId] = useState<string | null>(null);
-
+}: MaterialTableClientProps) {
+  const [showMaterials, setShowMaterials] = useState(false);
+  const [editMaterials, setEditMaterials] = useState<Material | null>(null);
+  const [deleteMaterialId, setDeleteMaterialId] = useState<string | null>(null);
   const [page, setPage] = useState(currentPage);
   const router = useRouter();
 
@@ -57,13 +51,13 @@ function ProjectTableClient({
 
   return (
     <>
-      {/* دکمه ساخت پروژه */}
+      {/* دکمه ساخت متریال */}
       <div className="mb-4 flex justify-start">
         <Button
           className="bg-primary hover:bg-primary/80 cursor-pointer rounded-full text-white dark:bg-neutral-800 dark:hover:bg-neutral-600"
-          onClick={() => setShowCreateProject(true)}
+          onClick={() => setShowMaterials(true)}
         >
-          <Plus className="ml-2 h-4 w-4" /> ایجاد پروژه جدید
+          <Plus className="ml-2 h-4 w-4" /> ایجاد متریال جدید
         </Button>
       </div>
 
@@ -72,27 +66,22 @@ function ProjectTableClient({
         <Table>
           <TableHeader className="bg-muted">
             <TableRow>
-              <TableHead className="text-right">نام پروژه</TableHead>
-              <TableHead className="text-right">در گروه</TableHead>
-              <TableHead className="text-right">دسته‌بندی</TableHead>
-              <TableHead className="text-right">تاریخ ایجاد</TableHead>
+              <TableHead className="text-right">عنوان متریال</TableHead>
+              <TableHead className="text-right">توضیحات</TableHead>
               <TableHead className="text-right">عملیات</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {projects.length > 0 ? (
-              projects.map((project) => (
-                <TableRow key={project.id}>
-                  <TableCell className="text-right">{project.title}</TableCell>
+            {materials.length > 0 ? (
+              materials.map((material) => (
+                <TableRow key={material.id}>
+                  <TableCell className="text-right">{material.title}</TableCell>
                   <TableCell className="text-right">
-                    {project.category?.parentName ?? "—"}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {project.category?.name ?? "نامشخص"}
+                    {material.description}
                   </TableCell>
 
                   <TableCell className="text-right">
-                    {new Date(project.createdAt!).toLocaleDateString("fa-IR")}
+                    {new Date(material.createdAt!).toLocaleDateString("fa-IR")}
                   </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
@@ -104,13 +93,13 @@ function ProjectTableClient({
                       <DropdownMenuContent side="left" align="end">
                         <DropdownMenuItem
                           className="flex justify-end gap-2"
-                          onClick={() => setEditProject(project)}
+                          onClick={() => setEditMaterials(material)}
                         >
                           ویرایش <Pencil className="h-4 w-4" />
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           className="flex justify-end gap-2"
-                          onClick={() => setDeleteProjectId(project.id)}
+                          onClick={() => setDeleteMaterialId(material.id)}
                         >
                           حذف <Trash2 className="h-4 w-4" />
                         </DropdownMenuItem>
@@ -131,35 +120,34 @@ function ProjectTableClient({
       </div>
 
       {/* Create Modal */}
-      <ProjectFormModal
+      <MaterialFormModal
         type="create"
-        isOpen={showCreateProject}
-        onClose={() => setShowCreateProject(false)}
-        categories={categories}
-      />
-      {/* Edit Modal */}
-      <ProjectFormModal
-        type="edit"
-        isOpen={!!editProject}
-        initialData={
-          editProject ? normalizeProjectForForm(editProject) : undefined
-        }
-        onClose={() => setEditProject(null)}
-        categories={categories}
-      />
-      {/* Delete Modal */}
-      <DeleteProjectModal
-        projectId={deleteProjectId}
-        onClose={() => setDeleteProjectId(null)}
+        isOpen={showMaterials}
+        onClose={() => setShowMaterials(false)}
       />
 
+      {/* Edit Modal */}
+      <MaterialFormModal
+        type="edit"
+        isOpen={!!editMaterials}
+        onClose={() => setEditMaterials(null)}
+        initialData={
+          editMaterials ? normalizeMaterialForForm(editMaterials) : undefined
+        }
+      />
+      {/* Delete Modal */}
+      <DeleteMaterialModal
+        materialId={deleteMaterialId}
+        onClose={() => setDeleteMaterialId(null)}
+      />
       {/* Pagination */}
       <PaginationControls
-        currentPage={page}
         totalPages={totalPages}
+        currentPage={page}
         onPageChange={onPageChange}
       />
     </>
   );
 }
-export default ProjectTableClient;
+
+export default MaterialTableClient;

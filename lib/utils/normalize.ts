@@ -1,4 +1,9 @@
-import { ProjectWithCategory, ProjectFormValues } from "@/types";
+import {
+  ProjectWithCategory,
+  ProjectFormValues,
+  Material,
+  MaterialFormValues,
+} from "@/types";
 
 export function normalizeProjectForForm(
   project: ProjectWithCategory,
@@ -31,4 +36,16 @@ export function normalizeProject(
         : [],
     category: project.category ?? undefined,
   } as ProjectWithCategory;
+}
+
+export function normalizeMaterialForForm(
+  material: Material,
+): MaterialFormValues & { id: string } {
+  return {
+    id: material.id,
+    title: material.title ?? "",
+    description: material.description ?? "",
+    image: material.image ?? "",
+    pdfUrl: material.image ?? "",
+  };
 }
