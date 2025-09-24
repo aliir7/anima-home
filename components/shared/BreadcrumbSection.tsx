@@ -21,7 +21,10 @@ export default function BreadcrumbSection({ items }: BreadcrumbSectionProps) {
     <Breadcrumb>
       <BreadcrumbList>
         {items.map((item, index) => (
-          <div key={index} className="flex items-center">
+          <div
+            key={index}
+            className="mb-1 flex items-center dark:text-neutral-600"
+          >
             <BreadcrumbItem>
               {item.href ? (
                 <BreadcrumbLink href={item.href}>{item.label}</BreadcrumbLink>

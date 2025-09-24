@@ -1,7 +1,10 @@
-import { FaInstagram, FaTelegram, FaWhatsapp } from "react-icons/fa";
+import { FaInstagram, FaTelegram, FaWhatsapp, FaYoutube } from "react-icons/fa";
 
 import { Mail, Phone } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
+import aparatImg from "@/public/images/icon--black.svg";
+import aparatDark from "@/public/images/icon--white.svg";
 
 export default function Footer() {
   return (
@@ -78,7 +81,7 @@ export default function Footer() {
             <Link
               href="https://www.instagram.com/anima.home.ir?igsh=YTB4eHhmdG82bnpn"
               aria-label="Instagram"
-              className="hover:text-primary active:text-primary transition"
+              className="hover:text-primary active:text-primary opacity-70 transition duration-300 hover:opacity-100"
             >
               <FaInstagram className="h-5 w-5" />
             </Link>
@@ -86,7 +89,7 @@ export default function Footer() {
               href="https://telegram.me/AnimaHomeDecor"
               aria-label="Telegram"
               target="_blank"
-              className="hover:text-primary active:text-primary transition"
+              className="hover:text-primary active:text-primary opacity-70 transition duration-300 hover:opacity-100"
             >
               <FaTelegram className="h-5 w-5" />
             </Link>
@@ -94,9 +97,43 @@ export default function Footer() {
               target="_blank"
               href="https://wa.me/989129277302"
               aria-label="Whatsapp"
-              className="hover:text-primary active:text-primary transition"
+              className="hover:text-primary active:text-primary opacity-70 transition duration-300 hover:opacity-100"
             >
               <FaWhatsapp className="h-5 w-5" />
+            </Link>
+            <Link
+              target="_blank"
+              href="https://www.youtube.com/@Anima-HomeOfficial"
+              aria-label="Youtube"
+              className="hover:text-primary active:text-primary opacity-70 transition duration-300 hover:opacity-100"
+            >
+              <FaYoutube className="h-5 w-5" />
+            </Link>
+            <Link
+              target="_blank"
+              href="https://www.aparat.com/animahome.ir/"
+              aria-label="Aparat"
+              className="hover:text-primary active:text-primary opacity-70 transition duration-300 hover:opacity-100 dark:hidden"
+            >
+              <Image
+                src={aparatImg}
+                className="h-5 w-5"
+                alt="aparatLogo"
+                loading="lazy"
+              />
+            </Link>
+            <Link
+              target="_blank"
+              href="https://www.aparat.com/animahome.ir/"
+              aria-label="Aparat"
+              className="hover:text-primary active:text-primary hidden opacity-70 transition duration-300 hover:opacity-100 dark:block"
+            >
+              <Image
+                src={aparatDark}
+                className="h-5 w-5"
+                alt="aparatLogo"
+                loading="lazy"
+              />
             </Link>
           </div>
         </div>
@@ -105,6 +142,17 @@ export default function Footer() {
       {/* کپی‌رایت */}
       <div className="text-muted-foreground mt-8 text-center text-xs">
         © {new Date().getFullYear()} آنیماهوم - تمام حقوق محفوظ است.
+        <br />
+        <p className="mt-2">
+          توسعه و طراحی توسط:
+          <Link
+            href="https://www.alirezaeii.ir/"
+            target="_blank"
+            aria-label="developer"
+          >
+            علی رضایی
+          </Link>
+        </p>
       </div>
     </footer>
   );
