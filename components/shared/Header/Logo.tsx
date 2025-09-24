@@ -12,7 +12,7 @@ function Logo() {
         className="hidden md:flex"
       /> */}
       <Link href="/" className="cursor-pointer">
-        <h1 className="text-xl font-bold">آنیما هوم</h1>
+        <h1 className="text-xl font-bold">آنیماهوم</h1>
       </Link>
     </div>
   );

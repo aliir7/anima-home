@@ -119,7 +119,10 @@ export default function Footer() {
                 src={aparatImg}
                 className="h-5 w-5"
                 alt="aparatLogo"
-                loading="lazy"
+                loading="eager"
+                priority={true}
+                decoding="async"
+                fetchPriority="high"
               />
             </Link>
             <Link
@@ -132,7 +135,11 @@ export default function Footer() {
                 src={aparatDark}
                 className="h-5 w-5"
                 alt="aparatLogo"
-                loading="lazy"
+                loading="eager"
+                priority={true}
+                decoding="async"
+                fetchPriority="high"
+                aria-label="Aparat"
               />
             </Link>
           </div>

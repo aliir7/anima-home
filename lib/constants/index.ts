@@ -18,7 +18,7 @@ export const SERVER_URL =
   process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000";
 export const ROOT_URL = "https://anima-home.ir";
 export const APP_DESCRIPTION =
-  "انیما هوم؛ طراحی و اجرای تخصصی دکوراسیون داخلی، کمد، کابینت و تی‌وی‌وال با متریال روز و کیفیت بالا.";
+  "آنیما هوم؛ طراحی و اجرای تخصصی دکوراسیون داخلی، کمد، کابینت و تی‌وی‌وال با متریال روز و کیفیت بالا.";
 export const PAGE_SIZE = 6;
 
 // static data

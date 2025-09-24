@@ -37,7 +37,7 @@ function MobileNavClient({ user }: MobileNavClientProps) {
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetTrigger asChild>
+      <SheetTrigger asChild aria-label="mobile-menu-trigger">
         <Button
           size="icon"
           variant="ghost"
