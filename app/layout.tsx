@@ -6,6 +6,7 @@ import openGraphImg from "@/public/opengraph-image.png";
 
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/Toaster";
+import SchemaScript from "@/components/shared/SchemaScript";
 
 const vazir = Vazir({
   src: "./fonts/Vazir.ttf",
@@ -70,6 +71,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fa" dir="rtl" suppressHydrationWarning={true}>
+      <head>
+        <SchemaScript />
+      </head>
       <body className={`${vazir.className} scroll-smooth`}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           {children}
