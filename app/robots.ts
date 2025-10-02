@@ -1,14 +1,14 @@
+// app/robots.ts
 import type { MetadataRoute } from "next";
 
 export default function robots(): MetadataRoute.Robots {
-  const host = "https://anima-home.ir"; // دامنه
+  const host = "https://anima-home.ir";
 
   return {
     rules: [
-      { userAgent: "*", allow: "/" },
-      // مسیرهایی که نباید ایندکس شوند:
       {
         userAgent: "*",
+        allow: ["/"],
         disallow: [
           "/admin",
           "/admin/*",
@@ -18,6 +18,10 @@ export default function robots(): MetadataRoute.Robots {
           "/forgot-password",
           "/my-account",
           "/my-account/*",
+          // دفاع اضافی علیه URLهای عجیب
+          "/&",
+          "/*&",
+          "/*$",
         ],
       },
     ],
