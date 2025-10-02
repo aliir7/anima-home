@@ -19,13 +19,10 @@ export default function robots(): MetadataRoute.Robots {
           "/my-account",
           "/my-account/*",
           // دفاع اضافی علیه URLهای عجیب
-          "/&",
-          "/*&",
-          "/*$",
         ],
       },
     ],
-    sitemap: `${host}/sitemap.xml`,
+    sitemap: `https://anima-home.ir/sitemap.xml`,
     host,
   };
 }
