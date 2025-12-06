@@ -19,9 +19,9 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*","./types/*"]
     },
-    "types": ["next-auth"]
+    "types": ["next-auth","./types/next-auth.d.ts"]
   },
   "include": [
     "next-env.d.ts",
