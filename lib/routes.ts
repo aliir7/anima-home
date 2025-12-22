@@ -8,6 +8,8 @@ export const publicRoutes = [
   "/products",
   "/tools",
   "/materials",
+  "/privacy",
+  "/terms",
   "/my-account",
   "/my-account/orders",
   "/sitemap.xml",

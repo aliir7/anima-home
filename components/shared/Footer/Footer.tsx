@@ -52,6 +52,22 @@ export default function Footer() {
                 سؤالات متداول
               </Link>
             </li>
+            <li>
+              <Link
+                href="/terms"
+                className="hover:text-primary active:text-primary transition"
+              >
+                قوانین و مقررات
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/privacy"
+                className="hover:text-primary active:text-primary transition"
+              >
+                حریم خصوصی
+              </Link>
+            </li>
           </ul>
         </div>
 
