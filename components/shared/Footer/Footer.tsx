@@ -20,6 +20,22 @@ export default function Footer() {
             <br />
             سه نسل، یک نگاه: کیفیت.
           </p>
+          <div className="space-y-1.5">
+            <Link
+              referrerPolicy="origin"
+              target="_blank"
+              href="https://trustseal.enamad.ir/?id=705208&Code=Au48Zd0frWjIn6HWtyCQQ6qcx0mhs9fj"
+              className="cursor-pointer"
+            >
+              <Image
+                referrerPolicy="origin"
+                src="https://trustseal.enamad.ir/logo.aspx?id=705208&Code=Au48Zd0frWjIn6HWtyCQQ6qcx0mhs9fj"
+                alt="enamad-logo"
+                width={50}
+                height={50}
+              />
+            </Link>
+          </div>
         </div>
 
         {/* لینک‌های مفید */}

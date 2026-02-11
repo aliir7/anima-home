@@ -14,6 +14,11 @@ const nextConfig: NextConfig = {
         hostname: "anima-home.ir",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "trustseal.enamad.ir",
+        pathname: "/**",
+      },
     ],
   },
 };
