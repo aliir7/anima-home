@@ -33,7 +33,7 @@ function handleBadPathRedirect(req: NextRequest) {
   return null;
 }
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   // 1) quick bad-path redirect
   const badRedirect = handleBadPathRedirect(req);
   if (badRedirect) return badRedirect;

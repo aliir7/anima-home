@@ -16,6 +16,7 @@ import {
 } from "@/lib/validations/projectsValidations";
 import {
   changePasswordSchema,
+  contactFormSchema,
   forgotPasswordSchema,
   signinSchema,
   signupFormSchema,
@@ -69,3 +70,4 @@ export type MaterialFormValues = z.infer<typeof insertMaterialSchema>;
 export type UpdateMaterialValues = z.infer<typeof updateMaterialSchema>;
 
 // product types
+export type ContactFormValues = z.infer<typeof contactFormSchema>;

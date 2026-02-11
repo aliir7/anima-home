@@ -55,3 +55,10 @@ export const changePasswordSchema = z
     message: "رمز عبور و تکرار آن باید برابر باشند",
     path: ["confirmPassword"],
   });
+
+export const contactFormSchema = z.object({
+  name: z.string().min(3, { message: "نام باید حداقل 3 کاراکتر باشد" }),
+  email: z.email({ message: "لطفاً یک ایمیل معتبر وارد کنید" }),
+  subject: z.string().optional(),
+  message: z.string().min(10, { message: "پیام باید حداقل ۱۰ کاراکتر باشد" }),
+});

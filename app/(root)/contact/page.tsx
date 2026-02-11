@@ -1,3 +1,4 @@
+import ContactForm from "@/components/shared/Account/ContactForm";
 import BreadcrumbSection from "@/components/shared/BreadcrumbSection";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,33 +52,7 @@ function ContactPage() {
         </div>
 
         {/* Form */}
-        <form className="mx-4 space-y-4 text-right sm:text-sm">
-          <div className="grid gap-4 md:grid-cols-2 dark:text-neutral-400">
-            <Input
-              placeholder="نام شما"
-              className="outline-light dark:outline-dark rounded-full text-right dark:border-neutral-600"
-            />
-            <Input
-              type="email"
-              placeholder="ایمیل شما"
-              className="outline-light dark:outline-dark rounded-full text-right dark:border-neutral-600"
-            />
-          </div>
-          <Input
-            placeholder="موضوع پیام"
-            className="outline-light dark:outline-dark rounded-full text-right dark:border-neutral-600"
-          />
-          <Textarea
-            placeholder="متن پیام..."
-            className="outline-light dark:outline-dark min-h-[120px] text-right dark:border-neutral-600"
-          />
-          <Button
-            type="submit"
-            className="outline-light dark:outline-dark mt-2 w-full cursor-pointer rounded-full px-4 py-2 hover:text-neutral-200 active:text-neutral-200 sm:mt-4 md:w-auto dark:hover:text-neutral-700 dark:active:text-neutral-700"
-          >
-            ارسال پیام
-          </Button>
-        </form>
+        <ContactForm />
       </div>
     </section>
   );
