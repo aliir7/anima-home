@@ -2,7 +2,7 @@
 
 import { ActionResult, ContactFormValues } from "@/types";
 import { contactFormSchema } from "../validations/usersValidations";
-import { sendMailAction } from "./mail.actions";
+import { sendGmailAction, sendMailAction } from "./mail.actions";
 
 export async function submitContactForm(
   data: ContactFormValues,
@@ -39,15 +39,15 @@ export async function submitContactForm(
         </div>
 
         <div style="margin-bottom: 30px;">
-          <h3 style="color: #374151; font-size: 18px; border-bottom: 2px solid #6366f1; display: inline-block; padding-bottom: 5px;">متن پیام:</h3>
-          <div style="background-color: #fff; border-right: 4px solid #6366f1; padding: 15px; color: #4b5563; white-space: pre-line;">
+          <h3 style="color: #374151; font-size: 18px; border-bottom: 2px solid #4a5a45; display: inline-block; padding-bottom: 5px;">متن پیام:</h3>
+          <div style="background-color: #fff; border-right: 4px solid #4a5a45; padding: 15px; color: #4b5563; white-space: pre-line;">
             ${message}
           </div>
         </div>
 
         <div style="text-align: center;">
           <a href="mailto:${email}?subject=پاسخ: ${finalSubject}" 
-             style="display: inline-block; padding: 12px 30px; background-color: #6366f1; color: white; text-decoration: none; border-radius: 8px;">
+             style="display: inline-block; padding: 12px 30px; background-color: #4a5a45; color: white; text-decoration: none; border-radius: 8px;">
              پاسخ به کاربر
           </a>
         </div>
@@ -57,11 +57,12 @@ export async function submitContactForm(
   `;
 
     // 4. ارسال ایمیل به مدیر سایت (شما)
-    // نکته: ایمیل مقصد باید ایمیل خودتان باشد، نه ایمیل کاربر
-    const adminEmail = process.env.MAIL_FROM || "info@anima-home.ir";
+    const receiverEmail = process.env.MAIL_ADMIN || "info@anima-home.ir";
 
-    return await sendMailAction({
-      email: adminEmail,
+    return await sendGmailAction({
+      email: receiverEmail,
+      replyTo: email,
+      senderName: name,
       subject: `فرم تماس: ${name} - ${finalSubject}`,
       html: htmlContent,
       text: `پیام از ${name} (${email}):\n\n${message}`,

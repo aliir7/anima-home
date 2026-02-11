@@ -190,7 +190,7 @@ body {
   }
 
   .outline-light {
-    @apply focus:ring-primary/50 focus:ring focus:outline-none;
+    @apply focus:ring-primary/80 focus:ring focus:outline-none;
   }
   .outline-dark {
     @apply focus:ring focus:ring-neutral-500 focus:outline-none;

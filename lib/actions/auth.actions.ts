@@ -89,7 +89,7 @@ export async function signupAction(
         <h2>سلام 👋</h2>
         <p>برای فعال‌سازی حساب خود در <strong>Anima Home</strong>، روی دکمه زیر کلیک کنید:</p>
         <a href="${verifyLink}" 
-           style="display:inline-block;padding:10px 20px;background:#6366f1;color:white;text-decoration:none;border-radius:8px;margin-top:20px;">
+           style="display:inline-block;padding:10px 20px;background:#4a5a45;color:white;text-decoration:none;border-radius:8px;margin-top:20px;">
            تأیید ایمیل
         </a>
         <p style="margin-top:30px;">اگر این درخواست از طرف شما نبوده، لطفاً این ایمیل را نادیده بگیرید.</p>
