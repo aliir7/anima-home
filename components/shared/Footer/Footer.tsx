@@ -31,8 +31,10 @@ export default function Footer() {
                 referrerPolicy="origin"
                 src="https://trustseal.enamad.ir/logo.aspx?id=705208&Code=Au48Zd0frWjIn6HWtyCQQ6qcx0mhs9fj"
                 alt="enamad-logo"
-                width={50}
-                height={50}
+                width={100}
+                height={100}
+                unoptimized={true} // <--- این خط مشکل را حل می‌کند
+                className="object-contain" // برای اینکه عکس دفرمه نشود
               />
             </Link>
           </div>
