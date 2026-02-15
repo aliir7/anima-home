@@ -2,6 +2,8 @@
 import NextAuth from "next-auth";
 import type { NextAuthConfig } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { NextResponse } from "next/server";
+
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { db } from "@/db";
 import { accounts, users, sessions, verificationTokens } from "@/db/schema";
@@ -18,7 +20,7 @@ export const authConfig = {
     accountsTable: accounts,
     sessionsTable: sessions,
     verificationTokensTable: verificationTokens,
-  })as any,
+  }) as any,
 
   session: {
     strategy: "jwt",
@@ -66,6 +68,30 @@ export const authConfig = {
       }
 
       return session;
+    },
+    authorized({ request, auth }) {
+      // Check for session cart cookie
+      if (!request.cookies.get("sessionCartId")) {
+        // Generate new session cart id
+        const sessionCartId = crypto.randomUUID();
+
+        // Clone request Headers
+        const newRequestHeaders = new Headers(request.headers);
+
+        //Create new response add new headers
+        const response = NextResponse.next({
+          request: {
+            headers: newRequestHeaders,
+          },
+        });
+
+        // Set newly generated sessionCartId in the response cookie
+        response.cookies.set("sessionCartId", sessionCartId);
+
+        return response;
+      } else {
+        return true;
+      }
     },
   },
 

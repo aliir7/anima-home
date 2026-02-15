@@ -7,25 +7,27 @@ import {
   timestamp,
   decimal,
 } from "drizzle-orm/pg-core";
-import { categories } from "./categories";
+import { productCategories } from "./productCategories";
 
 export const products = pgTable("products", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  name: text("name").notNull(),
-  slug: text("slug").notNull().unique(),
+  id: uuid("id").defaultRandom().primaryKey(),
 
   categoryId: uuid("category_id")
-    .notNull()
-    .references(() => categories.id, { onDelete: "cascade" }), // ✅ درست
+    .references(() => productCategories.id)
+    .notNull(),
 
-  images: text("images").array().notNull(),
-  brand: text("brand").notNull(),
-  description: text("description").notNull(),
-  stock: integer("stock").notNull(),
-  price: decimal("price", { precision: 12, scale: 2 }).notNull().default("0"),
-  rating: decimal("rating", { precision: 3, scale: 2 }).notNull().default("0"),
-  numReviews: integer("numReviews").notNull().default(0),
-  isFeatured: boolean("isFeatured").notNull().default(false),
-  banner: text("banner"),
-  createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
+  title: text("title").notNull(),
+  slug: text("slug").notNull().unique(),
+  seoSlug: text("seo_slug").notNull().unique().default(""),
+
+  description: text("description"),
+  rating: decimal("rating", { precision: 2, scale: 1 })
+    .default("0.0")
+    .notNull(),
+
+  numReviews: integer("num_reviews").default(0).notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
 });

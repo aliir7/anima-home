@@ -1,4 +1,8 @@
 import {
+  cartItemSchema,
+  insertCartSchema,
+} from "@/lib/validations/cartValidations";
+import {
   categoryWithParentSchema,
   insertCategorySchema,
   selectCategorySchema,
@@ -70,4 +74,10 @@ export type MaterialFormValues = z.infer<typeof insertMaterialSchema>;
 export type UpdateMaterialValues = z.infer<typeof updateMaterialSchema>;
 
 // product types
+
+// contact form type
 export type ContactFormValues = z.infer<typeof contactFormSchema>;
+
+// cart types
+export type Cart = z.infer<typeof insertCartSchema>;
+export type CartItem = z.infer<typeof cartItemSchema>;
