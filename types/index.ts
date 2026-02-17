@@ -81,3 +81,24 @@ export type ContactFormValues = z.infer<typeof contactFormSchema>;
 // cart types
 export type Cart = z.infer<typeof insertCartSchema>;
 export type CartItem = z.infer<typeof cartItemSchema>;
+
+export type ShopItem = {
+  category: {
+    id: string;
+    title: string;
+  };
+  product: {
+    id: string;
+    title: string;
+    rating: number;
+    numReviews: number;
+    createdAt: string;
+  };
+  variant: {
+    id: string;
+    title: string;
+    price: number;
+    images: string[];
+    stock: number;
+  };
+};

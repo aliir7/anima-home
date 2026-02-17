@@ -17,6 +17,7 @@ export const products = pgTable("products", {
     .notNull(),
 
   title: text("title").notNull(),
+  brand: text("brand").notNull(),
   slug: text("slug").notNull().unique(),
   seoSlug: text("seo_slug").notNull().unique().default(""),
 

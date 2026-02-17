@@ -11,6 +11,7 @@ import {
   BookImage,
   FolderKanban,
   Settings,
+  ShoppingBag,
 } from "lucide-react";
 
 export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || "Anima-Home";
@@ -29,14 +30,6 @@ export const menu = [
   { label: "خروج از حساب", icon: LogOut, sectionLink: "logout" },
 ];
 
-// categories items in categories menu
-export const categories = [
-  { id: "1", name: "کمد", href: "/categories/comod" },
-  { id: "2", name: "کابینت", href: "/categories/cabinet" },
-  { id: "3", name: "تی وی وال", href: "/categories/تی-وی-وال" },
-  { id: "4", name: "مارول شیت", href: "/categories/marvel" },
-];
-
 // services in app
 export const services = [
   {
@@ -53,13 +46,13 @@ export const services = [
     btnText: "برو بریم",
     href: "/materials",
   },
-  // {
-  //   icon: ShoppingBag,
-  //   title: "محصولات",
-  //   description: "مدل‌های آماده‌ای که می‌تونن برای فضای شما سفارشی بشن",
-  //   btnText: "برو بریم",
-  //   href: "/products",
-  // },
+  {
+    icon: ShoppingBag,
+    title: "فروشگاه",
+    description: "با آنیماهوم آشپزخانه‌ی خودتون رو انتخاب کنید",
+    btnText: "برو بریم",
+    href: "/shop",
+  },
   // {
   //   icon: Drill,
   //   title: "یراق‌آلات",
