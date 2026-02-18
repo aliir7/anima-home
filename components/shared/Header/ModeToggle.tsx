@@ -5,7 +5,7 @@ import { useTheme } from "next-themes";
 import { Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-function ModeToggle() {
+function ModeToggle({ className }: { className?: string }) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -18,7 +18,7 @@ function ModeToggle() {
   return (
     <Button
       aria-label="تغییر تم"
-      className="rounded-full p-2 transition focus-visible:ring-0 focus-visible:ring-offset-0"
+      className={`rounded-full p-2 transition focus-visible:ring-0 focus-visible:ring-offset-0 ${className}`}
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
       variant="ghost"
     >

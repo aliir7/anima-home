@@ -5,6 +5,7 @@ import { APP_DESCRIPTION, APP_NAME, ROOT_URL } from "@/lib/constants";
 import openGraphImg from "@/public/opengraph-image.png";
 
 import { ThemeProvider } from "next-themes";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/Toaster";
 import SchemaScript from "@/components/shared/SchemaScript";
 
@@ -75,10 +76,13 @@ export default function RootLayout({
         <SchemaScript />
       </head>
       <body className={`${vazir.className} scroll-smooth`}>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-          {children}
-          <Toaster />
-        </ThemeProvider>
+        <TooltipProvider>
+          <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+            {children}
+
+            <Toaster />
+          </ThemeProvider>
+        </TooltipProvider>
       </body>
     </html>
   );
