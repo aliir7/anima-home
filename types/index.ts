@@ -14,7 +14,10 @@ import {
   selectMaterialSchema,
   updateMaterialSchema,
 } from "@/lib/validations/materialsValidations";
-import { createProductSchema } from "@/lib/validations/productValidation";
+import {
+  createProductSchema,
+  updateProductSchema,
+} from "@/lib/validations/productValidation";
 import {
   insertProjectSchema,
   selectProjectSchema,
@@ -77,6 +80,8 @@ export type UpdateMaterialValues = z.infer<typeof updateMaterialSchema>;
 
 // product types
 export type createProductValues = z.infer<typeof createProductSchema>;
+export type updateProductValues = z.infer<typeof updateProductSchema>;
+
 export type ProductVariant = typeof productVariants.$inferSelect & {
   specs: Record<string, string>;
   images: string[];

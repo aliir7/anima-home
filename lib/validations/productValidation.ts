@@ -42,3 +42,5 @@ export const createProductSchema = z.object({
   // تصاویر
   images: z.array(isURL("لینک تصاویر معتبر نیست")).default([]),
 });
+
+export const updateProductSchema = createProductSchema.partial();
