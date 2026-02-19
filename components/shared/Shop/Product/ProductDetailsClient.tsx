@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ProductReviewsSection } from "./ProductReviewsSection";
 import { ProductSpecs } from "./ProductSpecs";
 import CartActionsHandler from "../CartActionsHandler";
+import Link from "next/link";
 
 type ProductDetailsProps = {
   product: ProductWithRelations;
@@ -34,7 +35,7 @@ export default function ProductDetailsClient({
   );
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="wrapper px-4 py-8">
       {/* ✅ TOP */}
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
         {/* IMAGE */}
@@ -135,6 +136,17 @@ export default function ProductDetailsClient({
                 }}
                 cart={cart}
               />
+              {cart?.items.length! > 0 && (
+                <Button
+                  className="w-full gap-2 rounded-full"
+                  size="lg"
+                  type="button"
+                  variant="outline"
+                  asChild
+                >
+                  <Link href="/shop/cart">رفتن به سبد خرید</Link>
+                </Button>
+              )}
             </CardContent>
           </Card>
         </div>
