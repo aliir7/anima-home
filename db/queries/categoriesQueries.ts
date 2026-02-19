@@ -47,11 +47,33 @@ export async function getCategoryById(
   }
 }
 
-export async function getAllCategories(): Promise<
+export async function getAllProjectCategories(): Promise<
   QueryResult<CategoryWithParent[]>
 > {
   try {
     const data = await db.query.categories.findMany({
+      with: {
+        parent: true,
+        children: true,
+      },
+      orderBy: (categories, { desc }) => [desc(categories.createdAt)],
+    });
+
+    return { success: true, data };
+  } catch (error) {
+    console.error("Error in getAllCategories:", error);
+    return {
+      success: false,
+      error: "خطا در گرفتن لیست دسته‌بندی‌ها",
+    };
+  }
+}
+
+export async function getAllProductCategories(): Promise<
+  QueryResult<CategoryWithParent[]>
+> {
+  try {
+    const data = await db.query.productCategories.findMany({
       with: {
         parent: true,
         children: true,

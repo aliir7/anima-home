@@ -15,13 +15,15 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
 type DeleteCategoryModalProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   categoryId: string | null;
-  onClose: () => void;
 };
 
 function DeleteCategoryModal({
   categoryId,
-  onClose,
+  onOpenChange,
+  open,
 }: DeleteCategoryModalProps) {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -35,7 +37,7 @@ function DeleteCategoryModal({
       const result = await deleteCategoryAction(categoryId);
       if (result.success) {
         showSuccessToast(result.data, "bottom-right");
-        onClose();
+        onOpenChange(false);
         router.refresh();
       } else {
         showErrorToast(
@@ -48,7 +50,7 @@ function DeleteCategoryModal({
     });
   };
   return (
-    <Dialog open={!!categoryId} onOpenChange={onClose}>
+    <Dialog open={!!categoryId} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm dark:text-white">
         <DialogHeader>
           <DialogTitle className="mr-4 text-right">
@@ -59,7 +61,7 @@ function DeleteCategoryModal({
         <DialogFooter className="flex justify-end gap-2">
           <Button
             variant="outline"
-            onClick={onClose}
+            onClick={() => onOpenChange(false)}
             className="cursor-pointer transition-all duration-300 dark:hover:bg-neutral-700"
           >
             انصراف

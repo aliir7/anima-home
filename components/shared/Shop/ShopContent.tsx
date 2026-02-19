@@ -1,6 +1,9 @@
+// فایل: app/(root)/products/ShopContent.tsx
+
 "use client";
 
-import { useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,126 +12,123 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
-import { ShopItem } from "@/types";
+import { CategoryWithParent, ProductWithRelations } from "@/types";
 import ProductCard from "./Product/ProductCard";
+import PaginationControls from "../Pagination/PaginationControls";
 
 type Props = {
-  items: ShopItem[];
+  items: ProductWithRelations[];
+  categories: CategoryWithParent[];
+  totalPages: number;
+  totalItems: number;
 };
 
-const SORTS = ["جدیدترین", "قدیمی‌ترین", "ارزان‌ترین", "گران‌ترین"] as const;
+// const SORTS = ["جدیدترین", "قدیمی‌ترین", "ارزان‌ترین", "گران‌ترین"] as const;
 
-export default function ShopContent({ items }: Props) {
-  const [sort, setSort] = useState<(typeof SORTS)[number]>("جدیدترین");
-  const [categoryId, setCategoryId] = useState<string | "all">("all");
+export default function ShopContent({
+  items,
+  categories,
+  totalPages,
+  totalItems,
+}: Props) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-  const categories = useMemo(() => {
-    return Array.from(
-      new Map(items.map((i) => [i.category.id, i.category])).values(),
-    );
-  }, [items]);
+  // خواندن مقادیر فعلی فیلتر از URL
+  const currentCategory = searchParams.get("category");
+  // const currentSort = searchParams.get("sort") ?? "جدیدترین";
 
-  const filteredItems = useMemo(() => {
-    let data = [...items];
+  // تابع هوشمند برای ساخت URL جدید با حفظ پارامترهای قبلی
+  const createQueryString = useCallback(
+    (name: string, value: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (value) {
+        params.set(name, value);
+      } else {
+        params.delete(name);
+      }
+      // وقتی فیلتر عوض میشه، به صفحه اول برگرد
+      if (name !== "page") {
+        params.delete("page");
+      }
+      return params.toString();
+    },
+    [searchParams],
+  );
 
-    if (categoryId !== "all") {
-      data = data.filter((i) => i.category.id === categoryId);
-    }
-
-    switch (sort) {
-      case "جدیدترین":
-        return data.sort(
-          (a, b) =>
-            new Date(b.product.createdAt).getTime() -
-            new Date(a.product.createdAt).getTime(),
-        );
-
-      case "قدیمی‌ترین":
-        return data.sort(
-          (a, b) =>
-            new Date(a.product.createdAt).getTime() -
-            new Date(b.product.createdAt).getTime(),
-        );
-
-      case "ارزان‌ترین":
-        return data.sort((a, b) => a.variant.price - b.variant.price);
-
-      case "گران‌ترین":
-        return data.sort((a, b) => b.variant.price - a.variant.price);
-
-      default:
-        return data;
-    }
-  }, [items, sort, categoryId]);
+  const handleCategoryChange = (categoryId: string | null) => {
+    const queryString = createQueryString("category", categoryId ?? "");
+    router.push(`${pathname}?${queryString}`);
+  };
 
   return (
-    <div className="c mx-auto space-y-8 px-4 py-12">
+    <div className="space-y-8">
       {/* Toolbar */}
       <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
-        <div className="flex gap-3">
-          {/* Sort */}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Category Filter */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="gap-2 rounded-full">
-                {sort}
+                {currentCategory
+                  ? categories.find((c) => c.id === currentCategory)?.name
+                  : "همه دسته‌ها"}
                 <ChevronDown className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start">
-              {SORTS.map((s) => (
-                <DropdownMenuItem key={s} onClick={() => setSort(s)}>
-                  {s}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {/* Category */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="gap-2 rounded-full">
-                {categoryId === "all"
-                  ? "همه دسته‌ها"
-                  : categories.find((c) => c.id === categoryId)?.title}
-                <ChevronDown className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
-              <DropdownMenuItem onClick={() => setCategoryId("all")}>
+              <DropdownMenuItem onClick={() => handleCategoryChange(null)}>
                 همه دسته‌ها
               </DropdownMenuItem>
               {categories.map((cat) => (
                 <DropdownMenuItem
                   key={cat.id}
-                  onClick={() => setCategoryId(cat.id)}
+                  onClick={() => handleCategoryChange(cat.id)}
                 >
-                  {cat.title}
+                  {cat.name}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
+
+          {/* TODO: Sort Dropdown can be added here in the same way */}
         </div>
 
         {/* Count */}
         <p className="text-muted-foreground text-sm">
           نمایش{" "}
-          <span className="text-foreground font-medium">
-            {filteredItems.length}
-          </span>{" "}
-          محصول
+          <span className="text-foreground font-medium">{items.length}</span> از{" "}
+          {totalItems} محصول
         </p>
       </div>
 
       {/* Grid */}
-      <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-        {filteredItems.map((item) => (
-          <ProductCard
-            key={item.variant.id}
-            data={item}
-            href={`/shop/products/${item.product.id}`}
-          />
-        ))}
-      </div>
+      {items.length > 0 ? (
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {items.map((item) => (
+            <ProductCard
+              key={item.id}
+              product={item}
+              href={`/shop/products/${item.seoSlug}`}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="flex min-h-100 flex-col items-center justify-center rounded-lg border border-dashed text-center">
+          <h3 className="text-xl font-bold tracking-tight">محصولی یافت نشد</h3>
+          <p className="text-muted-foreground text-sm">
+            فیلتر خود را تغییر دهید و دوباره امتحان کنید.
+          </p>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {/* {totalPages > 1 && (
+        <div className="flex justify-center pt-8">
+          <PaginationControls totalPages={+totalPages} currentPage={1} />
+        </div> */}
+      {/* )} */}
     </div>
   );
 }

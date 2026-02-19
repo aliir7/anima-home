@@ -1,3 +1,4 @@
+import { productCategories, products, productVariants } from "@/db/schema";
 import {
   cartItemSchema,
   insertCartSchema,
@@ -13,6 +14,7 @@ import {
   selectMaterialSchema,
   updateMaterialSchema,
 } from "@/lib/validations/materialsValidations";
+import { createProductSchema } from "@/lib/validations/productValidation";
 import {
   insertProjectSchema,
   selectProjectSchema,
@@ -74,6 +76,25 @@ export type MaterialFormValues = z.infer<typeof insertMaterialSchema>;
 export type UpdateMaterialValues = z.infer<typeof updateMaterialSchema>;
 
 // product types
+export type createProductValues = z.infer<typeof createProductSchema>;
+export type ProductVariant = typeof productVariants.$inferSelect & {
+  specs: Record<string, string>;
+  images: string[];
+};
+
+export type ProductWithRelations = typeof products.$inferSelect & {
+  category: typeof productCategories.$inferSelect | null;
+  variants: ProductVariant[];
+};
+export type ProductCategoryWithParent =
+  typeof productCategories.$inferSelect & {
+    parent: typeof productCategories.$inferSelect | null;
+  };
+// تایپ خروجی نهایی: تمام فیلدهای محصول + یک آرایه از واریانت‌ها + آبجکت دسته بندی
+export type ProductSpec = {
+  label: string;
+  value: string;
+};
 
 // contact form type
 export type ContactFormValues = z.infer<typeof contactFormSchema>;

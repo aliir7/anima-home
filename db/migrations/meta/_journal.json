@@ -8,6 +8,13 @@
       "when": 1771170816487,
       "tag": "0000_yielding_doctor_doom",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1771407848237,
+      "tag": "0001_chief_surge",
+      "breakpoints": true
     }
   ]
 }

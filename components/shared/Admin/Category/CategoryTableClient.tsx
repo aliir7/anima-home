@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -11,7 +10,6 @@ import {
   TableCell,
 } from "@/components/ui/table";
 
-import { CategoryWithParent } from "@/types";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -20,31 +18,40 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { Plus, MoreVertical, Pencil, Trash2 } from "lucide-react";
-import CategoryFormModal from "./CategoryFormModal";
-import DeleteCategoryModal from "./DeleteCategoryModal";
 
-type CategoryTableClientProps = {
-  categories: CategoryWithParent[];
+type BaseCategory = {
+  id: string;
+  name: string;
+  createdAt?: Date | string | null;
+  parent?: { name: string } | null;
+  parentName?: string | null;
 };
 
-function CategoryTableClient({ categories }: CategoryTableClientProps) {
-  const [createOpen, setCreateOpen] = useState(false);
-  const [editCategory, setEditCategory] = useState<CategoryWithParent | null>(
-    null,
-  );
-  const [deleteCategoryId, setDeleteCategoryId] = useState<string | null>(null);
+type Props<T extends BaseCategory> = {
+  categories: T[];
+  onCreate: () => void;
+  onEdit: (category: T) => void;
+  onDelete: (id: string) => void;
+  renderModals?: () => React.ReactNode;
+};
 
+function CategoryTableClient<T extends BaseCategory>({
+  categories,
+  onCreate,
+  onEdit,
+  onDelete,
+  renderModals,
+}: Props<T>) {
   return (
     <>
+      {/* Create Button */}
       <div className="mb-6 flex justify-start">
-        <Button
-          onClick={() => setCreateOpen(true)}
-          className="rounded-full px-4 py-2"
-        >
+        <Button onClick={onCreate} className="rounded-full px-4 py-2">
           <Plus className="h-4 w-4" /> دسته‌بندی جدید
         </Button>
       </div>
 
+      {/* Table */}
       <div className="rounded-lg border">
         <Table>
           <TableHeader className="bg-muted">
@@ -55,17 +62,23 @@ function CategoryTableClient({ categories }: CategoryTableClientProps) {
               <TableHead className="text-right">عملیات</TableHead>
             </TableRow>
           </TableHeader>
+
           <TableBody>
             {categories.length > 0 ? (
               categories.map((cat) => (
                 <TableRow key={cat.id}>
                   <TableCell className="text-right">{cat.name}</TableCell>
+
                   <TableCell className="text-right">
                     {cat.parent?.name ?? cat.parentName ?? "-"}
                   </TableCell>
+
                   <TableCell className="text-right">
-                    {new Date(cat.createdAt!).toLocaleDateString("fa-IR")}
+                    {cat.createdAt
+                      ? new Date(cat.createdAt).toLocaleDateString("fa-IR")
+                      : "-"}
                   </TableCell>
+
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -73,15 +86,17 @@ function CategoryTableClient({ categories }: CategoryTableClientProps) {
                           <MoreVertical className="h-5 w-5" />
                         </Button>
                       </DropdownMenuTrigger>
+
                       <DropdownMenuContent side="left" align="end">
                         <DropdownMenuItem
-                          onClick={() => setEditCategory(cat)}
+                          onClick={() => onEdit(cat)}
                           className="flex justify-end gap-2"
                         >
                           ویرایش <Pencil className="h-4 w-4" />
                         </DropdownMenuItem>
+
                         <DropdownMenuItem
-                          onClick={() => setDeleteCategoryId(cat.id)}
+                          onClick={() => onDelete(cat.id)}
                           className="flex justify-end gap-2"
                         >
                           حذف <Trash2 className="h-4 w-4" />
@@ -102,35 +117,8 @@ function CategoryTableClient({ categories }: CategoryTableClientProps) {
         </Table>
       </div>
 
-      {/* Create Modal */}
-      <CategoryFormModal
-        type="create"
-        isOpen={createOpen}
-        onClose={() => setCreateOpen(false)}
-        existingCategories={categories}
-      />
-
-      {/* Edit Modal */}
-      <CategoryFormModal
-        type="edit"
-        isOpen={!!editCategory}
-        onClose={() => setEditCategory(null)}
-        initialData={
-          editCategory
-            ? {
-                id: editCategory.id,
-                name: editCategory.name,
-                parentName: editCategory.parentName ?? "",
-              }
-            : undefined
-        }
-        existingCategories={categories}
-      />
-      {/* Delete Modal */}
-      <DeleteCategoryModal
-        onClose={() => setDeleteCategoryId(null)}
-        categoryId={deleteCategoryId}
-      />
+      {/* Modals from Container */}
+      {renderModals?.()}
     </>
   );
 }

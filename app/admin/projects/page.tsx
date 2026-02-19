@@ -1,5 +1,5 @@
 import ProjectTable from "@/components/shared/Admin/Projects/ProjectTable";
-import { getAllCategories } from "@/db/queries/categoriesQueries";
+import { getAllProjectCategories } from "@/db/queries/categoriesQueries";
 import { getAllProjects, getProjectsCount } from "@/db/queries/projectQueries";
 import { PAGE_SIZE } from "@/lib/constants";
 import { Category, ProjectWithCategory } from "@/types";
@@ -21,7 +21,7 @@ async function AdminProjectsPage({ searchParams }: AdminProjectsPageProps) {
   const currentPage = Number(page);
   const projectsId = (await searchParams).id ?? "";
   const [categoriesResult, projectsResult, totalCount] = await Promise.all([
-    getAllCategories(),
+    getAllProjectCategories(),
     getAllProjects({ page: currentPage, pageSize: PAGE_SIZE }),
     getProjectsCount(projectsId),
   ]);

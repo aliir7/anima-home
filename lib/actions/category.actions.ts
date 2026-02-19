@@ -8,6 +8,7 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { ActionResult, Category, InsertCategoryValues } from "@/types";
 import { insertCategorySchema } from "../validations/categoryValidations";
+import { generateUniqueSlug } from "../utils/generateSlug";
 
 // Action for create category
 export async function createCategoryAction(
@@ -27,11 +28,7 @@ export async function createCategoryAction(
 
     const { name, parentName } = validated.data;
 
-    const slug = slugify(name, {
-      lower: true,
-      strict: true,
-      locale: "fa",
-    });
+    const slug = await generateUniqueSlug(name);
 
     // بررسی تکراری نبودن دسته
     const [existing] = await db
