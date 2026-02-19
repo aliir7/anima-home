@@ -16,10 +16,6 @@ export const insertCartSchema = z.object({
   itemsPrice: z.number().int().nonnegative("قیمت هر آیتم باید عددی مثبت باشد"),
   totalPrice: z.number().int().nonnegative("قیمت نهایی باید عددی مثبت باشد"),
   taxPrice: z.number().int().nonnegative("مالیات باید عددی مثبت باشد"),
-  shippingPrice: z
-    .number()
-    .int()
-    .nonnegative("هزینه ارسال باید عددی مثبت باشد"),
   sessionCartId: z.string().min(1, "sessionCartId is required"),
   userId: z.string().optional().nullable(),
 });

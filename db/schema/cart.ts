@@ -9,7 +9,7 @@ import {
 import { users } from "./user";
 
 export const carts = pgTable("carts", {
-  id: text("id").primaryKey(),
+  id: uuid("id").defaultRandom().primaryKey(),
   userId: uuid("user_id")
     .references(() => users.id, { onDelete: "cascade" })
     .unique(),
