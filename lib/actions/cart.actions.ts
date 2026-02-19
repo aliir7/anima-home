@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import { auth } from "../auth";
 import { formatError } from "../utils/formatError";
 import { db } from "@/db";
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { carts, products } from "@/db/schema";
 import {
   cartItemSchema,
@@ -117,11 +117,13 @@ export async function addItemToCart(
         (cart.items as CartItem[]).push(item);
       }
       // Save to database
-      await db.update(carts).set({
-        id: cart.id,
-        items: cart.items,
-        ...calculateCartPrice(cart.items as CartItem[]),
-      });
+      await db
+        .update(carts)
+        .set({
+          items: cart.items,
+          ...calculateCartPrice(cart.items as CartItem[]),
+        })
+        .where(eq(carts.id, cart.id)); // <<<<< این خط حیاتی اضافه شد
 
       revalidatePath(`/shop/products`);
       revalidatePath(`/shop/products/${product.seoSlug}`);
@@ -193,11 +195,14 @@ export async function removeItemFromCart(
     }
 
     // Update cart in database
-    await db.update(carts).set({
-      id: cart.id,
-      items: cart.items,
-      ...calculateCartPrice(cart.items as CartItem[]),
-    });
+    // ... در انتهای تابع
+    await db
+      .update(carts)
+      .set({
+        items: cart.items,
+        ...calculateCartPrice(cart.items as CartItem[]),
+      })
+      .where(eq(carts.id, cart.id)); // <<<<< این خط حیاتی اضافه شد
 
     revalidatePath(`/shop/products`);
     revalidatePath(`/shop/products/${product.seoSlug}`);
@@ -218,27 +223,36 @@ export async function removeItemFromCart(
 }
 
 // =================================================================
-// GET MY CART ACTION
+// GET MY CART ACTION (نسخه اصلاح شده)
 // =================================================================
 
 export async function getMyCart() {
-  // Check for cart cookie
   const sessionCartId = (await cookies()).get("sessionCartId")?.value;
-  if (!sessionCartId) throw new Error("Cart session not found");
+  // اگر کوکی وجود نداشت، سبدی هم وجود ندارد
+  if (!sessionCartId) return undefined;
 
-  // Get session and user ID
   const session = await auth();
-  const userId = session?.user?.id ? (session.user.id as string) : undefined;
+  const userId = session?.user?.id;
 
-  // Get user cart from database
-  const cart = await db.query.carts
-    .findFirst({
-      where: eq(carts.userId, userId!),
-    })
-    .execute();
+  // شرط جستجوی بهینه:
+  // 1. اگر کاربر لاگین کرده: سبدی را پیدا کن که userId آن متعلق به این کاربر است.
+  // 2. اگر کاربر مهمان است: سبدی را پیدا کن که sessionCartId آن با کوکی یکی است و userId ندارد.
+  const cart = await db.query.carts.findFirst({
+    where: userId
+      ? eq(carts.userId, userId)
+      : and(eq(carts.sessionCartId, sessionCartId), isNull(carts.userId)),
+  });
 
-  if (!cart) return undefined;
-  return {
-    ...cart,
-  };
+  if (!cart) {
+    // حالت دیگر: شاید سبد برای کاربر مهمان بوده و حالا لاگین کرده.
+    // در این حالت، باید سبد مهمان را پیدا کنیم و userId را به آن متصل کنیم.
+    // این منطق پیچیده‌تر است و معمولا در زمان لاگین انجام می‌شود (merge cart).
+    // برای سادگی، فعلا فقط سبد مهمان را برمی‌گردانیم اگر سبد کاربری نبود.
+    const guestCart = await db.query.carts.findFirst({
+      where: eq(carts.sessionCartId, sessionCartId),
+    });
+    return guestCart;
+  }
+
+  return cart;
 }

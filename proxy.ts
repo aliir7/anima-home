@@ -33,10 +33,31 @@ function handleBadPathRedirect(req: NextRequest) {
   return null;
 }
 
+function ensureSessionCartId(req: NextRequest) {
+  const hasSessionCartId = req.cookies.get("sessionCartId");
+
+  if (hasSessionCartId) return null;
+
+  const response = NextResponse.next();
+
+  response.cookies.set("sessionCartId", crypto.randomUUID(), {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 30, // 30 days
+  });
+
+  return response;
+}
+
 export async function proxy(req: NextRequest) {
   // 1) quick bad-path redirect
   const badRedirect = handleBadPathRedirect(req);
   if (badRedirect) return badRedirect;
+
+  const cartCookieResponse = ensureSessionCartId(req);
+  if (cartCookieResponse) return cartCookieResponse;
 
   // 2) continue with your auth logic
   const { nextUrl } = req;

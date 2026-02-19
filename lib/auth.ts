@@ -6,10 +6,17 @@ import { NextResponse } from "next/server";
 
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { db } from "@/db";
-import { accounts, users, sessions, verificationTokens } from "@/db/schema";
+import {
+  accounts,
+  users,
+  sessions,
+  verificationTokens,
+  carts,
+} from "@/db/schema";
 import { signinSchema } from "./validations/usersValidations";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
+import { cookies } from "next/headers";
 
 export const authConfig = {
   trustHost: true,
@@ -131,6 +138,30 @@ export const authConfig = {
       },
     }),
   ],
+  events: {
+    async signIn({ user }) {
+      const cookieStore = await cookies();
+      const sessionCartId = cookieStore.get("sessionCartId")?.value;
+
+      if (!sessionCartId) return;
+
+      const sessionCart = await db.query.carts.findFirst({
+        where: eq(carts.sessionCartId, sessionCartId),
+      });
+
+      if (!sessionCart) return;
+
+      await db.delete(carts).where(eq(carts.userId, user.id));
+
+      await db
+        .update(carts)
+        .set({
+          userId: user.id,
+          sessionCartId: null,
+        })
+        .where(eq(carts.id, sessionCart.id));
+    },
+  },
 } satisfies NextAuthConfig;
 
 export const {

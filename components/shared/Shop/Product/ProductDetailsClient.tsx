@@ -4,19 +4,26 @@ import { useState } from "react";
 import Image from "next/image";
 import { ShoppingCart, Star } from "lucide-react";
 
-import { ProductWithRelations } from "@/types";
+import { Cart, ProductWithRelations } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
 import { ProductReviewsSection } from "./ProductReviewsSection";
 import { ProductSpecs } from "./ProductSpecs";
+import CartActionsHandler from "../CartActionsHandler";
 
-type Props = {
+type ProductDetailsProps = {
   product: ProductWithRelations;
+  userId?: string | null;
+  cart?: Cart | undefined;
 };
 
-export default function ProductDetailsClient({ product }: Props) {
+export default function ProductDetailsClient({
+  product,
+  userId,
+  cart,
+}: ProductDetailsProps) {
   const firstVariant = product.variants?.[0];
   if (!firstVariant) return null;
 
@@ -116,14 +123,18 @@ export default function ProductDetailsClient({ product }: Props) {
                 {firstVariant.stock > 0 ? `موجود` : "ناموجود"}
               </Badge>
 
-              <Button
-                disabled={firstVariant.stock === 0}
-                size="lg"
-                className="w-full gap-2 rounded-full"
-              >
-                <ShoppingCart className="h-5 w-5" />
-                افزودن به سبد خرید
-              </Button>
+              <CartActionsHandler
+                item={{
+                  productId: product.id,
+                  name: product.title,
+                  price:
+                    discountedPrice > 0 ? discountedPrice : firstVariant.price,
+                  slug: product.slug,
+                  qty: 1,
+                  image: firstVariant.images?.[0],
+                }}
+                cart={cart}
+              />
             </CardContent>
           </Card>
         </div>

@@ -1,5 +1,8 @@
 import ProductDetailsClient from "@/components/shared/Shop/Product/ProductDetailsClient";
 import { getProductBySlug } from "@/db/queries/productQueries";
+import { getMyCart } from "@/lib/actions/cart.actions";
+import { auth } from "@/lib/auth";
+import { Cart } from "@/types";
 import { notFound } from "next/navigation";
 
 export default async function ProductDetailsPage({
@@ -8,12 +11,14 @@ export default async function ProductDetailsPage({
   params: Promise<{ seoSlug: string }>;
 }) {
   const { seoSlug } = await params;
-
-  const result = await getProductBySlug(seoSlug);
-
-  if (!result.success || !result.data) {
+  const productResult = await getProductBySlug(seoSlug);
+  if (!productResult.success || !productResult.data) {
     notFound();
   }
+  const product = productResult.data;
+  const session = await auth();
+  const userId = session?.user?.id;
+  const cart = (await getMyCart()) as Cart;
 
-  return <ProductDetailsClient product={result.data} />;
+  return <ProductDetailsClient product={product} userId={userId} cart={cart} />;
 }

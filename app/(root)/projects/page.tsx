@@ -4,7 +4,7 @@ import {
   getFilteredProjects,
   getProjectsCount,
 } from "@/db/queries/projectQueries";
-import { getAllCategories } from "@/db/queries/categoriesQueries";
+import { getAllProjectCategories } from "@/db/queries/categoriesQueries";
 import { PAGE_SIZE } from "@/lib/constants";
 
 export const metadata: Metadata = {
@@ -22,7 +22,7 @@ async function ProjectsPage({ searchParams }: ProjectPageProps) {
   const currentPage = Number(page);
   const category = (await searchParams).category ?? "";
   const [categoriesRes, projectsRes, totalCount] = await Promise.all([
-    getAllCategories(),
+    getAllProjectCategories(),
     getFilteredProjects({
       categoryId: category,
       page: currentPage,
