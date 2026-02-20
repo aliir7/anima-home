@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { users, verificationTokens } from "@/db/schema";
+import { carts, users, verificationTokens } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import {
@@ -20,6 +20,7 @@ import { AuthError } from "next-auth";
 import generateToken from "../utils/generateToken";
 import { addHours, addMinutes } from "date-fns";
 import { sendMailAction } from "./mail.actions";
+import { getMyCart } from "./cart.actions";
 
 // register user action
 export async function signupAction(
@@ -196,6 +197,8 @@ export async function signinWithCredentials(
 
 // signOut user action
 export async function userSignOut() {
+  const currentCart = await getMyCart();
+  await db.delete(carts).where(eq(carts.id, currentCart?.id!));
   await signOut();
 }
 
