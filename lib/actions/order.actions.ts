@@ -4,7 +4,10 @@ import { ActionResult, CartItem } from "@/types";
 import { auth } from "../auth";
 import { getMyCart } from "./cart.actions";
 import { getUserById } from "./user.actions";
-import { insertOrderSchema } from "../validations/orderValidations";
+import {
+  insertOrderSchema,
+  shippingAddressSchema,
+} from "../validations/orderValidations";
 import { db } from "@/db";
 import {
   carts,
@@ -56,8 +59,22 @@ export async function createOrder(): Promise<ActionResult<string>> {
       };
     }
 
-    // بررسی و پارس کردن اطلاعات سفارش با Zod
-    // اصلاح: استفاده از userId سشن و قرار دادن مقدار پیش‌فرض برای متد پرداخت
+    // address validations
+    const addressValidationResult = shippingAddressSchema.safeParse(
+      user.address,
+    );
+    if (!addressValidationResult.success) {
+      return {
+        success: false,
+        message: formatError(addressValidationResult.error.issues),
+        error: {
+          type: "zod",
+          issues: addressValidationResult.error.issues,
+        },
+        redirectTo: "/shipping-address",
+      };
+    }
+
     const orderData = insertOrderSchema.parse({
       userId: userId, // اصلاح شد
       shippingAddress: user.address,

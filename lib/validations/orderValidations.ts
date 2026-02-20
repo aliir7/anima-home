@@ -9,7 +9,9 @@ export const shippingAddressSchema = z.object({
   fullName: z.string().min(3, "نام گیرنده باید حداقل ۳ کاراکتر باشد"),
   streetAddress: z.string().min(10, "آدرس پستی باید حداقل ۱۰ کاراکتر باشد"),
   city: z.string().min(2, "نام شهر معتبر نیست"),
-
+  phone: z
+    .string()
+    .regex(/^09\d{9}$/, "شماره موبایل گیرنده معتبر نیست (مثال: 09123456789)"),
   postalCode: z
     .string()
     .regex(/^\d{10}$/, "کد پستی باید دقیقاً ۱۰ رقم و فقط شامل اعداد باشد"),

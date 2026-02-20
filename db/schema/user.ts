@@ -5,6 +5,7 @@ import {
   timestamp,
   json,
   varchar,
+  boolean,
 } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
@@ -12,6 +13,9 @@ export const users = pgTable("users", {
   name: text("name").default("NO_NAME"),
   email: text("email").notNull().unique(),
   emailVerified: timestamp("emailVerified", { mode: "date" }),
+  // -- اطلاعات موبایل (اضافه شده برای OTP آینده) --
+  phone: varchar("phone", { length: 20 }).unique(),
+  phoneVerified: timestamp("phoneVerified", { mode: "date" }), // 👈 فیلد جدید
   image: text("image"),
   password: text("password"),
   role: text("role", { enum: ["user", "admin"] })
