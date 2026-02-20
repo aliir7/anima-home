@@ -115,3 +115,11 @@ export const adminRoutes = [
   { label: "دسته‌بندی‌ها", href: "/admin/categories", icon: Layers3 },
   { label: "تنظیمات", href: "/admin/settings", icon: Settings },
 ];
+
+// PAYMENT METHODS
+export const PAYMENT_METHODS = process.env.PAYMENT_METHODS
+  ? process.env.PAYMENT_METHODS.split("، ")
+  : ["پرداخت آنلاین", "پرداخت از طریق کارت به کارت"];
+
+export const DEFAULT_PAYMENT_METHOD =
+  process.env.DEFAULT_PAYMENT_METHOD || "پرداخت آنلاین";
