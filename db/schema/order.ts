@@ -19,6 +19,7 @@ export const orders = pgTable("orders", {
   taxPrice: integer("tax_price").notNull(),
   totalPrice: integer("total_price").notNull(),
   isPaid: boolean("is_paid").default(false),
+  isDelivered: boolean("is_paid").default(false),
   paidAt: timestamp("paid_at", { mode: "date", precision: 6 }),
   deliveredAt: timestamp("delivered_at", { mode: "date", precision: 6 }),
   createdAt: timestamp("created_at", { mode: "date", precision: 6 })

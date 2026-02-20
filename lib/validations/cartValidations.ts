@@ -3,6 +3,7 @@ import z from "zod/v4";
 //Cart item schema
 export const cartItemSchema = z.object({
   productId: z.string().min(1, "شناسه محصول الزامی است"),
+  variantId: z.string().optional(),
   name: z.string().min(1, "نام محصول محصول الزامی است"),
   slug: z.string().min(1, "slug الزامی است"),
   qty: z.number().int().nonnegative("تعداد باید عددی مثبت باشد"),

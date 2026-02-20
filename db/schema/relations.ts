@@ -138,6 +138,11 @@ export const orderItemsRelations = relations(orderItems, ({ one }) => ({
     fields: [orderItems.productId],
     references: [products.id],
   }), // هر آیتم به یک محصول خاص اشاره می‌کند
+
+    variant: one(productVariants, {
+    fields: [orderItems.variantId],
+    references: [productVariants.id],
+  }),
 }));
 // sessions
 export const sessionRelations = relations(sessions, ({ one }) => ({

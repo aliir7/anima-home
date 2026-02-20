@@ -3,6 +3,9 @@
 import { ActionResult, ContactFormValues } from "@/types";
 import { contactFormSchema } from "../validations/usersValidations";
 import { sendGmailAction, sendMailAction } from "./mail.actions";
+import { db } from "@/db";
+import { eq } from "drizzle-orm";
+import { users } from "@/db/schema";
 
 export async function submitContactForm(
   data: ContactFormValues,
@@ -73,4 +76,16 @@ export async function submitContactForm(
       error: { type: "custom", message: `خطا در ارسال ایمیل ${error}` },
     };
   }
+}
+
+export async function getUserById(userId: string) {
+  const user = await db.query.users.findFirst({
+    where: eq(users.id, userId),
+  });
+
+  if (!user) {
+    throw new Error("کاربر یافت نشد");
+  }
+
+  return { ...user };
 }

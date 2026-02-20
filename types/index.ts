@@ -14,6 +14,7 @@ import {
   selectMaterialSchema,
   updateMaterialSchema,
 } from "@/lib/validations/materialsValidations";
+import { insertOrderSchema } from "@/lib/validations/orderValidations";
 import {
   createProductSchema,
   updateProductSchema,
@@ -47,8 +48,20 @@ export type ActionError =
   | { type: "zod"; issues: z.ZodError["issues"] }
   | { type: "custom"; message: string };
 export type ActionResult<T> =
-  | { success: true; data: T }
-  | { success: false; error: ActionError };
+  | { success: true; data?: T; redirectTo?: string; message?: string }
+  | {
+      success: false;
+      error?: ActionError;
+      redirectTo?: string;
+      message?: string;
+    };
+
+export type OrderActionResult<T> = {
+  success: boolean;
+  message?: string;
+  data?: T;
+  redirectTo?: string;
+};
 
 // user types
 export type UserSchema = z.infer<typeof userSchema>;
@@ -128,3 +141,6 @@ export type ShopItem = {
     stock: number;
   };
 };
+
+// ORDER TYPES
+export type CreateOrderValues = z.infer<typeof insertOrderSchema>;

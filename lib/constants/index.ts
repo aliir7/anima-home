@@ -123,3 +123,8 @@ export const PAYMENT_METHODS = process.env.PAYMENT_METHODS
 
 export const DEFAULT_PAYMENT_METHOD =
   process.env.DEFAULT_PAYMENT_METHOD || "پرداخت آنلاین";
+
+export const ZIBAL_MERCHANT = process.env.ZIBAL_MERCHANT || "zibal";
+
+const isDev = process.env.NODE_ENV === "development";
+export const PAYMENT_CALLBACK_URL = isDev ? SERVER_URL : ROOT_URL;
