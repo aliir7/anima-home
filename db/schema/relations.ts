@@ -11,6 +11,8 @@ import { users } from "./user";
 import { projectRedirects } from "./projectRedirects";
 import { productCategories } from "./productCategories";
 import { productVariants } from "./productVariants";
+import { orderItems } from "./orderItems";
+import { orders } from "./order";
 
 // accounts
 export const accountRelations = relations(accounts, ({ one }) => ({
@@ -86,6 +88,7 @@ export const productRelations = relations(products, ({ one, many }) => ({
   }),
 
   variants: many(productVariants),
+  orderItems: many(orderItems),
 }));
 
 // products variants relations
@@ -108,13 +111,34 @@ export const cartRelations = relations(carts, ({ one }) => ({
 }));
 
 // users
-export const userRelations = relations(users, ({ one }) => ({
+export const userRelations = relations(users, ({ one, many }) => ({
   account: one(accounts),
   session: one(sessions),
   authenticator: one(authenticators),
   cart: one(carts),
+  orders: many(orders),
 }));
 
+// orders relations
+export const ordersRelations = relations(orders, ({ one, many }) => ({
+  user: one(users, {
+    fields: [orders.userId],
+    references: [users.id],
+  }), // هر سفارش متعلق به یک کاربر است
+  items: many(orderItems), // هر سفارش می‌تواند چندین آیتم داشته باشد
+}));
+
+// orderItems relations
+export const orderItemsRelations = relations(orderItems, ({ one }) => ({
+  order: one(orders, {
+    fields: [orderItems.orderId],
+    references: [orders.id],
+  }), // هر آیتم متعلق به یک سفارش خاص است
+  product: one(products, {
+    fields: [orderItems.productId],
+    references: [products.id],
+  }), // هر آیتم به یک محصول خاص اشاره می‌کند
+}));
 // sessions
 export const sessionRelations = relations(sessions, ({ one }) => ({
   user: one(users, {
