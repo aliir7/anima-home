@@ -20,6 +20,8 @@ import {
 import { count, desc, eq, sql, sum, ilike, or } from "drizzle-orm";
 import { formatError } from "../utils/formatError";
 import { revalidatePath } from "next/cache";
+import { createPayment } from "./payment.actions";
+import { PAYMENT_METHOD } from "../constants";
 
 // =================================================================
 // 1. CREATE ORDER (ایجاد سفارش اولیه)
@@ -126,10 +128,114 @@ export async function createOrder(): Promise<ActionResult<string>> {
       redirectTo: `/order/${insertedOrderId}`,
     };
   } catch (err) {
-    return { success: false, message: formatError(err) };
+    return {
+      success: false,
+      message: formatError(err),
+      error: {
+        type: "custom",
+        message: formatError(err),
+      },
+    };
   }
 }
 
+// =================================================================
+// CREATE ORDER AND HANDLE PAYMENT
+// =================================================================
+export async function createOrderAndHandlePayment(): Promise<
+  ActionResult<any>
+> {
+  try {
+    // ۱. ساخت سفارش
+    const orderRes = await createOrder();
+
+    // مدیریت خطای ساخت سفارش با توجه به تایپ جدید
+    if (!orderRes.success || !orderRes.redirectTo) {
+      return {
+        success: false,
+        // در صورتی که orderRes خودش ارور استاندارد داشت همان را برمی‌گردانیم، در غیر این صورت دستی می‌سازیم
+        error:
+          "error" in orderRes && orderRes.error
+            ? orderRes.error
+            : {
+                type: "custom",
+                message: orderRes.message || "خطا در ثبت سفارش",
+              },
+      };
+    }
+
+    // ۲. استخراج شناسه سفارش
+    const match = orderRes.redirectTo.match(/\/order\/(.+)$/);
+    const orderId = match ? match[1] : null;
+
+    if (!orderId) {
+      return {
+        success: false,
+        error: { type: "custom", message: "شناسه سفارش یافت نشد" },
+      };
+    }
+
+    // ۳. بررسی احراز هویت و اطلاعات کاربر
+    const session = await auth();
+    if (!session?.user?.id) {
+      return {
+        success: false,
+        error: { type: "custom", message: "کاربر یافت نشد. لطفا وارد شوید." },
+      };
+    }
+
+    const user = await getUserById(session.user.id);
+
+    // ۴. بررسی روش پرداخت و انجام عملیات مربوطه
+
+    // 🟢 حالت اول: پرداخت آنلاین
+    if (user.paymentMethod === PAYMENT_METHOD.ONLINE) {
+      const paymentRes = await createPayment(orderId);
+
+      // مدیریت خطای درگاه پرداخت با تایپ جدید
+      if (!paymentRes.success || !paymentRes.url) {
+        return {
+          success: false,
+          error: {
+            type: "custom",
+            message: paymentRes.message || "خطا در اتصال به درگاه بانکی",
+          },
+        };
+      }
+
+      // موفقیت و هدایت به درگاه
+      return {
+        success: true,
+        message: "در حال انتقال به درگاه پرداخت...",
+        redirectTo: paymentRes.url, // آدرسی که از زیبال گرفته شده (url)
+      };
+    }
+
+    // 🟡 حالت دوم: کارت به کارت
+    if (user.paymentMethod === PAYMENT_METHOD.CARD) {
+      return {
+        success: true,
+        message: "سفارش ثبت شد. لطفا مبلغ را انتقال دهید.",
+        redirectTo: `/order/success?orderId=${orderId}&type=card`,
+      };
+    }
+
+    // 🔴 حالت خطای غیرمنتظره (روش پرداخت نامشخص)
+    return {
+      success: false,
+      error: {
+        type: "custom",
+        message: `روش پرداخت نامعتبر است: ${user.paymentMethod}`,
+      },
+    };
+  } catch (err) {
+    // گرفتن خطاهای catch شده و تبدیل به فرمت استاندارد ActionError
+    return {
+      success: false,
+      error: { type: "custom", message: formatError(err) },
+    };
+  }
+}
 // =================================================================
 // 2. GET ORDER BY ID (دریافت اطلاعات سفارش)
 // =================================================================

@@ -23,7 +23,7 @@ export async function createPayment(orderId: string) {
     const callbackUrl = `${PAYMENT_CALLBACK_URL}/verify-payment?orderId=${orderId}`;
 
     // POST REQUEST TO API
-    const response = await fetch("", {
+    const response = await fetch("https://gateway.zibal.ir/v1/request", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

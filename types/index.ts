@@ -56,7 +56,7 @@ export type ActionResult<T> =
   | { success: true; data?: T; redirectTo?: string; message?: string }
   | {
       success: false;
-      error?: ActionError;
+      error: ActionError;
       redirectTo?: string;
       message?: string;
     };
