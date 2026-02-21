@@ -105,6 +105,15 @@ export const plans = [
   // },
 ];
 
+export const shippingAddressDefaultValues = {
+  fullName: "",
+  streetAddress: "",
+  city: "",
+  phone: "",
+  postalCode: "",
+  country: "ایران",
+};
+
 // admin routes
 export const adminRoutes = [
   { label: "داشبورد", href: "/admin", icon: LayoutDashboard },

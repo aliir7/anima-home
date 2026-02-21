@@ -16,7 +16,7 @@ export const shippingAddressSchema = z.object({
     .string()
     .regex(/^\d{10}$/, "کد پستی باید دقیقاً ۱۰ رقم و فقط شامل اعداد باشد"),
 
-  country: z.string().default("ایران"),
+  country: z.string().default("ایران").optional(),
   lat: z.number().optional(),
   lng: z.number().optional(),
 });

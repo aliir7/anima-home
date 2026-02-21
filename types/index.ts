@@ -14,7 +14,11 @@ import {
   selectMaterialSchema,
   updateMaterialSchema,
 } from "@/lib/validations/materialsValidations";
-import { insertOrderSchema } from "@/lib/validations/orderValidations";
+import {
+  insertOrderSchema,
+  paymentMethodSchema,
+  shippingAddressSchema,
+} from "@/lib/validations/orderValidations";
 import {
   createProductSchema,
   updateProductSchema,
@@ -56,13 +60,6 @@ export type ActionResult<T> =
       message?: string;
     };
 
-export type OrderActionResult<T> = {
-  success: boolean;
-  message?: string;
-  data?: T;
-  redirectTo?: string;
-};
-
 // user types
 export type UserSchema = z.infer<typeof userSchema>;
 export type SignupFormValues = z.infer<typeof signupFormSchema>;
@@ -70,6 +67,8 @@ export type SignupInsert = z.infer<typeof signupSchema>;
 export type SigninValues = z.infer<typeof signinSchema>;
 export type ForgotPasswordSchema = z.infer<typeof forgotPasswordSchema>;
 export type ChangePasswordValues = z.infer<typeof changePasswordSchema>;
+// shipping address type
+export type ShippingAddress = z.infer<typeof shippingAddressSchema>;
 // category types
 export type Category = z.infer<typeof selectCategorySchema>;
 export type CategoryWithParent = z.infer<typeof categoryWithParentSchema>;
@@ -144,3 +143,5 @@ export type ShopItem = {
 
 // ORDER TYPES
 export type CreateOrderValues = z.infer<typeof insertOrderSchema>;
+// PAYMENT TYPES
+export type PaymentMethod = z.infer<typeof paymentMethodSchema>;

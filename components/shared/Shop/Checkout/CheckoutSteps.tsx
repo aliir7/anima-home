@@ -5,9 +5,9 @@ type CheckoutStepsProps = {
 };
 
 const steps = [
-  { id: 1, title: "آدرس" },
-  { id: 2, title: "پرداخت" },
-  { id: 3, title: "نتیجه" },
+  { id: 1, title: "ثبت آدرس" },
+  { id: 2, title: "انتخاب روش پرداخت" },
+  { id: 3, title: "ثبت سفارش" },
 ];
 
 function CheckoutSteps({ current }: CheckoutStepsProps) {

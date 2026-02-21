@@ -1,11 +1,22 @@
 "use server";
 
-import { ActionResult, ContactFormValues } from "@/types";
+import {
+  ActionResult,
+  ContactFormValues,
+  PaymentMethod,
+  ShippingAddress,
+} from "@/types";
 import { contactFormSchema } from "../validations/usersValidations";
 import { sendGmailAction, sendMailAction } from "./mail.actions";
 import { db } from "@/db";
 import { eq } from "drizzle-orm";
 import { users } from "@/db/schema";
+import { auth } from "../auth";
+import {
+  paymentMethodSchema,
+  shippingAddressSchema,
+} from "../validations/orderValidations";
+import { formatError } from "../utils/formatError";
 
 export async function submitContactForm(
   data: ContactFormValues,
@@ -88,4 +99,122 @@ export async function getUserById(userId: string) {
   }
 
   return { ...user };
+}
+
+// =================================================================
+//  UPDATE USER ADDRESS
+// =================================================================
+
+export async function updateUserAddress(
+  data: ShippingAddress,
+): Promise<ActionResult<string>> {
+  try {
+    const session = await auth();
+    const userId = session?.user?.id;
+
+    // find user by id
+    const currentUser = await db.query.users.findFirst({
+      where: eq(users.id, userId!),
+    });
+
+    if (!currentUser) {
+      throw new Error("کاربر یافت نشد");
+    }
+
+    // address validation
+    const validation = shippingAddressSchema.safeParse(data);
+
+    if (!validation.success) {
+      return {
+        success: false,
+        message: formatError(validation.error.issues),
+        error: {
+          type: "zod",
+          issues: validation.error.issues,
+        },
+      };
+    }
+    const address = validation.data;
+
+    // update address
+    await db
+      .update(users)
+      .set({
+        address,
+      })
+      .where(eq(users.id, currentUser.id));
+
+    return {
+      success: true,
+      message: `آدرس شما با موفقیت ثبت شد`,
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: formatError(err),
+      error: {
+        type: "custom",
+        message: formatError(err),
+      },
+    };
+  }
+}
+
+// =================================================================
+//  UPDATE USER PAYMENT METHOD
+// =================================================================
+
+export async function updateUserPaymentMethod(
+  data: PaymentMethod,
+): Promise<ActionResult<string>> {
+  try {
+    const session = await auth();
+    const userId = session?.user?.id;
+
+    // find user by id
+    const currentUser = await db.query.users.findFirst({
+      where: eq(users.id, userId!),
+    });
+
+    if (!currentUser) {
+      throw new Error("کاربر یافت نشد");
+    }
+
+    // validation
+    const validation = paymentMethodSchema.safeParse(data);
+
+    if (!validation.success) {
+      return {
+        success: false,
+        message: formatError(validation.error.issues),
+        error: {
+          type: "zod",
+          issues: validation.error.issues,
+        },
+      };
+    }
+    const paymentMethod = validation.data;
+
+    // update payment method
+    await db
+      .update(users)
+      .set({
+        paymentMethod: paymentMethod.type,
+      })
+      .where(eq(users.id, currentUser.id));
+
+    return {
+      success: true,
+      message: `آدرس شما با موفقیت ثبت شد`,
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: formatError(err),
+      error: {
+        type: "custom",
+        message: formatError(err),
+      },
+    };
+  }
 }

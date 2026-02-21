@@ -4,6 +4,7 @@ import { Separator } from "@/components/ui/separator";
 import formatPrice from "@/lib/utils/formatPrice";
 import { Cart } from "@/types";
 import { Truck } from "lucide-react";
+import Link from "next/link";
 
 type CartSummaryProps = {
   cart: Cart;
@@ -44,8 +45,8 @@ function CartSummary({ cart }: CartSummaryProps) {
           <span>{formatPrice(cart.totalPrice)}</span>
         </div>
 
-        <Button className="w-full rounded-full" size="lg">
-          ادامه فرآیند خرید
+        <Button className="w-full rounded-full" asChild size="lg">
+          <Link href="/shop/checkout">ادامه فرآیند خرید</Link>
         </Button>
 
         <p className="text-muted-foreground text-xs leading-relaxed">

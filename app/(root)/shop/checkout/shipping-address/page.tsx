@@ -3,6 +3,8 @@ import { getUserById } from "@/lib/actions/user.actions";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import CheckoutSteps from "@/components/shared/Shop/Checkout/CheckoutSteps";
+import { ShippingAddress } from "@/types";
+import ShippingAddressForm from "@/components/shared/Shop/Checkout/ShippingAddressForm";
 
 export const metadata: Metadata = {
   title: "آدرس ارسال سفارش",
@@ -19,10 +21,10 @@ async function CheckoutPage() {
   const user = await getUserById(userId);
 
   return (
-    <>
+    <section className="wrapper">
       <CheckoutSteps current={1} />
-      <AddressForm user={user} />
-    </>
+      <ShippingAddressForm address={user.address as ShippingAddress} />
+    </section>
   );
 }
 
