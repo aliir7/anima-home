@@ -24,14 +24,11 @@ export const shippingAddressSchema = z.object({
 // ==========================================
 // Schema for payment method (روش پرداخت)
 // ==========================================
-export const paymentMethodSchema = z
-  .object({
-    type: z.string().min(1, "انتخاب روش پرداخت الزامی است"),
-  })
-  .refine((data) => PAYMENT_METHODS.includes(data.type), {
-    path: ["type"],
+export const paymentMethodSchema = z.object({
+  type: z.enum(PAYMENT_METHODS, {
     message: "روش پرداخت انتخاب شده معتبر نیست",
-  });
+  }),
+});
 
 // ==========================================
 // Schema for inserting order (ثبت سفارش)

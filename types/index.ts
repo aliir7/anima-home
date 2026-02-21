@@ -1,4 +1,5 @@
 import { productCategories, products, productVariants } from "@/db/schema";
+import { PAYMENT_METHOD } from "@/lib/constants";
 import {
   cartItemSchema,
   insertCartSchema,
@@ -144,4 +145,7 @@ export type ShopItem = {
 // ORDER TYPES
 export type CreateOrderValues = z.infer<typeof insertOrderSchema>;
 // PAYMENT TYPES
-export type PaymentMethod = z.infer<typeof paymentMethodSchema>;
+export type PaymentMethod =
+  (typeof PAYMENT_METHOD)[keyof typeof PAYMENT_METHOD];
+
+export type PaymentMethodFormValues = z.infer<typeof paymentMethodSchema>;

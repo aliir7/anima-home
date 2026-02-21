@@ -14,19 +14,23 @@ import { Textarea } from "@/components/ui/textarea";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { DEFAULT_PAYMENT_METHOD, PAYMENT_METHODS } from "@/lib/constants";
+import {
+  DEFAULT_PAYMENT_METHOD,
+  PAYMENT_METHOD_LABEL,
+  PAYMENT_METHODS,
+} from "@/lib/constants";
 import { paymentMethodSchema } from "@/lib/validations/orderValidations";
 import { Button } from "@/components/ui/button";
 import { RadioGroupItem, RadioGroup } from "@/components/ui/radio-group";
 import { Spinner } from "@/components/ui/spinner";
 import { useTransition } from "react";
-import { PaymentMethod } from "@/types";
+import { PaymentMethod, PaymentMethodFormValues } from "@/types";
 import { ArrowLeft } from "lucide-react";
 import { updateUserPaymentMethod } from "@/lib/actions/user.actions";
 import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
 
 type PaymentMethodFormProps = {
-  preferredPaymentMethod: String | null;
+  preferredPaymentMethod: PaymentMethod | null;
 };
 
 function PaymentMethodForm({ preferredPaymentMethod }: PaymentMethodFormProps) {
@@ -41,9 +45,9 @@ function PaymentMethodForm({ preferredPaymentMethod }: PaymentMethodFormProps) {
   });
 
   // payment method handler
-  const onSubmit = async (values: PaymentMethod) => {
+  const onSubmit = async (values: PaymentMethodFormValues) => {
     startTransition(async () => {
-      const res = await updateUserPaymentMethod(values);
+      const res = await updateUserPaymentMethod(values.type);
 
       if (!res.success) {
         showErrorToast(res.message!, "top-right");
@@ -87,9 +91,7 @@ function PaymentMethodForm({ preferredPaymentMethod }: PaymentMethodFormProps) {
                           />
                         </FormControl>
                         <FormLabel className="cursor-pointer font-normal">
-                          {method === "پرداخت آنلاین"
-                            ? "پرداخت آنلاین (درگاه بانکی)"
-                            : "کارت به کارت"}
+                          {PAYMENT_METHOD_LABEL[method]}
                         </FormLabel>
                       </FormItem>
                     ))}

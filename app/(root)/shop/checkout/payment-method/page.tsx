@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import CheckoutSteps from "@/components/shared/Shop/Checkout/CheckoutSteps";
 import PaymentMethodForm from "@/components/shared/Shop/Checkout/PaymentMethodForm";
+import { PaymentMethod } from "@/types";
 
 export const metadata: Metadata = {
   title: "روش پرداخت",
@@ -22,7 +23,9 @@ async function PaymentMethodPage() {
   return (
     <section className="wrapper">
       <CheckoutSteps current={2} />
-      <PaymentMethodForm preferredPaymentMethod={user.paymentMethod!} />
+      <PaymentMethodForm
+        preferredPaymentMethod={user.paymentMethod as PaymentMethod}
+      />
     </section>
   );
 }

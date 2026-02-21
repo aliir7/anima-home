@@ -1,3 +1,4 @@
+import { PaymentMethod } from "@/types";
 import {
   User,
   Package,
@@ -126,12 +127,19 @@ export const adminRoutes = [
 ];
 
 // PAYMENT METHODS
-export const PAYMENT_METHODS = process.env.PAYMENT_METHODS
-  ? process.env.PAYMENT_METHODS.split("، ")
-  : ["پرداخت آنلاین", "پرداخت از طریق کارت به کارت"];
+export const PAYMENT_METHOD = {
+  ONLINE: "ONLINE",
+  CARD: "CARD",
+} as const;
 
-export const DEFAULT_PAYMENT_METHOD =
-  process.env.DEFAULT_PAYMENT_METHOD || "پرداخت آنلاین";
+export const PAYMENT_METHOD_LABEL: Record<PaymentMethod, string> = {
+  ONLINE: "پرداخت آنلاین (درگاه بانکی)",
+  CARD: "پرداخت از طریق کارت به کارت",
+};
+
+export const PAYMENT_METHODS = Object.values(PAYMENT_METHOD);
+
+export const DEFAULT_PAYMENT_METHOD: PaymentMethod = PAYMENT_METHOD.ONLINE;
 
 export const ZIBAL_MERCHANT = process.env.ZIBAL_MERCHANT || "zibal";
 
