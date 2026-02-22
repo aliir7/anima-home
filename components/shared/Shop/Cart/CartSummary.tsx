@@ -46,7 +46,7 @@ function CartSummary({ cart }: CartSummaryProps) {
         </div>
 
         <Button className="w-full rounded-full" asChild size="lg">
-          <Link href="/shop/checkout">ادامه فرآیند خرید</Link>
+          <Link href="/shop/checkout/shipping-address">ادامه فرآیند خرید</Link>
         </Button>
 
         <p className="text-muted-foreground text-xs leading-relaxed">

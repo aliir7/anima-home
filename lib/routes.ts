@@ -7,12 +7,14 @@ export const publicRoutes = [
   "/projects",
   "/shop",
   "/shop/products",
+  "/shop/order/result",
   "/tools",
   "/materials",
   "/privacy",
   "/terms",
   "/my-account",
   "/my-account/orders",
+  "/my-account/orders/order",
   "/sitemap.xml",
 ];
 

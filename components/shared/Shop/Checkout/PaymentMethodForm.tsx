@@ -8,9 +8,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -36,6 +33,7 @@ type PaymentMethodFormProps = {
 function PaymentMethodForm({ preferredPaymentMethod }: PaymentMethodFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+
   const form = useForm({
     resolver: zodResolver(paymentMethodSchema),
     mode: "onChange",
@@ -47,13 +45,15 @@ function PaymentMethodForm({ preferredPaymentMethod }: PaymentMethodFormProps) {
   // payment method handler
   const onSubmit = async (values: PaymentMethodFormValues) => {
     startTransition(async () => {
-      const res = await updateUserPaymentMethod(values.type);
+      // ✅ اصلاح اول: کل values که یک آبجکت هست رو می‌فرستیم، نه فقط values.type رو
+      const res = await updateUserPaymentMethod(values);
 
       if (!res.success) {
-        showErrorToast(res.message!, "top-right");
+        showErrorToast(res.message || "خطایی رخ داد", "top-right");
+        return; // ✅ اصلاح دوم: حتماً باید return کنیم تا کدهای پایین‌تر اجرا نشن
       }
 
-      showSuccessToast(res.message!, "top-right");
+      showSuccessToast(res.message || "روش پرداخت ثبت شد", "bottom-right");
       router.push("/shop/checkout/place-order");
     });
   };
@@ -90,7 +90,10 @@ function PaymentMethodForm({ preferredPaymentMethod }: PaymentMethodFormProps) {
                             checked={field.value === method}
                           />
                         </FormControl>
-                        <FormLabel className="cursor-pointer font-normal">
+                        {/* 
+                            نکته: در Tailwind وقتی dir سایت rtl هست، ml-0 و gap خودش فاصله رو درست می‌کنه 
+                        */}
+                        <FormLabel className="mt-0 cursor-pointer font-normal">
                           {PAYMENT_METHOD_LABEL[method]}
                         </FormLabel>
                       </FormItem>
@@ -104,11 +107,11 @@ function PaymentMethodForm({ preferredPaymentMethod }: PaymentMethodFormProps) {
 
           <Button type="submit" className="w-full" disabled={isPending}>
             {isPending ? (
-              <Spinner className="h-4 w-4" />
+              <Spinner className="ml-2 h-4 w-4" />
             ) : (
-              <ArrowLeft className="h-4 w-4" />
+              <ArrowLeft className="ml-2 h-4 w-4" />
             )}
-            <span className="mr-2">ادامه ثبت سفارش</span>
+            <span>ادامه ثبت سفارش</span>
           </Button>
         </form>
       </Form>

@@ -4,6 +4,7 @@ import {
   ActionResult,
   ContactFormValues,
   PaymentMethod,
+  PaymentMethodFormValues,
   ShippingAddress,
 } from "@/types";
 import { contactFormSchema } from "../validations/usersValidations";
@@ -165,7 +166,7 @@ export async function updateUserAddress(
 // =================================================================
 
 export async function updateUserPaymentMethod(
-  data: PaymentMethod,
+  data: PaymentMethodFormValues,
 ): Promise<ActionResult<string>> {
   try {
     const session = await auth();

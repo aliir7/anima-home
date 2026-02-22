@@ -5,7 +5,6 @@ import { orders } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { PAYMENT_CALLBACK_URL, ZIBAL_MERCHANT } from "../constants";
 import { formatError } from "../utils/formatError";
-import { revalidatePath } from "next/cache";
 import { updateOrderToPaid } from "./order.actions";
 
 export async function createPayment(orderId: string) {
@@ -20,7 +19,7 @@ export async function createPayment(orderId: string) {
 
     // convert price to rial
     const amountInRial = Number(order.totalPrice) * 10;
-    const callbackUrl = `${PAYMENT_CALLBACK_URL}/verify-payment?orderId=${orderId}`;
+    const callbackUrl = `${PAYMENT_CALLBACK_URL}/shop/order/result?orderId=${orderId}`;
 
     // POST REQUEST TO API
     const response = await fetch("https://gateway.zibal.ir/v1/request", {
@@ -29,7 +28,10 @@ export async function createPayment(orderId: string) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        merchant: ZIBAL_MERCHANT,
+        merchant:
+          process.env.NODE_ENV === "development"
+            ? "zibal"
+            : process.env.ZIBAL_MERCHANT,
         amount: amountInRial,
         callbackUrl: callbackUrl,
         description: `پرداخت سفارش شماره ${orderId}`,
@@ -73,7 +75,10 @@ export async function verifyPayment(trackId: string, orderId: string) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        merchant: ZIBAL_MERCHANT,
+        merchant:
+          process.env.NODE_ENV === "development"
+            ? "zibal"
+            : process.env.ZIBAL_MERCHANT,
         trackId: trackId,
       }),
     });
@@ -82,7 +87,7 @@ export async function verifyPayment(trackId: string, orderId: string) {
     // کد 100: پرداخت الان موفق بود
     // کد 201: پرداخت قبلاً تایید شده است (جلوگیری از دوبار تایید شدن)
 
-    if (data.result === 100 || data.result === 201) {
+    if (data.result === 100) {
       // فراخوانی اکشن آپدیت وضعیت سفارش به "پرداخت شده"
       await updateOrderToPaid({
         orderId,
@@ -98,10 +103,11 @@ export async function verifyPayment(trackId: string, orderId: string) {
           orderId: orderId,
         },
       });
-
-      revalidatePath(`/my-account/orders/${orderId}`);
-
       return { success: true, message: "پرداخت با موفقیت انجام و تایید شد." };
+    }
+    if (data.result === 201) {
+      // اینجا دیگر نباید updateOrderToPaid را صدا بزنید چون قبلا یکبار اجرا شده
+      return { success: true, message: "این پرداخت قبلاً تایید شده است." };
     } else {
       // پرداخت ناموفق بود
       return {
@@ -110,6 +116,7 @@ export async function verifyPayment(trackId: string, orderId: string) {
       };
     }
   } catch (err) {
-    return { success: false, message: formatError(err) };
+    console.error("Verify Payment Error:", err);
+    return { success: false, message: "خطا در ارتباط با سرور زیبال" };
   }
 }

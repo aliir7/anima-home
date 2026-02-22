@@ -12,7 +12,7 @@ export const revalidate = 0;
 
 async function UserOrdersPage() {
   const session = await auth();
-  if (!session) {
+  if (!session?.user) {
     redirect("/");
   }
   return (

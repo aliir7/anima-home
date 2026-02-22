@@ -73,12 +73,12 @@ async function PlaceOrderPage() {
               <h3 className="text-lg font-semibold">روش پرداخت</h3>
 
               <p>
-                {user.paymentMethod === "پرداخت آنلاین"
+                {user.paymentMethod === "ONLINE"
                   ? "پرداخت آنلاین (درگاه بانکی)"
                   : "کارت به کارت"}
               </p>
 
-              <Link href="/payment-method">
+              <Link href="shop/checkout/payment-method">
                 <Button variant="outline" size="sm">
                   تغییر روش پرداخت
                 </Button>

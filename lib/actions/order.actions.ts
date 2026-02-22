@@ -57,7 +57,7 @@ export async function createOrder(): Promise<ActionResult<string>> {
           type: "custom",
           message: "لطفا آدرس خود را تکمیل کنید",
         },
-        redirectTo: "/shipping-address",
+        redirectTo: "/shop/checkout/shipping-address",
       };
     }
 
@@ -73,14 +73,14 @@ export async function createOrder(): Promise<ActionResult<string>> {
           type: "zod",
           issues: addressValidationResult.error.issues,
         },
-        redirectTo: "/shipping-address",
+        redirectTo: "/shop/checkout/shipping-address",
       };
     }
 
     const orderData = insertOrderSchema.parse({
       userId: userId, // اصلاح شد
       shippingAddress: user.address,
-      paymentMethod: user.paymentMethod || "درگاه پرداخت", // اصلاح شد
+      paymentMethod: user.paymentMethod || PAYMENT_METHOD.ONLINE,
       itemsPrice: cart.itemsPrice,
       taxPrice: cart.taxPrice,
       totalPrice: cart.totalPrice,
@@ -125,7 +125,7 @@ export async function createOrder(): Promise<ActionResult<string>> {
     return {
       success: true,
       message: "سفارش با موفقیت ایجاد شد",
-      redirectTo: `/order/${insertedOrderId}`,
+      redirectTo: `/my-account/orders/order/${insertedOrderId}`,
     };
   } catch (err) {
     return {
@@ -149,11 +149,10 @@ export async function createOrderAndHandlePayment(): Promise<
     // ۱. ساخت سفارش
     const orderRes = await createOrder();
 
-    // مدیریت خطای ساخت سفارش با توجه به تایپ جدید
     if (!orderRes.success || !orderRes.redirectTo) {
       return {
         success: false,
-        // در صورتی که orderRes خودش ارور استاندارد داشت همان را برمی‌گردانیم، در غیر این صورت دستی می‌سازیم
+        message: orderRes.message || "خطا در ایجاد سفارش اولیه", // ✅ اضافه شد
         error:
           "error" in orderRes && orderRes.error
             ? orderRes.error
@@ -171,6 +170,7 @@ export async function createOrderAndHandlePayment(): Promise<
     if (!orderId) {
       return {
         success: false,
+        message: "شناسه سفارش در خروجی یافت نشد", // ✅ اضافه شد
         error: { type: "custom", message: "شناسه سفارش یافت نشد" },
       };
     }
@@ -180,6 +180,7 @@ export async function createOrderAndHandlePayment(): Promise<
     if (!session?.user?.id) {
       return {
         success: false,
+        message: "کاربر یافت نشد. لطفا وارد شوید.", // ✅ اضافه شد
         error: { type: "custom", message: "کاربر یافت نشد. لطفا وارد شوید." },
       };
     }
@@ -192,10 +193,10 @@ export async function createOrderAndHandlePayment(): Promise<
     if (user.paymentMethod === PAYMENT_METHOD.ONLINE) {
       const paymentRes = await createPayment(orderId);
 
-      // مدیریت خطای درگاه پرداخت با تایپ جدید
       if (!paymentRes.success || !paymentRes.url) {
         return {
           success: false,
+          message: paymentRes.message || "خطا در اتصال به درگاه بانکی", // ✅ اضافه شد
           error: {
             type: "custom",
             message: paymentRes.message || "خطا در اتصال به درگاه بانکی",
@@ -207,7 +208,7 @@ export async function createOrderAndHandlePayment(): Promise<
       return {
         success: true,
         message: "در حال انتقال به درگاه پرداخت...",
-        redirectTo: paymentRes.url, // آدرسی که از زیبال گرفته شده (url)
+        redirectTo: paymentRes.url,
       };
     }
 
@@ -220,18 +221,19 @@ export async function createOrderAndHandlePayment(): Promise<
       };
     }
 
-    // 🔴 حالت خطای غیرمنتظره (روش پرداخت نامشخص)
+    // 🔴 حالت خطای غیرمنتظره
     return {
       success: false,
+      message: `روش پرداخت نامعتبر است: ${user.paymentMethod}`, // ✅ اضافه شد
       error: {
         type: "custom",
         message: `روش پرداخت نامعتبر است: ${user.paymentMethod}`,
       },
     };
   } catch (err) {
-    // گرفتن خطاهای catch شده و تبدیل به فرمت استاندارد ActionError
     return {
       success: false,
+      message: formatError(err), // ✅ اضافه شد
       error: { type: "custom", message: formatError(err) },
     };
   }
@@ -244,6 +246,7 @@ export async function getOrderById(orderId: string) {
     where: eq(orders.id, orderId),
     with: {
       items: true,
+
       user: {
         columns: { name: true, email: true },
       },

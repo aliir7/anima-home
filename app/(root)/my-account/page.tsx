@@ -15,7 +15,7 @@ export const revalidate = 0;
 
 async function MyAccountPage() {
   const session = await auth();
-  if (!session) {
+  if (!session?.user) {
     redirect("/");
   }
   return (

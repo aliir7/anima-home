@@ -11,18 +11,25 @@ import { useTransition } from "react";
 function PlaceOrderForm() {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
-  const handleSubmit = () => {
+
+  const handleSubmit = async () => {
     startTransition(async () => {
       const res = await createOrderAndHandlePayment();
+
       if (!res?.success) {
-        showErrorToast(res?.message!, "top-right");
+        // ✅ اینجا یک پیام پیش‌فرض قرار می‌دهیم تا اگر سرور message نداد، توست خالی نشود
+        showErrorToast(
+          res?.message || "خطایی در ثبت سفارش رخ داد!",
+          "top-right",
+        );
         return;
       }
 
       if (res?.success) {
-        showSuccessToast(res.message!, "top-right");
-        const redirect = res.redirectTo;
-        router.push(redirect!);
+        showSuccessToast(res.message || "در حال انتقال...", "top-right");
+        if (res.redirectTo) {
+          router.push(res.redirectTo);
+        }
       }
     });
   };
@@ -30,11 +37,11 @@ function PlaceOrderForm() {
   return (
     <Button onClick={handleSubmit} disabled={isPending} className="w-full">
       {isPending ? (
-        <Spinner className="h-4 w-4" />
+        <Spinner className="ml-2 h-4 w-4" /> // ml-2 برای فاصله با متن
       ) : (
-        <Check className="h-4 w-4" />
+        <Check className="ml-2 h-4 w-4" />
       )}
-      <span className="mr-2">ثبت نهایی سفارش</span>
+      <span>ثبت نهایی سفارش</span>
     </Button>
   );
 }

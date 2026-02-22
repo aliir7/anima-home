@@ -14,11 +14,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { updateUserAddress } from "@/lib/actions/user.actions";
 import { shippingAddressDefaultValues } from "@/lib/constants";
-import { showErrorToast } from "@/lib/utils/showToastMessage";
+import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
 import { shippingAddressSchema } from "@/lib/validations/orderValidations";
 import { ShippingAddress } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { useTransition } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 
 type ShippingAddressFormProps = {
@@ -26,38 +27,61 @@ type ShippingAddressFormProps = {
 };
 
 function ShippingAddressForm({ address }: ShippingAddressFormProps) {
+  const [isPending, startTransition] = useTransition();
   const router = useRouter();
+
   const form = useForm<ShippingAddress>({
     resolver: zodResolver(shippingAddressSchema),
     defaultValues: address || shippingAddressDefaultValues,
     mode: "onTouched",
   });
-  // submit address handler
-  const onSubmit: SubmitHandler<ShippingAddress> = async (values) => {
-    const res = await updateUserAddress(values);
 
-    if (!res.success) {
-      showErrorToast(res.message!, "top-right");
-      return;
-    }
-    router.push("/shop/checkout/");
+  const onSubmit: SubmitHandler<ShippingAddress> = async (values) => {
+    startTransition(async () => {
+      try {
+        const res = await updateUserAddress(values);
+
+        if (!res.success) {
+          showErrorToast(res.message || "خطایی رخ داد", "top-right");
+          return;
+        }
+
+        showSuccessToast(
+          res.message || "آدرس با موفقیت ثبت شد",
+          "bottom-right",
+        );
+        router.push("/shop/checkout/payment-method");
+      } catch (error) {
+        showErrorToast("خطای ارتباط با سرور", "top-right");
+      }
+    });
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="mx-auto max-w-md">
+      {/* 
+        در صورت بروز خطا در اعتبارسنجی Zod، لاگ آن در کنسول چاپ می‌شود
+      */}
+      <form
+        onSubmit={form.handleSubmit(onSubmit, (err) =>
+          console.log("Zod Error: ", err),
+        )}
+        className="mx-auto max-w-md"
+      >
         <Card>
           <CardContent className="space-y-4 p-4">
-            <h2 className="text-sm font-semibold">اطلاعات گیرنده</h2>
+            <h2 className="mb-4 text-sm font-semibold">
+              اطلاعات گیرنده و آدرس ارسال
+            </h2>
 
             <FormField
               control={form.control}
               name="fullName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>نام و نام خانوادگی</FormLabel>
+                  <FormLabel>نام و نام خانوادگی گیرنده</FormLabel>
                   <FormControl>
-                    <Input placeholder="نام و نام خانوادگی" {...field} />
+                    <Input placeholder="مثال: علی رضایی" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -69,37 +93,68 @@ function ShippingAddressForm({ address }: ShippingAddressFormProps) {
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>شماره موبایل</FormLabel>
+                  <FormLabel>شماره موبایل گیرنده</FormLabel>
                   <FormControl>
-                    <Input placeholder="شماره موبایل" {...field} />
+                    {/* dir="ltr" برای تایپ راحت و text-right برای تراز شدن با راست قرار داده شده */}
+                    <Input
+                      className="text-right"
+                      dir="ltr"
+                      placeholder="09123456789"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="postalCode"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>کد پستی</FormLabel>
-                  <FormControl>
-                    <Input placeholder="کد پستی" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="city"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>شهر</FormLabel>
+                    <FormControl>
+                      <Input placeholder="مثال: تهران" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="postalCode"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>کد پستی</FormLabel>
+                    <FormControl>
+                      <Input
+                        className="text-right"
+                        dir="ltr"
+                        placeholder="1234567890"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <FormField
               control={form.control}
-              name="city"
+              name="streetAddress" // نام دقیق در اسکیمای شما
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>آدرس کامل</FormLabel>
+                  <FormLabel>آدرس دقیق پستی</FormLabel>
                   <FormControl>
-                    <Textarea rows={4} placeholder="آدرس کامل" {...field} />
+                    <Textarea
+                      rows={3}
+                      placeholder="خیابان اصلی، خیابان فرعی، کوچه، پلاک، واحد"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -107,12 +162,12 @@ function ShippingAddressForm({ address }: ShippingAddressFormProps) {
             />
 
             <Button
-              className="w-full cursor-pointer rounded-full disabled:cursor-none"
+              className="mt-6 w-full"
               size="lg"
               type="submit"
-              disabled={form.formState.isSubmitting}
+              disabled={isPending}
             >
-              {form.formState.isSubmitting ? "در حال ثبت آدرس" : "ادامه"}
+              {isPending ? "در حال ثبت..." : "ادامه و انتخاب روش پرداخت"}
             </Button>
           </CardContent>
         </Card>
