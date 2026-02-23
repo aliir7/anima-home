@@ -21,8 +21,8 @@ function CheckoutSteps({ current }: CheckoutStepsProps) {
               className={cn(
                 "flex h-8 w-8 items-center justify-center rounded-full border text-sm font-medium",
                 step.id <= current
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "bg-muted text-muted-foreground",
+                  ? "bg-primary text-primary-foreground border-primary dark:border-primaryDark dark:bg-muted dark:text-muted-foreground"
+                  : "bg-muted text-muted-foreground dark:bg-primary dark:text-primary-foreground",
               )}
             >
               {step.id}
@@ -33,15 +33,17 @@ function CheckoutSteps({ current }: CheckoutStepsProps) {
               className={cn(
                 "text-sm",
                 step.id <= current
-                  ? "text-foreground font-medium"
-                  : "text-muted-foreground",
+                  ? "text-foreground font-medium dark:text-neutral-600"
+                  : "text-muted-foreground dark:text-neutral-600",
               )}
             >
               {step.title}
             </span>
 
             {/* Divider */}
-            {index < steps.length - 1 && <div className="bg-border h-px w-8" />}
+            {index < steps.length - 1 && (
+              <div className="bg-border dark:bg-muted-foreground h-px w-8" />
+            )}
           </div>
         ))}
       </div>

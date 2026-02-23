@@ -25,6 +25,7 @@ import { PaymentMethod, PaymentMethodFormValues } from "@/types";
 import { ArrowLeft } from "lucide-react";
 import { updateUserPaymentMethod } from "@/lib/actions/user.actions";
 import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
+import { Card, CardContent } from "@/components/ui/card";
 
 type PaymentMethodFormProps = {
   preferredPaymentMethod: PaymentMethod | null;
@@ -59,63 +60,72 @@ function PaymentMethodForm({ preferredPaymentMethod }: PaymentMethodFormProps) {
   };
 
   return (
-    <div className="mx-auto max-w-md space-y-4">
-      <div className="space-y-1">
-        <h2 className="text-xl font-semibold">روش پرداخت</h2>
-        <p className="text-muted-foreground text-sm">
-          لطفاً روش پرداخت سفارش خود را انتخاب کنید
-        </p>
-      </div>
+    <Card className="mx-auto max-w-lg rounded-2xl">
+      <CardContent>
+        <div className="mx-auto max-w-md space-y-4">
+          <div className="space-y-2">
+            <h2 className="text-xl font-semibold">روش پرداخت</h2>
+            <p className="text-muted-foreground text-sm">
+              لطفاً روش پرداخت سفارش خود را انتخاب کنید
+            </p>
+          </div>
 
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="type"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <RadioGroup
-                    onValueChange={field.onChange}
-                    className="space-y-3"
-                  >
-                    {PAYMENT_METHODS.map((method) => (
-                      <FormItem
-                        key={method}
-                        className="hover:bg-muted/50 flex items-center gap-3 rounded-lg border p-3 transition"
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="type"
+                render={({ field }) => (
+                  <FormItem dir="rtl">
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        className="space-y-3"
+                        dir="rtl"
                       >
-                        <FormControl>
-                          <RadioGroupItem
-                            value={method}
-                            checked={field.value === method}
-                          />
-                        </FormControl>
-                        {/* 
+                        {PAYMENT_METHODS.map((method) => (
+                          <FormItem
+                            key={method}
+                            className="hover:bg-muted/50 outline-light dark:outline-dark flex items-center gap-3 rounded-full border p-3 transition"
+                          >
+                            <FormControl>
+                              <RadioGroupItem
+                                value={method}
+                                checked={field.value === method}
+                              />
+                            </FormControl>
+                            {/* 
                             نکته: در Tailwind وقتی dir سایت rtl هست، ml-0 و gap خودش فاصله رو درست می‌کنه 
-                        */}
-                        <FormLabel className="mt-0 cursor-pointer font-normal">
-                          {PAYMENT_METHOD_LABEL[method]}
-                        </FormLabel>
-                      </FormItem>
-                    ))}
-                  </RadioGroup>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                            */}
+                            <FormLabel className="mt-0 cursor-pointer font-normal">
+                              {PAYMENT_METHOD_LABEL[method]}
+                            </FormLabel>
+                          </FormItem>
+                        ))}
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          <Button type="submit" className="w-full" disabled={isPending}>
-            {isPending ? (
-              <Spinner className="ml-2 h-4 w-4" />
-            ) : (
-              <ArrowLeft className="ml-2 h-4 w-4" />
-            )}
-            <span>ادامه ثبت سفارش</span>
-          </Button>
-        </form>
-      </Form>
-    </div>
+              <Button
+                type="submit"
+                className="mt-8 mb-4 w-full cursor-pointer rounded-full px-6 py-3 disabled:cursor-none"
+                disabled={isPending}
+              >
+                <span>ادامه ثبت سفارش</span>
+                {isPending ? (
+                  <Spinner className="h-4 w-4" />
+                ) : (
+                  <ArrowLeft className="h-4 w-4" />
+                )}
+              </Button>
+            </form>
+          </Form>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 

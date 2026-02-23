@@ -35,11 +35,15 @@ function PlaceOrderForm() {
   };
 
   return (
-    <Button onClick={handleSubmit} disabled={isPending} className="w-full">
+    <Button
+      onClick={handleSubmit}
+      disabled={isPending}
+      className="w-full cursor-pointer rounded-full px-4 py-2 transition-all disabled:cursor-none"
+    >
       {isPending ? (
-        <Spinner className="ml-2 h-4 w-4" /> // ml-2 برای فاصله با متن
+        <Spinner className="ml-1 h-4 w-4" /> // ml-2 برای فاصله با متن
       ) : (
-        <Check className="ml-2 h-4 w-4" />
+        <Check className="ml-1 h-4 w-4" />
       )}
       <span>ثبت نهایی سفارش</span>
     </Button>

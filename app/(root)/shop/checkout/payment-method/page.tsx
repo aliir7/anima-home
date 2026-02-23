@@ -21,7 +21,7 @@ async function PaymentMethodPage() {
   const user = await getUserById(userId);
 
   return (
-    <section className="wrapper">
+    <section className="wrapper px-6 py-12">
       <CheckoutSteps current={2} />
       <PaymentMethodForm
         preferredPaymentMethod={user.paymentMethod as PaymentMethod}

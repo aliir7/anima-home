@@ -18,6 +18,7 @@ import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
 import { shippingAddressSchema } from "@/lib/validations/orderValidations";
 import { ShippingAddress } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -62,14 +63,9 @@ function ShippingAddressForm({ address }: ShippingAddressFormProps) {
       {/* 
         در صورت بروز خطا در اعتبارسنجی Zod، لاگ آن در کنسول چاپ می‌شود
       */}
-      <form
-        onSubmit={form.handleSubmit(onSubmit, (err) =>
-          console.log("Zod Error: ", err),
-        )}
-        className="mx-auto max-w-md"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="mx-auto max-w-md">
         <Card>
-          <CardContent className="space-y-4 p-4">
+          <CardContent className="space-y-5 p-4">
             <h2 className="mb-4 text-sm font-semibold">
               اطلاعات گیرنده و آدرس ارسال
             </h2>
@@ -79,9 +75,13 @@ function ShippingAddressForm({ address }: ShippingAddressFormProps) {
               name="fullName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>نام و نام خانوادگی گیرنده</FormLabel>
+                  <FormLabel>نام و نام خانوادگی</FormLabel>
                   <FormControl>
-                    <Input placeholder="مثال: علی رضایی" {...field} />
+                    <Input
+                      placeholder="مثال: علی رضایی"
+                      {...field}
+                      className="outline-light dark:outline-dark rounded-full placeholder:md:text-sm"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -93,11 +93,11 @@ function ShippingAddressForm({ address }: ShippingAddressFormProps) {
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>شماره موبایل گیرنده</FormLabel>
+                  <FormLabel>شماره موبایل</FormLabel>
                   <FormControl>
                     {/* dir="ltr" برای تایپ راحت و text-right برای تراز شدن با راست قرار داده شده */}
                     <Input
-                      className="text-right"
+                      className="outline-light dark:outline-dark rounded-full text-right placeholder:md:text-sm"
                       dir="ltr"
                       placeholder="09123456789"
                       {...field}
@@ -116,7 +116,11 @@ function ShippingAddressForm({ address }: ShippingAddressFormProps) {
                   <FormItem>
                     <FormLabel>شهر</FormLabel>
                     <FormControl>
-                      <Input placeholder="مثال: تهران" {...field} />
+                      <Input
+                        placeholder="مثال: تهران"
+                        {...field}
+                        className="outline-light dark:outline-dark rounded-full text-right placeholder:md:text-sm"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -131,7 +135,7 @@ function ShippingAddressForm({ address }: ShippingAddressFormProps) {
                     <FormLabel>کد پستی</FormLabel>
                     <FormControl>
                       <Input
-                        className="text-right"
+                        className="outline-light dark:outline-dark rounded-full text-right placeholder:md:text-sm"
                         dir="ltr"
                         placeholder="1234567890"
                         {...field}
@@ -154,6 +158,7 @@ function ShippingAddressForm({ address }: ShippingAddressFormProps) {
                       rows={3}
                       placeholder="خیابان اصلی، خیابان فرعی، کوچه، پلاک، واحد"
                       {...field}
+                      className="outline-light dark:outline-dark text-right placeholder:md:text-sm"
                     />
                   </FormControl>
                   <FormMessage />
@@ -162,12 +167,13 @@ function ShippingAddressForm({ address }: ShippingAddressFormProps) {
             />
 
             <Button
-              className="mt-6 w-full"
+              className="mt-6 w-full cursor-pointer rounded-full disabled:cursor-none"
               size="lg"
               type="submit"
               disabled={isPending}
             >
               {isPending ? "در حال ثبت..." : "ادامه و انتخاب روش پرداخت"}
+              <ArrowLeft />
             </Button>
           </CardContent>
         </Card>

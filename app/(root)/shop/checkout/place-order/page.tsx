@@ -2,6 +2,7 @@ import CheckoutSteps from "@/components/shared/Shop/Checkout/CheckoutSteps";
 import PlaceOrderForm from "@/components/shared/Shop/Checkout/PlaceOrderForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import {
   Table,
   TableBody,
@@ -40,27 +41,43 @@ async function PlaceOrderPage() {
   const userAddress = user.address as ShippingAddress;
 
   return (
-    <section className="wrapper">
+    <section className="wrapper px-6 py-12">
       <CheckoutSteps current={3} />
 
-      <h2 className="py-4 text-2xl font-semibold">بررسی نهایی و ثبت سفارش</h2>
+      <h2 className="text-primary py-4 text-2xl font-semibold dark:text-neutral-950">
+        بررسی نهایی و ثبت سفارش
+      </h2>
 
       <div className="grid md:grid-cols-3 md:gap-5">
         {/* LEFT */}
-        <div className="space-y-4 md:col-span-2">
+        <div className="space-y-5 md:col-span-2">
           {/* Address */}
           <Card>
-            <CardContent className="space-y-2 p-4">
+            <CardContent className="space-y-2 px-6 py-4">
               <h3 className="text-lg font-semibold">آدرس ارسال</h3>
+              <Separator className="bg-primary/50 dark:bg-neutral-500" />
 
-              <p>{userAddress.fullName}</p>
-              <p className="text-muted-foreground text-sm">
-                {userAddress.streetAddress}، {userAddress.city}،{" "}
-                {userAddress.postalCode}
-              </p>
+              <div className="flex flex-col gap-2 pr-2">
+                <p className="mt-2 mb-1">
+                  <span className="ml-1">نام و نام خانوادگی:</span>
+                  {userAddress.fullName}
+                </p>
+                <p className="text-muted-foreground mb-1 text-sm">
+                  <span className="ml-1">آدرس:</span>
+                  {userAddress.city}، {userAddress.streetAddress}
+                </p>
+                <p className="text-muted-foreground mb-3 text-sm">
+                  <span className="ml-1">کدپستی:</span>
+                  {userAddress.postalCode}
+                </p>
+              </div>
 
               <Link href="/shop/checkout/shipping-address">
-                <Button variant="outline" size="sm">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="cursor-pointer rounded-full px-4 py-2 dark:border-neutral-600"
+                >
                   ویرایش آدرس
                 </Button>
               </Link>
@@ -69,29 +86,34 @@ async function PlaceOrderPage() {
 
           {/* Payment */}
           <Card>
-            <CardContent className="space-y-2 p-4">
+            <CardContent className="space-y-2 px-6 py-4">
               <h3 className="text-lg font-semibold">روش پرداخت</h3>
-
-              <p>
-                {user.paymentMethod === "ONLINE"
-                  ? "پرداخت آنلاین (درگاه بانکی)"
-                  : "کارت به کارت"}
-              </p>
-
-              <Link href="shop/checkout/payment-method">
-                <Button variant="outline" size="sm">
-                  تغییر روش پرداخت
-                </Button>
-              </Link>
+              <Separator className="bg-primary/50 dark:bg-neutral-500" />
+              <div className="flex flex-col gap-2">
+                <p className="text-muted-foreground mt-2 mb-3 pr-2 text-sm">
+                  {user.paymentMethod === "ONLINE"
+                    ? "پرداخت آنلاین (درگاه بانکی)"
+                    : "کارت به کارت"}
+                </p>
+                <Link href="/shop/checkout/payment-method">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="cursor-pointer rounded-full px-4 py-2 dark:border-neutral-600"
+                  >
+                    تغییر روش پرداخت
+                  </Button>
+                </Link>
+              </div>
             </CardContent>
           </Card>
 
           {/* Items */}
           <Card>
-            <CardContent className="p-4">
-              <h2 className="pb-4 text-lg font-semibold">اقلام سفارش</h2>
-
-              <Table>
+            <CardContent className="space-y-2 px-6 py-4">
+              <h3 className="pb-4 text-lg font-semibold">اقلام سفارش</h3>
+              <Separator className="bg-primary/15 dark:bg-neutral-700" />
+              <Table className="pr-2">
                 <TableHeader>
                   <TableRow>
                     <TableHead>محصول</TableHead>
@@ -111,10 +133,11 @@ async function PlaceOrderPage() {
                           <Image
                             src={item.image}
                             alt={item.name}
-                            width={48}
-                            height={48}
+                            width={50}
+                            height={50}
+                            className="aspect-video"
                           />
-                          <span>{item.name}</span>
+                          <span className="ml-1">{item.name}</span>
                         </Link>
                       </TableCell>
 
@@ -134,25 +157,26 @@ async function PlaceOrderPage() {
         {/* RIGHT – SUMMARY */}
         <div>
           <Card>
-            <CardContent className="space-y-3 p-4">
-              <h2 className="text-lg font-semibold">خلاصه سفارش</h2>
+            <CardContent className="space-y-4 px-6 py-4">
+              <h3 className="text-lg font-semibold">خلاصه سفارش</h3>
+              <Separator className="bg-primary/50 dark:bg-neutral-500" />
 
-              <div className="flex justify-between text-sm">
+              <div className="mt-2 flex justify-between px-2 text-sm">
                 <span>جمع اقلام</span>
                 <span>{formatPrice(cart.itemsPrice)}</span>
               </div>
 
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between px-2 text-sm">
                 <span>مالیات</span>
                 <span>{formatPrice(cart.taxPrice)}</span>
               </div>
 
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between px-2 text-sm">
                 <span>هزینه ارسال</span>
-                <span>تیپاکس (به عهده مشتری)"</span>
+                <span>تیپاکس (به عهده مشتری)</span>
               </div>
 
-              <div className="flex justify-between border-t pt-3 font-semibold">
+              <div className="border-primary/50 mb-8 flex justify-between border-t px-2 pt-5 font-semibold dark:border-neutral-600">
                 <span>مبلغ نهایی</span>
                 <span>{formatPrice(cart.totalPrice)}</span>
               </div>
