@@ -18,20 +18,21 @@ export const revalidate = 3600; // 1hour
 
 // تعریف تایپ برای searchParams برای خوانایی بیشتر
 type ProductsPageProps = {
-  searchParams: {
+  searchParams: Promise<{
     category?: string;
     page?: string;
     sort?: string;
-  };
+  }>;
 };
 
 export default async function ProductsPage({
   searchParams,
 }: ProductsPageProps) {
   // 1. خواندن پارامترها از URL
-  const currentPage = Number(searchParams?.page ?? 1);
-  const categoryId = searchParams?.category;
-  // TODO: پارامتر sort را نیز بعداً می‌توانید اضافه کنید
+  const page = (await searchParams)?.page ?? 1;
+  const currentPage = Number(page);
+
+  const categoryId = (await searchParams).category ?? "";
 
   // 2. واکشی همزمان داده‌های مورد نیاز
   const [categoriesRes, productsRes, totalProductsCount] = await Promise.all([
@@ -48,9 +49,7 @@ export default async function ProductsPage({
   const totalPages = Math.ceil(totalProductsCount / PAGE_SIZE);
 
   // 4. استخراج داده‌ها از نتایج
-  const products: ProductWithRelations[] = productsRes.success
-    ? productsRes.data
-    : [];
+  const products = productsRes.success ? productsRes.data : [];
   const categories = categoriesRes.success ? categoriesRes.data : [];
 
   return (
@@ -66,10 +65,11 @@ export default async function ProductsPage({
         تا UI را رندر کرده و لینک‌های صحیح برای فیلتر و صفحه‌بندی بسازد.
       */}
       <ShopContent
-        items={products}
+        items={products ?? []}
         categories={categories}
         totalPages={totalPages}
         totalItems={totalProductsCount}
+        currentPage={currentPage}
       />
     </section>
   );

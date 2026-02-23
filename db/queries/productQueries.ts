@@ -1,32 +1,60 @@
 import { ActionResult, ProductWithRelations, QueryResult } from "@/types";
 import { db } from "..";
-import { eq, sql } from "drizzle-orm";
-import { products } from "../schema";
+import { asc, desc, eq, sql } from "drizzle-orm";
+import { products, productVariants } from "../schema";
 import { formatError } from "@/lib/utils/formatError";
+import { PAGE_SIZE } from "@/lib/constants";
 
 type GetAllProductsParams = {
   page?: number;
   pageSize?: number;
   categoryId?: string;
+  sort?: string;
 };
 
 export async function getAllProducts({
   page = 1,
-  pageSize = 10,
+  pageSize = PAGE_SIZE,
   categoryId,
+  sort,
 }: GetAllProductsParams): Promise<ActionResult<ProductWithRelations[]>> {
   try {
     const offset = (page - 1) * pageSize;
 
+    // --- ساخت منطق مرتب‌سازی با SQL Subquery ---
+    let orderBySql;
+
+    // این ساب‌کوئری می‌گوید: کمترین قیمت را از جدول واریانت‌ها برای محصول جاری پیدا کن
+    const minPriceSubQuery = sql`(
+      SELECT MIN(${productVariants.price}) 
+      FROM ${productVariants} 
+      WHERE ${productVariants.productId} = ${products.id}
+    )`;
+
+    switch (sort) {
+      case "price-asc":
+        // مرتب‌سازی صعودی بر اساس کمترین قیمت محاسبه شده
+        orderBySql = sql`${minPriceSubQuery} ASC`;
+        break;
+      case "price-desc":
+        // مرتب‌سازی نزولی بر اساس کمترین قیمت محاسبه شده
+        orderBySql = sql`${minPriceSubQuery} DESC`;
+        break;
+      case "oldest":
+        orderBySql = asc(products.createdAt);
+        break;
+      case "latest":
+      default:
+        orderBySql = desc(products.createdAt);
+        break;
+    }
+    // -------------------------------------
+
     const data = await db.query.products.findMany({
-      // شرط داینامیک: اگر categoryId وجود داشت، فیلتر کن
       where: categoryId ? eq(products.categoryId, categoryId) : undefined,
 
-      // بخش کلیدی: واکشی روابط (Relations)
       with: {
-        // تمام واریانت‌های مرتبط با این محصول را بیاور
         variants: true,
-        // دسته‌بندی مرتبط با این محصول و والد آن دسته‌بندی را هم بیاور
         category: {
           with: {
             parent: true,
@@ -34,17 +62,17 @@ export async function getAllProducts({
         },
       },
 
-      orderBy: (product, { desc }) => [desc(product.createdAt)],
+      // اینجا آرایه پاس می‌دهیم
+      orderBy: [orderBySql],
+
       limit: pageSize,
       offset,
     });
 
     const normalizedData: ProductWithRelations[] = data.map((product) => ({
       ...product,
-
       variants: product.variants.map((variant) => ({
         ...variant,
-
         specs: (variant.specs ?? {}) as Record<string, string>,
         images: (variant.images ?? []) as string[],
       })),
@@ -55,7 +83,7 @@ export async function getAllProducts({
     console.error("Error in getAllProducts:", error);
     return {
       success: false,
-      error: { type: "custom", message: formatError(error) }, // از تابع خودمان برای فرمت خطا استفاده می‌کنیم
+      error: { type: "custom", message: formatError(error) },
     };
   }
 }

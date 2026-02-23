@@ -137,10 +137,7 @@ async function PlaceOrderPage() {
                       <TableRow key={item.slug}>
                         <TableCell>
                           {/* اختصاص min-width تا عکس و متن محصول روی هم نیفتند */}
-                          <Link
-                            href={`/shop/product/${item.slug}`}
-                            className="flex min-w-50 items-center gap-3 md:min-w-62.5"
-                          >
+                          <div className="flex min-w-50 items-center gap-3 md:min-w-62.5">
                             <div className="shrink-0">
                               <Image
                                 src={item.image}
@@ -153,7 +150,7 @@ async function PlaceOrderPage() {
                             <span className="line-clamp-2 text-sm md:line-clamp-none md:text-base">
                               {item.name}
                             </span>
-                          </Link>
+                          </div>
                         </TableCell>
 
                         <TableCell className="text-center font-medium">
