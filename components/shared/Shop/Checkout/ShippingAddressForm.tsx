@@ -65,7 +65,7 @@ function ShippingAddressForm({ address }: ShippingAddressFormProps) {
       */}
       <form onSubmit={form.handleSubmit(onSubmit)} className="mx-auto max-w-md">
         <Card>
-          <CardContent className="space-y-5 p-4">
+          <CardContent className="space-y-5 px-6 py-4">
             <h2 className="mb-4 text-sm font-semibold">
               اطلاعات گیرنده و آدرس ارسال
             </h2>

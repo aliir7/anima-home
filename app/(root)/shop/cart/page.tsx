@@ -20,7 +20,9 @@ export default async function CartPage() {
 
   return (
     <div className="wrapper px-4 py-6">
-      <h2 className="mb-6 text-xl font-bold">سبد خرید</h2>
+      <h2 className="text-primary mb-6 text-xl font-bold dark:text-neutral-950">
+        سبد خرید
+      </h2>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
         {/* Cart Items */}

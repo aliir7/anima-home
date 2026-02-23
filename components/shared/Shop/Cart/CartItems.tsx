@@ -41,8 +41,10 @@ function CartItems({ item, cart }: CartItemsProps) {
           </p>
         </div>
 
-        <div className="flex items-center justify-between">
-          {/* Qty */}
+        {/* تغییر مهم اینجاست: */}
+        {/* در موبایل flex-col (زیر هم) و در دسکتاپ flex-row (کنار هم) */}
+        <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          {/* Qty Section */}
           <div className="flex items-center gap-2">
             <Button
               size="icon"
@@ -75,8 +77,9 @@ function CartItems({ item, cart }: CartItemsProps) {
             </Button>
           </div>
 
-          {/* Total */}
-          <div className="flex items-center gap-3">
+          {/* Total & Remove Section */}
+          {/* در موبایل این بخش می‌آید خط پایین */}
+          <div className="flex items-center justify-between gap-3 sm:justify-end">
             <span className="text-sm font-semibold">
               {formatPrice(item.price * item.qty)}
             </span>

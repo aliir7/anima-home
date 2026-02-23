@@ -60,18 +60,23 @@ function PaymentMethodForm({ preferredPaymentMethod }: PaymentMethodFormProps) {
   };
 
   return (
-    <Card className="mx-auto max-w-lg rounded-2xl">
+    <Card className="mx-auto max-w-lg rounded-2xl px-2">
       <CardContent>
         <div className="mx-auto max-w-md space-y-4">
           <div className="space-y-2">
-            <h2 className="text-xl font-semibold">روش پرداخت</h2>
-            <p className="text-muted-foreground text-sm">
+            <h2 className="text-primary my-1 mb-3 text-xl font-semibold dark:text-neutral-950">
+              روش پرداخت
+            </h2>
+            <p className="text-muted-foreground mr-2 text-sm">
               لطفاً روش پرداخت سفارش خود را انتخاب کنید
             </p>
           </div>
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-4 px-2 pt-4 md:pt-2"
+            >
               <FormField
                 control={form.control}
                 name="type"
