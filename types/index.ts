@@ -16,8 +16,10 @@ import {
   updateMaterialSchema,
 } from "@/lib/validations/materialsValidations";
 import {
+  insertOrderItemSchema,
   insertOrderSchema,
   paymentMethodSchema,
+  paymentResultSchema,
   shippingAddressSchema,
 } from "@/lib/validations/orderValidations";
 import {
@@ -121,31 +123,23 @@ export type ContactFormValues = z.infer<typeof contactFormSchema>;
 export type Cart = z.infer<typeof insertCartSchema>;
 export type CartItem = z.infer<typeof cartItemSchema>;
 
-export type ShopItem = {
-  category: {
-    id: string;
-    title: string;
-  };
-  product: {
-    id: string;
-    title: string;
-    rating: number;
-    numReviews: number;
-    createdAt: string;
-  };
-  variant: {
-    id: string;
-    title: string;
-    price: number;
-    images: string[];
-    stock: number;
-  };
-};
-
 // ORDER TYPES
 export type CreateOrderValues = z.infer<typeof insertOrderSchema>;
+export type OrderItem = z.infer<typeof insertOrderItemSchema>;
+export type Order = z.infer<typeof insertOrderSchema> & {
+  id: string;
+  createdAt: Date;
+  isPaid: Boolean;
+  paidAt: Date | null;
+  isDelivered: Boolean;
+  deliveredAt: Date | null;
+  orderitems: OrderItem[];
+  user: { name: string; email: string };
+  paymentResult: PaymentResult;
+};
 // PAYMENT TYPES
 export type PaymentMethod =
   (typeof PAYMENT_METHOD)[keyof typeof PAYMENT_METHOD];
 
 export type PaymentMethodFormValues = z.infer<typeof paymentMethodSchema>;
+export type PaymentResult = z.infer<typeof paymentResultSchema>;

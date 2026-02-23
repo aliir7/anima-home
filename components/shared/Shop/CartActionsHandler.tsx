@@ -1,12 +1,10 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { addItemToCart, removeItemFromCart } from "@/lib/actions/cart.actions";
-import { formatError } from "@/lib/utils/formatError";
-import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
+import { Spinner } from "@/components/ui/spinner";
+import { useCartActions } from "@/hooks/useCartActions";
 import { Cart, CartItem } from "@/types";
-import { Loader, Minus, Plus, ShoppingCart } from "lucide-react";
-import { useTransition } from "react";
+import { Minus, Plus, ShoppingCart } from "lucide-react";
 
 type CartActionsHandlerProps = {
   cart?: Cart;
@@ -14,65 +12,29 @@ type CartActionsHandlerProps = {
 };
 
 function CartActionsHandler({ cart, item }: CartActionsHandlerProps) {
-  const [isPending, startTransition] = useTransition();
-
-  //  Add to cart handler
-  const handleAddToCart = async () => {
-    startTransition(async () => {
-      const res = await addItemToCart(item);
-
-      if (res.success) {
-        showSuccessToast(res.data, "top-left");
-        return;
-      }
-      if (!res.success && res.error.type === "zod") {
-        showErrorToast(formatError(res.error), "top-left");
-        return;
-      }
-      if (!res.success && res.error.type === "custom") {
-        showErrorToast(res.error.message, "top-left");
-      }
-      return;
-    });
-  };
-
-  // Remove from cart handler
-  const handleRemoveFromCart = async () => {
-    startTransition(async () => {
-      const res = await removeItemFromCart(item.productId);
-
-      if (res.success) {
-        showSuccessToast(res.data, "top-left");
-        return;
-      }
-      if (!res.success && res.error.type === "zod") {
-        showErrorToast(formatError(res.error), "top-left");
-        return;
-      }
-      if (!res.success && res.error.type === "custom") {
-        showErrorToast(res.error.message, "top-left");
-      }
-      return;
-    });
-  };
-
+  // use cart actions hook
+  const { removeFromCart, addToCart, isAdding, isRemoving } = useCartActions();
   // Check if item is in cart
   const existItem =
     cart && cart.items.find((p) => p.productId === item.productId);
 
   return existItem ? (
     <div>
-      <Button type="button" variant="outline" onClick={handleRemoveFromCart}>
-        {isPending ? (
-          <Loader className="h-4 w-4 animate-spin" />
+      <Button
+        type="button"
+        variant="outline"
+        onClick={() => removeFromCart(item.productId)}
+      >
+        {isRemoving ? (
+          <Spinner className="h-4 w-4" />
         ) : (
           <Minus className="h-4 w-4" />
         )}
       </Button>
       <span className="px-2">{existItem.qty}</span>
-      <Button type="button" variant="outline" onClick={handleAddToCart}>
-        {isPending ? (
-          <Loader className="h-4 w-4 animate-spin" />
+      <Button type="button" variant="outline" onClick={() => addToCart(item)}>
+        {isAdding ? (
+          <Spinner className="h-4 w-4" />
         ) : (
           <Plus className="h-4 w-4" />
         )}
@@ -83,10 +45,10 @@ function CartActionsHandler({ cart, item }: CartActionsHandlerProps) {
       className="w-full gap-2 rounded-full"
       size="lg"
       type="button"
-      onClick={handleAddToCart}
+      onClick={() => addToCart(item)}
     >
-      {isPending ? (
-        <Loader className="h-4 w-4 animate-spin" />
+      {isAdding ? (
+        <Spinner className="h-4 w-4" />
       ) : (
         <Plus className="h-4 w-4" />
       )}

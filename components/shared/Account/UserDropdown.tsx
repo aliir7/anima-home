@@ -10,6 +10,7 @@ import SignOutForm from "./SignOutForm";
 import { UserSchema } from "@/types";
 import { Separator } from "@/components/ui/separator";
 import { auth } from "@/lib/auth";
+import { menu } from "@/lib/constants";
 
 type UserDropdownProps = {
   user: Pick<UserSchema, "name" | "email" | "image">;
@@ -48,11 +49,19 @@ async function UserDropdown({ user }: UserDropdownProps) {
             <Link href="/my-account">پروفایل من</Link>
           )}
         </DropdownMenuItem>
-        {!admin && (
-          <DropdownMenuItem asChild className="mr-2 mb-2 flex justify-end px-2">
-            <Link href="/my-account/orders">سفارش‌ها</Link>
-          </DropdownMenuItem>
-        )}
+        {admin &&
+          menu.map((item, index) => (
+            <DropdownMenuItem
+              key={index}
+              asChild
+              className="mr-2 mb-2 flex justify-end px-2"
+            >
+              <div>
+                <Link href={item.sectionLink}>{item.label}</Link>
+                <item.icon />
+              </div>
+            </DropdownMenuItem>
+          ))}
 
         <Separator className="my-2" />
 

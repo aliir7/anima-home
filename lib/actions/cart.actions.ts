@@ -82,7 +82,7 @@ export async function addItemToCart(
 
       return {
         success: true,
-        data: `${product.title} به سبد خرید اضافه شد`,
+        data: `${product.title} به سبد خرید اضافه شد `,
       };
     }
 
@@ -130,7 +130,7 @@ export async function addItemToCart(
 
       return {
         success: true,
-        data: `${product.title}${existItem ? "بروزرسانی شد در" : "اضافه شد به"}سبد خرید`,
+        data: `${product.title}${existItem ? "بروزرسانی شد  در" : "اضافه شد  به "}سبد خرید`,
       };
     }
   } catch (err) {
@@ -150,6 +150,7 @@ export async function addItemToCart(
 
 export async function removeItemFromCart(
   productId: string,
+  removeAll: boolean = false,
 ): Promise<ActionResult<string>> {
   try {
     // Check for cart cookie
@@ -183,14 +184,14 @@ export async function removeItemFromCart(
     }
 
     // Check if only one in qty
-    if (exist.qty === 1) {
+    if (exist.qty === 1 || removeAll) {
       // Remove from cart
       cart.items = (cart.items as CartItem[]).filter(
-        (x) => x.productId !== exist.productId,
+        (p) => p.productId !== exist.productId,
       );
     } else {
       // Decrease qty
-      (cart.items as CartItem[]).find((x) => x.productId === productId)!.qty =
+      (cart.items as CartItem[]).find((p) => p.productId === productId)!.qty =
         exist.qty - 1;
     }
 

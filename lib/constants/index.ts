@@ -26,9 +26,8 @@ export const PAGE_SIZE = 6;
 // static data
 // user sidebar menu
 export const menu = [
-  { label: "اطلاعات حساب", icon: User, sectionLink: "profile" },
+  { label: "حساب کاربری", icon: User, sectionLink: "/my-account" },
   { label: "سفارش‌ها", icon: Package, sectionLink: "/my-account/orders" },
-  { label: "خروج از حساب", icon: LogOut, sectionLink: "logout" },
 ];
 
 // services in app

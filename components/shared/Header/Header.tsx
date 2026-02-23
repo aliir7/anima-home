@@ -5,9 +5,14 @@ import ModeToggle from "./ModeToggle";
 import NavBar from "./NavBar";
 import SignupBtn from "./SignupBtn";
 import UserDropdown from "../Account/UserDropdown";
+import CartBtn from "./CartBtn";
+import { getMyCart } from "@/lib/actions/cart.actions";
+import { CartItem } from "@/types";
 
 async function Header() {
   const session = await auth();
+  const cart = await getMyCart();
+  const cartItemsNumber = (cart?.items as CartItem[]).length ?? 0;
 
   return (
     <header className="bg-primary dark:bg-muted w-full border-b text-white shadow-md">
@@ -25,6 +30,7 @@ async function Header() {
         </div>
         <div className="hidden items-center justify-end gap-4 md:flex">
           <ModeToggle />
+          <CartBtn cartItemsNumber={cartItemsNumber} />
           {session?.user ? <UserDropdown user={session.user} /> : <SignupBtn />}
         </div>
       </div>
