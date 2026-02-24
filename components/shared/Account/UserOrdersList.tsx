@@ -4,6 +4,7 @@ import { Order } from "@/types";
 import { format } from "date-fns-jalali";
 import formatPrice from "@/lib/utils/formatPrice";
 import { Badge } from "@/components/ui/badge";
+import { Activity } from "react";
 
 type UserOrdersListProps = {
   orders: Order[];
@@ -23,7 +24,7 @@ export default function UserOrdersList({ orders }: UserOrdersListProps) {
       {orders.map((order) => (
         <Link
           key={order.id}
-          href={`my-account/orders/order/${order.id}`}
+          href={`/my-account/orders/order/${order.id}`}
           className="hover:bg-muted block rounded-lg border p-4 transition"
         >
           <div className="flex-between">
@@ -37,17 +38,44 @@ export default function UserOrdersList({ orders }: UserOrdersListProps) {
               </p>
             </div>
 
-            <div className="flex flex-col items-end gap-2">
-              <Badge variant="outline">
-                {order.paymentMethod === "ONLINE"
-                  ? "پرداخت آنلاین"
-                  : "کارت به کارت"}
-              </Badge>
-
-              <Badge variant={order.isPaid ? "default" : "destructive"}>
-                {order.isPaid ? "پرداخت شده" : "ناموفق"}
-              </Badge>
-            </div>
+            <Activity
+              mode={order.paymentMethod === "ONLINE" ? "visible" : "hidden"}
+            >
+              <div className="flex flex-col items-end gap-2">
+                <Badge variant="outline" className="rounded-full px-2 py-1">
+                  {order.paymentMethod === "ONLINE"
+                    ? "پرداخت آنلاین"
+                    : "کارت به کارت"}
+                </Badge>
+                <Badge
+                  variant={order.isPaid ? "default" : "destructive"}
+                  className="rounded-full px-2 py-1"
+                >
+                  {order.isPaid ? "پرداخت شده" : "ناموفق"}
+                </Badge>
+              </div>
+            </Activity>
+            <Activity
+              mode={order.paymentMethod === "CARD" ? "visible" : "hidden"}
+            >
+              <div className="flex flex-col items-end gap-2">
+                <Badge variant="outline" className="rounded-full px-2 py-1">
+                  {order.paymentMethod === "ONLINE"
+                    ? "پرداخت آنلاین"
+                    : "کارت به کارت"}
+                </Badge>
+                <Badge
+                  variant={order.isPaid ? "default" : "destructive"}
+                  className={
+                    !order.isPaid
+                      ? "rounded-full bg-yellow-500 px-2 py-1 text-neutral-950"
+                      : "rounded-full px-2 py-1"
+                  }
+                >
+                  {order.isPaid ? "پرداخت شده" : "در انتظار پرداخت"}
+                </Badge>
+              </div>
+            </Activity>
           </div>
         </Link>
       ))}

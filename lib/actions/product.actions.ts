@@ -4,6 +4,7 @@ import {
   ActionResult,
   createProductValues,
   InsertCategoryValues,
+  ProductWithRelations,
   updateProductValues,
 } from "@/types";
 import { formatError } from "../utils/formatError";
@@ -446,6 +447,63 @@ export async function deleteProductAction(
       error: {
         type: "custom",
         message: formatError(err),
+      },
+    };
+  }
+}
+
+// =================================================================
+// UPDATE PRODUCT ACTION
+// =================================================================
+
+export async function getProductById(
+  productId: string,
+): Promise<ActionResult<ProductWithRelations | null>> {
+  try {
+    const product = await db.query.products.findFirst({
+      where: eq(products.id, productId),
+
+      with: {
+        variants: true,
+        category: {
+          with: {
+            parent: true,
+          },
+        },
+      },
+    });
+
+    if (!product) {
+      return {
+        success: false,
+        error: {
+          type: "custom",
+          message: formatError("محصولی یافت نشد"),
+        },
+      };
+    }
+
+    const normalizedProduct: ProductWithRelations = {
+      ...product,
+
+      variants: product.variants.map((variant) => ({
+        ...variant,
+
+        specs: (variant.specs ?? {}) as Record<string, string>,
+        images: (variant.images ?? []) as string[],
+      })),
+    };
+    return {
+      success: true,
+      data: normalizedProduct ?? null,
+    };
+  } catch (error) {
+    console.error("Error in getProductById:", error);
+    return {
+      success: false,
+      error: {
+        type: "custom",
+        message: formatError(error),
       },
     };
   }

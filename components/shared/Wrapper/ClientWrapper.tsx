@@ -1,11 +1,10 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { Category, ProjectWithCategory } from "@/types";
-import { FilterBar } from "../Filters/FilterBar";
 import ItemCard from "../Items/ItemCard";
 import PaginationControls from "../Pagination/PaginationControls";
+import { useDataFilters } from "@/hooks/useDataFilters";
+import FilterDropdown from "../Filters/FilterDropDown";
 
 type ClientWrapperProps = {
   categories: Category[];
@@ -15,34 +14,39 @@ type ClientWrapperProps = {
   basePath: string;
   items: ProjectWithCategory[];
 };
+const SORT_OPTIONS = [
+  { label: "جدیدترین", value: "latest" },
+  { label: "قدیمی‌ترین", value: "oldest" },
+];
 
 function ClientWrapper({
   categories,
-  selectedCategory,
   currentPage,
   totalPages,
   basePath,
   items,
 }: ClientWrapperProps) {
-  const router = useRouter();
-  const [category, setCategory] = useState(selectedCategory);
-  const [page, setPage] = useState(currentPage);
-  const onCategoryChange = (newCategory: string) => {
-    setCategory(newCategory);
-    setPage(1);
-    router.push(`${basePath}?category=${newCategory}&page=1`);
-  };
-  const onPageChange = (newPage: number) => {
-    setPage(newPage);
-    router.push(`${basePath}?category=${category}&page=${newPage}`);
-  };
+  const { currentCategory, currentSort, setFilter } = useDataFilters();
+
+  const categoryOptions = categories.map((c) => ({
+    label: c.name,
+    value: c.id,
+  }));
+
   return (
     <>
-      <FilterBar
-        categories={categories}
-        selected={category}
-        onChange={onCategoryChange}
-      />
+      <div className="flex flex-col justify-between gap-4 rounded-full px-4 py-6 md:flex-row md:items-center dark:bg-neutral-950">
+        <div className="flex gap-3">
+          {/* استفاده مجدد برای دسته‌بندی پروژه‌ها */}
+          <FilterDropdown
+            title="دسته‌بندی پروژه‌ها"
+            placeholder="همه پروژه‌ها"
+            options={categoryOptions}
+            currentValue={currentCategory}
+            onChange={(val) => setFilter("category", val)}
+          />
+        </div>
+      </div>{" "}
       <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((item) => (
           <ItemCard
@@ -58,8 +62,8 @@ function ClientWrapper({
       </div>
       <PaginationControls
         totalPages={totalPages}
-        currentPage={page}
-        onPageChange={onPageChange}
+        currentPage={currentPage}
+        basePath={basePath}
       />
     </>
   );

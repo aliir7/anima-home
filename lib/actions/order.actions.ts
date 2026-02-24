@@ -1,6 +1,6 @@
 "use server";
 
-import { ActionResult, CartItem } from "@/types";
+import { ActionResult, CartItem, Order } from "@/types";
 import { auth } from "../auth";
 import { getMyCart } from "./cart.actions";
 import { getUserById } from "./user.actions";
@@ -140,19 +140,19 @@ export async function createOrder(): Promise<ActionResult<string>> {
 }
 
 // =================================================================
-// CREATE ORDER AND HANDLE PAYMENT
+// 2. CREATE ORDER AND HANDLE PAYMENT (مدیریت پرداخت و هدایت نهایی)
 // =================================================================
 export async function createOrderAndHandlePayment(): Promise<
   ActionResult<any>
 > {
   try {
-    // ۱. ساخت سفارش
+    // ۱. ساخت سفارش (این مرحله دیتا را در جدول orders و orderItems ثبت می‌کند)
     const orderRes = await createOrder();
 
     if (!orderRes.success || !orderRes.redirectTo) {
       return {
         success: false,
-        message: orderRes.message || "خطا در ایجاد سفارش اولیه", // ✅ اضافه شد
+        message: orderRes.message || "خطا در ایجاد سفارش اولیه",
         error:
           "error" in orderRes && orderRes.error
             ? orderRes.error
@@ -163,48 +163,52 @@ export async function createOrderAndHandlePayment(): Promise<
       };
     }
 
-    // ۲. استخراج شناسه سفارش
+    // ۲. استخراج شناسه سفارش از URL بازگشتی
+    // createOrder آدرس /my-account/orders/order/ID را برمی‌گرداند
     const match = orderRes.redirectTo.match(/\/order\/(.+)$/);
     const orderId = match ? match[1] : null;
 
     if (!orderId) {
       return {
         success: false,
-        message: "شناسه سفارش در خروجی یافت نشد", // ✅ اضافه شد
+        message: "شناسه سفارش یافت نشد",
         error: { type: "custom", message: "شناسه سفارش یافت نشد" },
       };
     }
 
-    // ۳. بررسی احراز هویت و اطلاعات کاربر
+    // ۳. دریافت اطلاعات کاربر برای تشخیص روش پرداخت
     const session = await auth();
     if (!session?.user?.id) {
       return {
         success: false,
-        message: "کاربر یافت نشد. لطفا وارد شوید.", // ✅ اضافه شد
-        error: { type: "custom", message: "کاربر یافت نشد. لطفا وارد شوید." },
+        message: "کاربر یافت نشد. لطفا مجدد وارد شوید.",
+        error: { type: "custom", message: "کاربر یافت نشد." },
       };
     }
 
+    // گرفتن تازه‌ترین وضعیت کاربر از دیتابیس
     const user = await getUserById(session.user.id);
 
-    // ۴. بررسی روش پرداخت و انجام عملیات مربوطه
+    // ۴. هدایت بر اساس روش پرداخت
 
-    // 🟢 حالت اول: پرداخت آنلاین
+    // 🟢 حالت اول: پرداخت آنلاین (Online)
+    // فرض: PAYMENT_METHOD.ONLINE برابر با مقدار ذخیره شده در دیتابیس است
     if (user.paymentMethod === PAYMENT_METHOD.ONLINE) {
+      // این تابع باید لینک درگاه زیبال را تولید کند
       const paymentRes = await createPayment(orderId);
 
       if (!paymentRes.success || !paymentRes.url) {
         return {
           success: false,
-          message: paymentRes.message || "خطا در اتصال به درگاه بانکی", // ✅ اضافه شد
+          message: paymentRes.message || "خطا در دریافت لینک پرداخت",
           error: {
             type: "custom",
-            message: paymentRes.message || "خطا در اتصال به درگاه بانکی",
+            message: paymentRes.message || "خطا در اتصال به بانک",
           },
         };
       }
 
-      // موفقیت و هدایت به درگاه
+      // هدایت کاربر به درگاه بانکی (زیبال)
       return {
         success: true,
         message: "در حال انتقال به درگاه پرداخت...",
@@ -212,32 +216,37 @@ export async function createOrderAndHandlePayment(): Promise<
       };
     }
 
-    // 🟡 حالت دوم: کارت به کارت
+    // 🟡 حالت دوم: کارت به کارت (Card / Offline)
+    // فرض: PAYMENT_METHOD.CARD برابر با مقدار ذخیره شده در دیتابیس است
     if (user.paymentMethod === PAYMENT_METHOD.CARD) {
+      // ✅ تغییر مهم: هدایت به صفحه نتیجه با پارامتر method=cardToCard
+      // این باعث می‌شود صفحه نتیجه، متن آبی رنگ و شماره کارت را نمایش دهد
       return {
         success: true,
-        message: "سفارش ثبت شد. لطفا مبلغ را انتقال دهید.",
-        redirectTo: `/order/success?orderId=${orderId}&type=card`,
+        message: "سفارش ثبت شد. جهت تکمیل پرداخت اقدام نمایید.",
+        redirectTo: `/shop/order/result?orderId=${orderId}&method=${PAYMENT_METHOD.CARD}`,
       };
     }
 
-    // 🔴 حالت خطای غیرمنتظره
+    // 🔴 حالت نامعتبر
     return {
       success: false,
-      message: `روش پرداخت نامعتبر است: ${user.paymentMethod}`, // ✅ اضافه شد
+      message: "روش پرداخت انتخاب شده نامعتبر است.",
       error: {
         type: "custom",
-        message: `روش پرداخت نامعتبر است: ${user.paymentMethod}`,
+        message: `روش پرداخت نامعتبر: ${user.paymentMethod}`,
       },
     };
   } catch (err) {
+    console.error("Payment Handle Error:", err);
     return {
       success: false,
-      message: formatError(err), // ✅ اضافه شد
+      message: formatError(err),
       error: { type: "custom", message: formatError(err) },
     };
   }
 }
+
 // =================================================================
 // 2. GET ORDER BY ID (دریافت اطلاعات سفارش)
 // =================================================================
@@ -312,15 +321,23 @@ export async function getMyOrders({
 }: {
   limit?: number;
   page?: number;
-}) {
+}): Promise<{ data: Order[]; totalPages: number }> {
+  // 👈 تایپ خروجی به صورت صریح تعریف شد
   const session = await auth();
   if (!session) throw new Error("عدم دسترسی");
 
-  const data = await db.query.orders.findMany({
+  // دریافت دیتای خام از دیتابیس همراه با آیتم‌ها و مشخصات کاربر
+  const rawData = await db.query.orders.findMany({
     where: eq(orders.userId, session.user.id),
     orderBy: [desc(orders.createdAt)],
     limit: limit,
     offset: (page - 1) * limit,
+    with: {
+      items: true,
+      user: {
+        columns: { name: true, email: true },
+      },
+    },
   });
 
   const [countResult] = await db
@@ -328,8 +345,25 @@ export async function getMyOrders({
     .from(orders)
     .where(eq(orders.userId, session.user.id));
 
+  // 🌟 نرمال‌سازی دیتا: تبدیل دیتای خام دیتابیس به تایپ دقیق Order
+  const normalizedData: Order[] = rawData.map((order: any) => ({
+    ...order,
+    userId: order.userId as string,
+    paymentMethod: order.paymentMethod as string,
+    isPaid: order.isPaid ?? false,
+    isDelivered: order.isDelivered ?? false,
+    shippingAddress: order.shippingAddress as Order["shippingAddress"],
+    paymentResult: order.paymentResult as Order["paymentResult"],
+
+    // تبدیل items دیتابیس به orderItems مورد انتظار شما
+    orderItems: order.items || [],
+
+    // اطمینان از فرمت کاربر
+    user: order.user || { name: "کاربر", email: "" },
+  }));
+
   return {
-    data,
+    data: normalizedData, // 👈 حالا دیتای تمیز و منطبق بر تایپ برمی‌گردد
     totalPages: Math.ceil(countResult.count / limit),
   };
 }

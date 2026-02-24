@@ -51,9 +51,10 @@ export default function FilterDropdown({
           <ChevronDown className="h-4 w-4 opacity-50" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-48">
+      <DropdownMenuContent align="end" className="w-48">
         {/* گزینه برای پاک کردن فیلتر */}
         <DropdownMenuItem
+          dir="rtl"
           onClick={() => onChange(null)}
           className="text-muted-foreground cursor-pointer font-medium"
         >
@@ -62,6 +63,7 @@ export default function FilterDropdown({
 
         {options.map((option) => (
           <DropdownMenuItem
+            dir="rtl"
             key={option.value}
             onClick={() => onChange(option.value)}
             className={cn(

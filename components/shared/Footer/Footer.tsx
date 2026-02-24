@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import aparatImg from "@/public/images/icon--black.svg";
 import aparatDark from "@/public/images/icon--white.svg";
+import ZibalTrust from "./ZibalTrust";
 
 export default function Footer() {
   return (
@@ -20,24 +21,6 @@ export default function Footer() {
             <br />
             سه نسل، یک نگاه: کیفیت.
           </p>
-          <div className="space-y-1.5">
-            <Link
-              referrerPolicy="origin"
-              target="_blank"
-              href="https://trustseal.enamad.ir/?id=705208&Code=Au48Zd0frWjIn6HWtyCQQ6qcx0mhs9fj"
-              className="cursor-pointer"
-            >
-              <Image
-                referrerPolicy="origin"
-                src="https://trustseal.enamad.ir/logo.aspx?id=705208&Code=Au48Zd0frWjIn6HWtyCQQ6qcx0mhs9fj"
-                alt="enamad-logo"
-                width={100}
-                height={100}
-                unoptimized={true} // <--- این خط مشکل را حل می‌کند
-                className="object-contain" // برای اینکه عکس دفرمه نشود
-              />
-            </Link>
-          </div>
         </div>
 
         {/* لینک‌های مفید */}
@@ -177,6 +160,28 @@ export default function Footer() {
               />
             </Link>
           </div>
+          <div className="mt-4 flex flex-wrap items-center gap-4">
+            <Link
+              referrerPolicy="origin"
+              target="_blank"
+              href="https://trustseal.enamad.ir/?id=705208&Code=Au48Zd0frWjIn6HWtyCQQ6qcx0mhs9fj"
+              className="cursor-pointer"
+            >
+              <Image
+                referrerPolicy="origin"
+                src="https://trustseal.enamad.ir/logo.aspx?id=705208&Code=Au48Zd0frWjIn6HWtyCQQ6qcx0mhs9fj"
+                alt="enamad-logo"
+                width={100}
+                priority={true}
+                loading="eager"
+                height={100}
+                unoptimized={true} // <--- این خط مشکل را حل می‌کند
+                className="object-contain" // برای اینکه عکس دفرمه نشود
+              />
+            </Link>
+            <ZibalTrust />
+          </div>
+          {/* zibal */}
         </div>
       </div>
 
@@ -185,7 +190,7 @@ export default function Footer() {
         © {new Date().getFullYear()} آنیماهوم - تمام حقوق محفوظ است.
         <br />
         <p className="mt-2">
-          توسعه و طراحی توسط:
+          توسعه و طراحی با <span className="text-red-500">❤</span> توسط:
           <Link
             href="https://www.alirezaeii.ir/"
             target="_blank"

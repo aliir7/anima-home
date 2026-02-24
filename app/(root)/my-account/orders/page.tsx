@@ -2,6 +2,7 @@ import UserOrdersList from "@/components/shared/Account/UserOrdersList";
 import PaginationControls from "@/components/shared/Pagination/PaginationControls";
 import { getMyOrders } from "@/lib/actions/order.actions";
 import { auth } from "@/lib/auth";
+import { Order } from "@/types";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
@@ -15,15 +16,22 @@ export const revalidate = 0;
 async function UserOrdersPage({
   searchParams,
 }: {
-  searchParams: { page?: string };
+  searchParams: Promise<{ page?: string }>;
 }) {
   const session = await auth();
   if (!session?.user) {
     redirect("/");
   }
-  const page = Number(searchParams.page ?? 1);
-  const res = await getMyOrders({ page, limit: 10 });
-  const orders = res.data ?? [];
+
+  const { page } = (await searchParams) ?? 1;
+  const currentPage = Number(page);
+
+  const { data, totalPages } = await getMyOrders({
+    page: currentPage,
+    limit: 6,
+  });
+
+  const orders = data;
 
   return (
     <section className="wrapper space-y-6 py-12">
@@ -31,9 +39,9 @@ async function UserOrdersPage({
       <UserOrdersList orders={orders} />
 
       <PaginationControls
-        currentPage={page}
-        totalPages={orders.length}
-        basePath="/my-account/orders"
+        currentPage={currentPage}
+        totalPages={totalPages}
+        basePath="/my-account"
       />
     </section>
   );
