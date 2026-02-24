@@ -17,13 +17,20 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Pencil, Trash2, MoreVertical, Plus } from "lucide-react";
 
-import { Category } from "@/types";
+import {
+  Category,
+  Product,
+  ProductCategoryWithParent,
+  ProductWithRelations,
+} from "@/types";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Link from "next/link";
+import DeleteModal from "../Projects/DeleteModal";
 
 type ProductTableClientProps = {
   categories: Category[];
-  product: unknown;
+  product: ProductWithRelations[];
   currentPage: number;
   totalPages: number;
   basePath?: string;
@@ -37,7 +44,7 @@ function ProductTableClient({
   basePath,
 }: ProductTableClientProps) {
   const [page, setPage] = useState(currentPage);
-  const [editProduct, setEditProduct] = useState();
+
   const [deleteProductId, setDeleteProductId] = useState<string | null>(null);
   const router = useRouter();
 
@@ -54,7 +61,7 @@ function ProductTableClient({
           className="bg-primary hover:bg-primary/80 cursor-pointer rounded-full text-white dark:bg-neutral-800 dark:hover:bg-neutral-600"
           onClick={() => router.push(`${basePath}/new`)}
         >
-          <Plus className="ml-2 h-4 w-4" /> ایجاد پروژه جدید
+          <Plus className="ml-2 h-4 w-4" /> ایجاد محصول جدید
         </Button>
       </div>
       <div className="rounded-lg border">
@@ -92,10 +99,12 @@ function ProductTableClient({
                       </DropdownMenuTrigger>
                       <DropdownMenuContent side="left" align="end">
                         <DropdownMenuItem
+                          asChild
                           className="flex justify-end gap-2"
-                          onClick={() => setEditProduct(product)}
                         >
-                          ویرایش <Pencil className="h-4 w-4" />
+                          <Link href={`/admin/products/${product.id}`}>
+                            ویرایش <Pencil className="h-4 w-4" />
+                          </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           className="flex justify-end gap-2"
@@ -111,13 +120,19 @@ function ProductTableClient({
             ) : (
               <TableRow>
                 <TableCell colSpan={5} className="py-6 text-center">
-                  هیچ پروژه‌ای یافت نشد.
+                  هیچ محصولی یافت نشد.
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
+
+      <DeleteModal
+        type="product"
+        id={deleteProductId}
+        onClose={() => setDeleteProductId(null)}
+      />
     </>
   );
 }

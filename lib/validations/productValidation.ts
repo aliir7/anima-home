@@ -11,7 +11,7 @@ export const createProductSchema = z.object({
     .min(3, "اسلاگ الزامی است")
     .regex(/^[a-z0-9-]+$/, "فقط حروف انگلیسی کوچک، اعداد و خط تیره مجاز است"),
   categoryId: isUUID("لطفا یک دسته‌بندی معتبر انتخاب کنید"),
-  description: z.string().optional(),
+  description: z.string().trim().optional(),
 
   // --- مربوط به جدول product_variants ---
   sku: z.string().min(1, "کد کالا (SKU) الزامی است"),
@@ -43,7 +43,5 @@ export const createProductSchema = z.object({
   images: z.array(isURL("لینک تصاویر معتبر نیست")).default([]),
 });
 
-// Schema for updating products
-export const updateProductSchema = createProductSchema.extend({
-  id: z.string().min(1, "Id is required"),
-});
+// Schema for updating products (without id since it's passed separately)
+export const updateProductSchema = createProductSchema.partial();

@@ -1,7 +1,6 @@
 import ProductForm from "@/components/shared/Admin/Products/ProductForm";
 import { getProductById } from "@/lib/actions/product.actions";
-// در صورت داشتن اکشن دریافت دسته‌بندی‌ها آن را ایمپورت کنید
-// import { getAllCategories } from "@/lib/actions/category.actions";
+import { getAllProductCategories } from "@/db/queries/categoriesQueries";
 import { notFound } from "next/navigation";
 
 export default async function AdminProductUpdatePage({
@@ -22,13 +21,11 @@ export default async function AdminProductUpdatePage({
   // ۳. استخراج دیتای واقعی محصول
   const product = productRes.data;
 
-  // ۴. دریافت دسته‌بندی‌ها (باید اکشن خود را اینجا صدا بزنید)
-  // فرض می‌کنیم اکشن شما لیستی از دسته‌بندی‌ها برمی‌گرداند
-  // const categoriesRes = await getAllCategories();
-  // const categories = categoriesRes.success ? categoriesRes.data : [];
-
-  // فعلا برای جلوگیری از ارور، یک آرایه خالی پاس می‌دهیم. (شما با دیتای واقعی جایگزین کنید)
-  const categories: { id: string; name: string }[] = [];
+  // ۴. دریافت دسته‌بندی‌ها از کوئری موجود
+  const categoriesRes = await getAllProductCategories();
+  const categories = categoriesRes.success
+    ? categoriesRes.data.map((c) => ({ id: c.id, name: c.name }))
+    : [];
 
   return (
     <div className="mx-auto max-w-5xl space-y-8">

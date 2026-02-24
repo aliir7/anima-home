@@ -4,8 +4,8 @@ import { db } from "@/db";
 import { projects } from "@/db/schema";
 import { sanitizeUrl } from "@/lib/utils/urlUtils";
 
+// Revalidate sitemap every 24 hours (ISR)
 export const revalidate = 86400;
-export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://anima-home.ir";

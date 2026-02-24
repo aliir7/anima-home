@@ -17,12 +17,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Pencil, Trash2, MoreVertical, Plus } from "lucide-react";
-import DeleteProjectModal from "./DeleteProjectModal";
+import DeleteProjectModal from "./DeleteModal";
 import ProjectFormModal from "./ProjectFormModal";
 import { Category, ProjectWithCategory } from "@/types";
 import { normalizeProjectForForm } from "@/lib/utils/normalize";
 import { useRouter } from "next/navigation";
 import PaginationControls from "../../Pagination/PaginationControls";
+import DeleteModal from "./DeleteModal";
 // import Image from "next/image";
 
 type ProjectTableClientProps = {
@@ -148,8 +149,9 @@ function ProjectTableClient({
         categories={categories}
       />
       {/* Delete Modal */}
-      <DeleteProjectModal
-        projectId={deleteProjectId}
+      <DeleteModal
+        id={deleteProjectId}
+        type="project"
         onClose={() => setDeleteProjectId(null)}
       />
 

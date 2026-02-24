@@ -1,10 +1,10 @@
-import { ProjectWithCategory, Category } from "@/types";
+import { ProjectWithCategory, Category, ProductWithRelations } from "@/types";
 import { Suspense } from "react";
 import ProductTableClient from "./ProductTableClient";
 import ProjectTableSkeleton from "../Projects/ProjectTableSkeleton";
 
 type ProductTableProps = {
-  products: unknown;
+  products: ProductWithRelations[] | undefined;
   categories: Category[];
   currentPage: number;
   totalPage: number;
@@ -20,7 +20,7 @@ function ProductTable({
     <Suspense fallback={<ProjectTableSkeleton rows={6} />}>
       <ProductTableClient
         categories={categories}
-        product={products}
+        product={products ?? []}
         currentPage={currentPage}
         totalPages={totalPage}
         basePath="/admin/products"

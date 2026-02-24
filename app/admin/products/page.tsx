@@ -27,7 +27,7 @@ async function AdminProductsPage({ searchParams }: AdminProductsPageProps) {
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
   const categories = categoriesResult.success ? categoriesResult.data : [];
-  const products = productsResult.success ? productsResult.data : [];
+  const products = productsResult.success ? productsResult.data : undefined;
   return (
     <div>
       <div>

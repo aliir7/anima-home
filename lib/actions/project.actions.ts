@@ -219,7 +219,11 @@ export async function deleteProject(id: string): Promise<ActionResult<string>> {
     await db.delete(projects).where(eq(projects.id, id));
     revalidatePath("/admin/projects");
 
-    return { success: true, data: "پروژه با موفقیت حذف شد" };
+    return {
+      success: true,
+      data: "پروژه با موفقیت حذف شد",
+      message: "پروژه با موفقیت حذف شد",
+    };
   } catch (error) {
     console.error("❌ خطا در حذف پروژه:", error);
     return {

@@ -6,6 +6,7 @@ import {
   boolean,
   timestamp,
   decimal,
+  varchar,
 } from "drizzle-orm/pg-core";
 import { productCategories } from "./productCategories";
 
@@ -21,7 +22,7 @@ export const products = pgTable("products", {
   slug: text("slug").notNull().unique(),
   seoSlug: text("seo_slug").notNull().unique().default(""),
 
-  description: text("description"),
+  description: varchar({ length: 255 }),
   rating: decimal("rating", { precision: 2, scale: 1 })
     .default("0.0")
     .notNull(),
