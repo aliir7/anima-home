@@ -110,6 +110,13 @@ export type ProductCategoryWithParent =
   typeof productCategories.$inferSelect & {
     parent: typeof productCategories.$inferSelect | null;
   };
+
+export type Product = z.infer<typeof createProductSchema> & {
+  id: string;
+  rating: string;
+  numReviews: number;
+  createdAt: Date;
+};
 // تایپ خروجی نهایی: تمام فیلدهای محصول + یک آرایه از واریانت‌ها + آبجکت دسته بندی
 export type ProductSpec = {
   label: string;

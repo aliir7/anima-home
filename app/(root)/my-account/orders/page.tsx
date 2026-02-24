@@ -35,7 +35,9 @@ async function UserOrdersPage({
 
   return (
     <section className="wrapper space-y-6 py-12">
-      <h2 className="text-xl font-semibold">سفارش‌های من</h2>
+      <h2 className="text-primary text-xl font-semibold dark:text-neutral-950">
+        سفارش‌های من
+      </h2>
       <UserOrdersList orders={orders} />
 
       <PaginationControls

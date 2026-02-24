@@ -12,21 +12,20 @@ import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
 import { Plus, Trash2, X, Image as ImageIcon } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { createProductValues, ProductWithRelations } from "@/types";
+import { useState } from "react";
+import { createProductValues } from "@/types";
 import { createProductSchema } from "@/lib/validations/productValidation";
 import { createProductAction } from "@/lib/actions/product.actions";
 
 type ProductFormProps = {
   categories: { id: string; name: string }[];
-  product?: ProductWithRelations;
-  productId?: string;
-  type: "Create" | "Update";
 };
 
 export default function ProductForm({ categories }: ProductFormProps) {
   const router = useRouter();
 
   // استیت برای مدیریت وضعیت سابمیت کلی فرم
+  const [isFormSubmitting, setIsFormSubmitting] = useState(false);
 
   const {
     register,
@@ -34,7 +33,7 @@ export default function ProductForm({ categories }: ProductFormProps) {
     handleSubmit,
     setValue,
     watch,
-    formState: { errors, isSubmitting },
+    formState: { errors },
     reset,
   } = useForm<createProductValues>({
     resolver: zodResolver(createProductSchema),
@@ -63,7 +62,9 @@ export default function ProductForm({ categories }: ProductFormProps) {
 
   // هندلر سابمیت نهایی فرم
   const onSubmit = async (data: createProductValues) => {
+    setIsFormSubmitting(true);
     const result = await createProductAction(data);
+    setIsFormSubmitting(false);
 
     if (result.success) {
       showSuccessToast(result.message || "محصول ثبت شد", "bottom-right");
@@ -349,10 +350,10 @@ export default function ProductForm({ categories }: ProductFormProps) {
       <div className="flex justify-end border-t pt-4">
         <Button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isFormSubmitting}
           className="w-full cursor-pointer rounded-full px-4 py-6 text-sm font-medium disabled:cursor-none md:w-48 md:text-lg"
         >
-          {isSubmitting ? "در حال پردازش..." : "ثبت محصول"}
+          {isFormSubmitting ? "در حال پردازش..." : "ثبت محصول"}
         </Button>
       </div>
     </form>

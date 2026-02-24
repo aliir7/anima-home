@@ -43,4 +43,7 @@ export const createProductSchema = z.object({
   images: z.array(isURL("لینک تصاویر معتبر نیست")).default([]),
 });
 
-export const updateProductSchema = createProductSchema.partial();
+// Schema for updating products
+export const updateProductSchema = createProductSchema.extend({
+  id: z.string().min(1, "Id is required"),
+});
