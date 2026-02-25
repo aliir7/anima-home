@@ -1,118 +1,325 @@
 "use client";
 
+import { useState, useTransition, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Smartphone, Mail, Timer, ArrowLeft } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { SignupFormValues } from "@/types";
-import { signupFormSchema } from "@/lib/validations/usersValidations";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+import { MobileValues, SignupFormValues } from "@/types";
+import { signupFormSchema } from "@/lib/validations/usersValidations"; // mobileSchema را ایمپورت کنید
 import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
 import { signupAction } from "@/lib/actions/auth.actions";
-import { useSearchParams, useRouter } from "next/navigation";
+import { mobileSchema } from "@/lib/validations/smsValidations";
+import { sendOtpAction, signinWithOtpAction } from "@/lib/actions/sms.actions";
 
 export default function SignUpForm() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
   const router = useRouter();
 
+  // مدیریت تب فعال
+  const [activeTab, setActiveTab] = useState("mobile"); // پیش‌فرض روی موبایل (می‌توانید به email تغییر دهید)
+
+  // ============================================================
+  // بخش 1: لاجیک فرم ایمیل (کد قبلی شما)
+  // ============================================================
   const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
+    register: registerEmail,
+    handleSubmit: handleSubmitEmail,
+    formState: { errors: errorsEmail, isSubmitting: isSubmittingEmail },
   } = useForm<SignupFormValues>({
     resolver: zodResolver(signupFormSchema),
     mode: "onTouched",
   });
 
-  //submit handler function
-  const onSubmit = async (data: SignupFormValues) => {
+  const onEmailSubmit = async (data: SignupFormValues) => {
     const result = await signupAction(data);
 
     if (result.success) {
       showSuccessToast(
-        "تبت نام با موفقیت انجام شد",
+        "ثبت‌نام با موفقیت انجام شد",
         "top-right",
         "ایمیل فعالسازی برای شما ارسال شد",
       );
-      router.push(callbackUrl);
+      // برای ثبت‌نام ایمیلی معمولاً به صفحه لاگین یا صفحه انتظار تایید هدایت می‌شوند
+      // اما اگر می‌خواهید مستقیم لاگین شوند باید استراتژی دیگری داشته باشید
+      router.push("/sign-in");
     }
     if (!result.success && result.error.type === "custom") {
       showErrorToast(result.error.message, "top-right");
     }
   };
 
+  // ============================================================
+  // بخش 2: لاجیک فرم موبایل (OTP)
+  // ============================================================
+  const [step, setStep] = useState<"mobile" | "code">("mobile");
+  const [timer, setTimer] = useState(0);
+  const [isPending, startTransition] = useTransition();
+
+  const {
+    register: registerMobile,
+    formState: { errors: errorsMobile },
+    watch: watchMobile,
+    trigger: triggerMobile,
+    getValues: getMobileValues,
+  } = useForm<{ mobile: string; code: string }>({
+    resolver: zodResolver(mobileSchema) as any,
+    mode: "onTouched",
+  });
+
+  const mobileValue = watchMobile("mobile");
+
+  // تایمر معکوس
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (timer > 0) {
+      interval = setInterval(() => setTimer((prev) => prev - 1), 1000);
+    }
+    return () => clearInterval(interval);
+  }, [timer]);
+
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = time % 60;
+    return `${minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
+  };
+
+  // ارسال کد تایید
+  const onSendOtp = async () => {
+    const isValid = await triggerMobile("mobile");
+    if (!isValid) return;
+
+    const mobile = getMobileValues("mobile");
+
+    startTransition(async () => {
+      const result = await sendOtpAction(mobile);
+      if (result.success) {
+        showSuccessToast("کد تایید ارسال شد", "top-right");
+        setStep("code");
+        setTimer(120);
+      } else {
+        showErrorToast(result.message || "خطا در ارسال پیامک", "top-right");
+      }
+    });
+  };
+
+  // تایید نهایی و ثبت‌نام/ورود
+  const onVerifyOtp = async () => {
+    const { mobile, code } = getMobileValues();
+    if (!code || code.length < 6) {
+      showErrorToast("کد تایید نامعتبر است", "top-right");
+      return;
+    }
+
+    startTransition(async () => {
+      // استفاده از همان اکشن ورود، چون اگر کاربر نباشد ساخته می‌شود
+      const result = await signinWithOtpAction({ mobile, code });
+      if (result.success) {
+        showSuccessToast("خوش آمدید! ثبت‌نام شما انجام شد.", "top-right");
+        router.push(callbackUrl);
+        router.refresh();
+      } else {
+        showErrorToast(result.error?.message || "کد اشتباه است", "top-right");
+      }
+    });
+  };
+
+  // ============================================================
+  // رندر کامپوننت
+  // ============================================================
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div>
-        <Label htmlFor="name">نام</Label>
-        <Input
-          id="name"
-          {...register("name")}
-          className="outline-light dark:outline-dark mt-4 rounded-full"
-          placeholder="نام و نام خانوادگی"
-        />
-        {errors.name && (
-          <p className="text-destructive mt-2">{errors.name.message}</p>
-        )}
-      </div>
+    <div className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="mb-6 grid w-full grid-cols-2">
+          <TabsTrigger value="mobile">
+            <Smartphone className="ml-2 h-4 w-4" />
+            با موبایل
+          </TabsTrigger>
+          <TabsTrigger value="email">
+            <Mail className="ml-2 h-4 w-4" />
+            با ایمیل
+          </TabsTrigger>
+        </TabsList>
 
-      <div>
-        <Label htmlFor="email">ایمیل</Label>
-        <Input
-          id="email"
-          type="email"
-          {...register("email")}
-          className="outline-light dark:outline-dark mt-4 rounded-full"
-          placeholder="name@example.com"
-        />
-        {errors.email && (
-          <p className="text-destructive mt-2 text-sm">
-            {errors.email.message}
-          </p>
-        )}
-      </div>
+        {/* --- تب موبایل (ثبت‌نام سریع) --- */}
+        <TabsContent value="mobile">
+          <div className="space-y-4">
+            {step === "mobile" ? (
+              <div className="animate-in fade-in slide-in-from-right-4 space-y-4 duration-300">
+                <div className="">
+                  <Label
+                    htmlFor="mobile"
+                    className="flex-row-reverse text-right"
+                  >
+                    شماره موبایل
+                  </Label>
+                  <Input
+                    id="mobile"
+                    dir="rtl"
+                    type="tel"
+                    className="outline-light dark:outline-dark mt-4 rounded-full text-center tracking-widest"
+                    placeholder="09xxxxxxxxx"
+                    {...registerMobile("mobile")}
+                  />
+                  {errorsMobile.mobile && (
+                    <p className="text-destructive mt-2 text-sm">
+                      {errorsMobile.mobile.message}
+                    </p>
+                  )}
+                </div>
+                <Button
+                  onClick={onSendOtp}
+                  disabled={isPending}
+                  className="mt-4 w-full rounded-full"
+                >
+                  {isPending ? "در حال ارسال..." : "دریافت کد تایید"}
+                </Button>
+              </div>
+            ) : (
+              <div className="animate-in fade-in slide-in-from-right-4 space-y-4 duration-300">
+                <div className="mb-2 text-center">
+                  <p className="text-muted-foreground text-sm">
+                    کد ارسال شده به {mobileValue}
+                  </p>
+                  <button
+                    onClick={() => setStep("mobile")}
+                    className="text-primary mt-1 flex w-full items-center justify-center text-xs hover:underline"
+                  >
+                    <ArrowLeft className="mr-1 h-3 w-3" />
+                    ویرایش شماره
+                  </button>
+                </div>
 
-      <div>
-        <Label htmlFor="password">رمز عبور</Label>
-        <Input
-          id="password"
-          type="password"
-          {...register("password")}
-          className="outline-light dark:outline-dark mt-4 rounded-full"
-          placeholder="رمزعبور حداقل باید 6 کاراکتر داشته باشد"
-        />
-        {errors.password && (
-          <p className="text-destructive mt-2 text-sm">
-            {errors.password.message}
-          </p>
-        )}
-      </div>
+                <div>
+                  <Label htmlFor="code" className="flex-row-reverse">
+                    کد تایید
+                  </Label>
+                  <Input
+                    id="code"
+                    dir="ltr"
+                    maxLength={6}
+                    className="outline-light dark:outline-dark mt-2 rounded-full text-center text-lg font-bold tracking-[10px]"
+                    placeholder="- - - - - -"
+                    {...registerMobile("code")}
+                  />
+                </div>
 
-      <div>
-        <Label htmlFor="confirmPassword">تکرار رمز عبور</Label>
-        <Input
-          id="confirmPassword"
-          type="password"
-          {...register("confirmPassword")}
-          className="outline-light dark:outline-dark mt-4 rounded-full"
-          placeholder="رمزعبور حداقل باید 6 کاراکتر داشته باشد"
-        />
-        {errors.confirmPassword && (
-          <p className="text-destructive mt-2 text-sm">
-            {errors.confirmPassword.message}
-          </p>
-        )}
-      </div>
+                <div className="flex flex-row-reverse items-center justify-between px-2 text-sm">
+                  {timer > 0 ? (
+                    <span className="text-muted-foreground flex items-center">
+                      <Timer className="ml-1 h-4 w-4" />
+                      {formatTime(timer)} تا ارسال مجدد
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={onSendOtp}
+                      disabled={isPending}
+                      className="text-primary font-medium hover:underline"
+                    >
+                      ارسال مجدد کد
+                    </button>
+                  )}
+                </div>
 
-      <Button
-        type="submit"
-        disabled={isSubmitting}
-        className="mt-4 w-full rounded-full"
-      >
-        {isSubmitting ? "در حال ارسال..." : "ثبت‌نام"}
-      </Button>
-    </form>
+                <Button
+                  onClick={onVerifyOtp}
+                  disabled={isPending}
+                  className="mt-4 w-full rounded-full"
+                >
+                  {isPending ? "در حال بررسی..." : "ثبت‌نام و ورود"}
+                </Button>
+              </div>
+            )}
+          </div>
+        </TabsContent>
+
+        {/* --- تب ایمیل (فرم قبلی شما) --- */}
+        <TabsContent value="email">
+          <form
+            onSubmit={handleSubmitEmail(onEmailSubmit)}
+            className="space-y-4"
+          >
+            <div>
+              <Label htmlFor="name">نام</Label>
+              <Input
+                id="name"
+                {...registerEmail("name")}
+                className="outline-light dark:outline-dark mt-4 rounded-full"
+                placeholder="نام و نام خانوادگی"
+              />
+              {errorsEmail.name && (
+                <p className="text-destructive mt-2">
+                  {errorsEmail.name.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="email">ایمیل</Label>
+              <Input
+                id="email"
+                type="email"
+                {...registerEmail("email")}
+                className="outline-light dark:outline-dark mt-4 rounded-full"
+                placeholder="name@example.com"
+              />
+              {errorsEmail.email && (
+                <p className="text-destructive mt-2 text-sm">
+                  {errorsEmail.email.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="password">رمز عبور</Label>
+              <Input
+                id="password"
+                type="password"
+                {...registerEmail("password")}
+                className="outline-light dark:outline-dark mt-4 rounded-full"
+                placeholder="حداقل ۶ کاراکتر"
+              />
+              {errorsEmail.password && (
+                <p className="text-destructive mt-2 text-sm">
+                  {errorsEmail.password.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="confirmPassword">تکرار رمز عبور</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                {...registerEmail("confirmPassword")}
+                className="outline-light dark:outline-dark mt-4 rounded-full"
+                placeholder="تکرار رمز عبور"
+              />
+              {errorsEmail.confirmPassword && (
+                <p className="text-destructive mt-2 text-sm">
+                  {errorsEmail.confirmPassword.message}
+                </p>
+              )}
+            </div>
+
+            <Button
+              type="submit"
+              disabled={isSubmittingEmail}
+              className="mt-4 w-full rounded-full"
+            >
+              {isSubmittingEmail ? "در حال ارسال..." : "ثبت‌نام"}
+            </Button>
+          </form>
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 }
