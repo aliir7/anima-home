@@ -1,7 +1,7 @@
 // app/sitemap.ts
 import type { MetadataRoute } from "next";
 import { db } from "@/db";
-import { projects } from "@/db/schema";
+import { products, projects } from "@/db/schema";
 import { sanitizeUrl } from "@/lib/utils/urlUtils";
 
 // Revalidate sitemap every 24 hours (ISR)
@@ -13,6 +13,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const allProjects = await db
     .select({ seoSlug: projects.seoSlug })
     .from(projects);
+
+  const allProducts = await db
+    .select({ seoSlug: products.seoSlug })
+    .from(products);
 
   const urls: MetadataRoute.Sitemap = [
     {
@@ -28,6 +32,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     },
     {
+      url: sanitizeUrl(`${baseUrl}/shop/products`),
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 1,
+    },
+    {
       url: sanitizeUrl(`${baseUrl}/materials`),
       lastModified: new Date(),
       changeFrequency: "weekly",
@@ -40,13 +50,44 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
+      url: sanitizeUrl(`${baseUrl}/privacy`),
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
+      url: sanitizeUrl(`${baseUrl}/terms`),
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
       url: sanitizeUrl(`${baseUrl}/contact`),
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.8,
     },
     {
+      url: sanitizeUrl(`${baseUrl}/my-account`),
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
+      url: sanitizeUrl(`${baseUrl}/my-account/orders`),
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+
+    {
       url: sanitizeUrl(`${baseUrl}/faq`),
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
+      url: sanitizeUrl(`${baseUrl}/shop/cart`),
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.7,
@@ -57,6 +98,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: "weekly" as const,
       priority: 0.8,
+    })),
+    // dynamic product
+    ...allProducts.map((p) => ({
+      url: sanitizeUrl(`${baseUrl}/shop/products/${p.seoSlug}`),
+      lastModified: new Date(),
+      changeFrequency: "weekly" as const,
+      priority: 1,
     })),
   ];
 

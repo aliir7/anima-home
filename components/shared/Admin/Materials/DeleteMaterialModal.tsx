@@ -34,7 +34,7 @@ function DeleteMaterialModal({
     startTransition(async () => {
       const result = await deleteMaterial(materialId);
       if (result.success) {
-        showSuccessToast(result.data, "bottom-right");
+        showSuccessToast(result.data!, "bottom-right");
         onClose();
         router.refresh();
       } else {

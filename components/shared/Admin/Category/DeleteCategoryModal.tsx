@@ -36,7 +36,7 @@ function DeleteCategoryModal({
     startTransition(async () => {
       const result = await deleteCategoryAction(categoryId);
       if (result.success) {
-        showSuccessToast(result.data, "bottom-right");
+        showSuccessToast(result.data!, "bottom-right");
         onOpenChange(false);
         router.refresh();
       } else {
