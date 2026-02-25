@@ -162,7 +162,7 @@ export default async function OrderResultPage({
   // ۶. نمایش موفقیت پرداخت آنلاین
   return (
     <div className="wrapper max-w-2xl py-12">
-      <Card className="border-green-200 bg-green-50/30">
+      <Card className="dark:bg-neutralDark border-green-200 bg-green-50/30">
         <CardHeader className="space-y-4 text-center">
           <CheckCircle2 className="mx-auto h-16 w-16 text-green-600" />
           <CardTitle className="text-2xl text-green-600">
@@ -176,7 +176,7 @@ export default async function OrderResultPage({
         </CardHeader>
 
         <CardContent className="space-y-6">
-          <div className="rounded-lg border border-green-100 bg-white p-4 text-center text-sm leading-7 text-green-800 shadow-sm">
+          <div className="rounded-full border border-green-100 bg-white p-4 text-center text-sm leading-7 text-green-800 shadow-sm dark:bg-neutral-50">
             پرداخت شما با موفقیت تایید شد و سفارش در صف پردازش قرار گرفت. از
             خرید شما سپاسگزاریم.
           </div>

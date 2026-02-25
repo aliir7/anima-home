@@ -17,7 +17,7 @@ import {
   productVariants,
   users,
 } from "@/db/schema";
-import { count, desc, eq, sql, sum, ilike, or } from "drizzle-orm";
+import { count, desc, eq, sql, sum, ilike, or, and, gte } from "drizzle-orm";
 import { formatError } from "../utils/formatError";
 import { revalidatePath } from "next/cache";
 import { createPayment } from "./payment.actions";
@@ -287,19 +287,33 @@ export async function updateOrderToPaid({
     // 1. کسر موجودی محصولات
     for (const item of order.items) {
       if (item.variantId) {
-        await tx
+        // آپدیت موجودی به شرطی که موجودی فعلی از تعداد درخواستی بیشتر یا مساوی باشد
+        const updatedVariant = await tx
           .update(productVariants)
           .set({
             stock: sql`${productVariants.stock} - ${item.qty}`,
           })
-          .where(eq(productVariants.id, item.variantId));
+          .where(
+            and(
+              eq(productVariants.id, item.variantId),
+              gte(productVariants.stock, item.qty), // بررسی اینکه موجودی کافی است
+            ),
+          )
+          .returning({ id: productVariants.id }); // خروجی گرفتن برای بررسی موفقیت‌آمیز بودن
+
+        // اگر آپدیت انجام نشود (یعنی رکورد با آن آیدی پیدا نشد یا موجودی کافی نبود)، آرایه خالی برمی‌گردد
+        if (updatedVariant.length === 0) {
+          throw new Error(
+            `موجودی برای محصول "${item.name || "نامشخص"}" کافی نیست.`,
+          );
+          // پرتاب این ارور باعث می‌شود کل Transaction متوقف (Rollback) شود و هیچ پولی تایید نشود.
+        }
       } else {
         console.warn(
           `Item ${item.name} has no variantId and products table has no stock column.`,
         );
       }
     }
-
     // 2. آپدیت وضعیت سفارش
     await tx
       .update(orders)

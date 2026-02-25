@@ -22,7 +22,7 @@ export const products = pgTable("products", {
   slug: text("slug").notNull().unique(),
   seoSlug: text("seo_slug").notNull().unique().default(""),
 
-  description: varchar({ length: 255 }),
+  description: text("description"),
   rating: decimal("rating", { precision: 2, scale: 1 })
     .default("0.0")
     .notNull(),

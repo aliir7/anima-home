@@ -25,11 +25,11 @@ export default function UserOrdersList({ orders }: UserOrdersListProps) {
         <Link
           key={order.id}
           href={`/my-account/orders/order/${order.id}`}
-          className="hover:bg-muted block rounded-lg border p-4 transition"
+          className="hover:bg-muted dark:hover:bg-muted-foreground block rounded-lg border p-4 transition dark:hover:text-neutral-800"
         >
           <div className="flex-between">
             <div className="space-y-1">
-              <p className="text-muted-foreground text-sm">
+              <p className="text-muted text-sm">
                 {format(order.createdAt, "yyyy/MM/dd")}
               </p>
 
@@ -42,7 +42,10 @@ export default function UserOrdersList({ orders }: UserOrdersListProps) {
               mode={order.paymentMethod === "ONLINE" ? "visible" : "hidden"}
             >
               <div className="flex flex-col items-end gap-2">
-                <Badge variant="outline" className="rounded-full px-2 py-1">
+                <Badge
+                  variant="outline"
+                  className="rounded-full px-2 py-1 dark:bg-neutral-200 dark:text-neutral-800"
+                >
                   {order.paymentMethod === "ONLINE"
                     ? "پرداخت آنلاین"
                     : "کارت به کارت"}
@@ -59,7 +62,10 @@ export default function UserOrdersList({ orders }: UserOrdersListProps) {
               mode={order.paymentMethod === "CARD" ? "visible" : "hidden"}
             >
               <div className="flex flex-col items-end gap-2">
-                <Badge variant="outline" className="rounded-full px-2 py-1">
+                <Badge
+                  variant="outline"
+                  className="rounded-full px-2 py-1 dark:bg-neutral-200 dark:text-neutral-800"
+                >
                   {order.paymentMethod === "ONLINE"
                     ? "پرداخت آنلاین"
                     : "کارت به کارت"}
