@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ShoppingCart } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,29 +10,21 @@ import {
   Card,
   CardContent,
   CardFooter,
-  CardHeader,
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
 import { ProductWithRelations } from "@/types";
+import Rating from "@/components/ui/Rating";
 
 type ProductCardProps = {
-  // 1. نام پراپ برای خوانایی بهتر به product تغییر کرد
   product: ProductWithRelations;
   href: string;
 };
 
 function ProductCard({ product, href }: ProductCardProps) {
-  // 2. دسترسی به اولین واریانت برای نمایش در کارت
-  // یک کارت محصول معمولاً اطلاعات واریانت پیش‌فرض (اولین واریانت) را نشان می‌دهد
   const firstVariant = product.variants?.[0];
+  if (!firstVariant) return null;
 
-  // اگر محصولی به هر دلیلی واریانت نداشت، کارت را رندر نمی‌کنیم تا خطا ندهد
-  if (!firstVariant) {
-    return null;
-  }
-
-  // این منطق تخفیف که سمت کلاینت است، دست‌نخورده باقی می‌ماند
   const [discountPercent] = useState(15);
 
   const discountedPrice = Math.round(
@@ -42,64 +33,73 @@ function ProductCard({ product, href }: ProductCardProps) {
 
   return (
     <Card className="group flex h-full flex-col overflow-hidden transition-shadow hover:shadow-xl">
-      {/* Image */}
-      <CardHeader className="relative p-0">
-        <Link
-          href={href}
-          className="bg-muted relative block aspect-4/3 w-full overflow-hidden"
-        >
-          <Image
-            fill
-            unoptimized
-            // 3. استفاده از تصویر اولین واریانت و ارائه یک تصویر جایگزین در صورت نبودن عکس
-            src={firstVariant.images?.[0] ?? "/images/placeholder.svg"}
-            // 4. استفاده از عنوان واریانت برای alt تصویر
-            alt={firstVariant.title}
-            sizes="(max-width: 768px) 100vw, 33vw"
-            className="object-center transition-transform duration-300 group-hover:scale-105"
-          />
+      {/* 
+        استفاده از aspect-[4/3] به جای h-44 باعث میشود عکس متناسب با عرض کارت، ارتفاع بگیرد
+        و از حالت کشیدگی در بیاید
+      */}
+      <Link
+        href={href}
+        className="relative block aspect-4/3 w-full shrink-0 overflow-hidden bg-gray-50/50"
+      >
+        <Image
+          fill
+          unoptimized
+          src={firstVariant.images?.[0] ?? "/images/placeholder.svg"}
+          alt={firstVariant.title}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          // اضافه شدن object-cover الزامی است
+          className="object-cover object-center transition-transform duration-300 group-hover:scale-90"
+        />
 
-          {/* 5. استفاده از نام دسته‌بندی و بررسی وجود آن با ?. */}
-          {product.category?.name && (
-            <Badge
-              variant="secondary"
-              className="absolute top-3 right-3 rounded-full px-2 py-1 text-xs"
-            >
-              {product.category.name}
-            </Badge>
-          )}
+        {product.category?.name && (
+          <Badge
+            variant="secondary"
+            className="absolute top-3 right-3 rounded-full px-2 py-1 text-xs shadow-sm"
+          >
+            {product.category.name}
+          </Badge>
+        )}
 
-          {/* Discount badge */}
-          {discountPercent > 0 && (
-            <Badge className="bg-destructive absolute top-3 left-3 rounded-full px-2 py-1 text-white">
-              {discountPercent}٪ تخفیف
-            </Badge>
-          )}
-        </Link>
-      </CardHeader>
+        {discountPercent > 0 && (
+          <Badge className="bg-destructive absolute top-3 left-3 rounded-full px-2 py-1 text-xs text-white shadow-sm">
+            {discountPercent}٪ تخفیف
+          </Badge>
+        )}
+      </Link>
 
-      {/* Content */}
-      <CardContent className="flex flex-1 flex-col gap-2 p-4">
-        {/* 6. استفاده از عنوان اصلی محصول */}
-        <CardTitle className="line-clamp-2 text-sm leading-6 font-semibold">
-          <Link href={href}>{product.title}</Link>
+      {/* Content - فاصله gap-2 به gap-1.5 کاهش یافت تا کمی فشرده تر شود */}
+      <CardContent className="flex flex-1 flex-col gap-1.5 p-4">
+        {/* Title */}
+        <CardTitle className="line-clamp-2 h-11 text-sm leading-5 font-semibold">
+          <Link href={href} className="hover:text-primary transition-colors">
+            {product.title}
+          </Link>
         </CardTitle>
 
-        {/* 7. استفاده از ریتینگ محصول اصلی */}
-        <div className="text-muted-foreground text-sm">
-          ⭐ {product.rating} ({product.numReviews})
-        </div>
+        <Rating rate={4} size={14} />
 
-        {/* 8. نمایش عنوان واریانت به عنوان توضیحات */}
-        <CardDescription className="line-clamp-2 text-sm">
+        {/* Variant */}
+        <CardDescription className="text-muted-foreground line-clamp-1 h-5 text-xs">
           {firstVariant.title}
         </CardDescription>
 
+        {/* Description */}
+        <div className="h-10">
+          {product.description && (
+            <p className="text-muted-foreground line-clamp-2 text-xs leading-5">
+              {product.description}
+            </p>
+          )}
+        </div>
+
         {/* Price */}
-        <div className="mt-auto flex items-end justify-between pt-4">
+        <div className="mt-auto pt-3">
           <div className="flex flex-col">
-            {/* 9. استفاده از قیمت واریانت */}
-            <span className="text-muted-foreground text-sm line-through">
+            <span
+              className={`text-muted-foreground text-xs ${
+                discountPercent > 0 ? "line-through" : ""
+              }`}
+            >
               {firstVariant.price.toLocaleString("fa-IR")} تومان
             </span>
 
@@ -109,26 +109,12 @@ function ProductCard({ product, href }: ProductCardProps) {
               </span>
             )}
           </div>
-
-          <Button
-            size="icon"
-            variant="default"
-            // 10. بررسی موجودی واریانت
-            disabled={firstVariant.stock === 0}
-            className="cursor-pointer rounded-full"
-            aria-label="افزودن به سبد خرید"
-          >
-            <ShoppingCart className="h-4 w-4" />
-          </Button>
         </div>
       </CardContent>
-      {/* Footer CTA */}
-      <CardFooter className="p-3 pt-0">
-        <Button
-          variant="default"
-          className="w-full rounded-full text-sm"
-          asChild
-        >
+
+      {/* Footer */}
+      <CardFooter className="p-4 pt-0">
+        <Button className="w-full rounded-full text-sm font-medium" asChild>
           <Link href={href}>جزئیات محصول</Link>
         </Button>
       </CardFooter>

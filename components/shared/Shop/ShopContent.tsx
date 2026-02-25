@@ -37,7 +37,7 @@ export default function ShopContent({
   }));
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-12">
       {/* Toolbar */}
       <div className="bg-card flex flex-col gap-4 rounded-full border px-8 py-6 shadow-sm md:flex-row md:items-center md:justify-between">
         <div className="flex flex-wrap items-center gap-3">
@@ -51,13 +51,13 @@ export default function ShopContent({
           />
 
           {/* Sort Filter */}
-          <FilterDropdown
+          {/* <FilterDropdown
             title="مرتب‌سازی"
             placeholder="پیش‌فرض"
             options={SORT_OPTIONS}
             currentValue={currentSort}
             onChange={(val) => setFilter("sort", val)}
-          />
+          /> */}
         </div>
 
         {/* Count */}
@@ -70,7 +70,7 @@ export default function ShopContent({
 
       {/* Grid */}
       {items.length > 0 ? (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-4">
           {items.map((item) => (
             <ProductCard
               key={item.id}
@@ -80,7 +80,7 @@ export default function ShopContent({
           ))}
         </div>
       ) : (
-        <div className="bg-muted/40 flex min-h-100 flex-col items-center justify-center rounded-lg border border-dashed text-center">
+        <div className="bg-muted/40 flex min-h-100 flex-col items-center justify-center rounded-full border border-dashed text-center">
           <h3 className="text-xl font-bold tracking-tight">محصولی یافت نشد</h3>
           <p className="text-muted-foreground mt-1 text-sm">
             فیلتر خود را تغییر دهید و دوباره امتحان کنید.
