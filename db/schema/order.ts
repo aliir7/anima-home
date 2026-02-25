@@ -11,6 +11,7 @@ import { users } from "./user";
 
 export const orders = pgTable("orders", {
   id: uuid("id").defaultRandom().primaryKey(),
+  refNumber: text("ref_Number"),
   userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
   shippingAddress: jsonb("shipping_address").notNull(),
   paymentMethod: text("payment_method"),

@@ -22,6 +22,7 @@ import { formatError } from "../utils/formatError";
 import { revalidatePath } from "next/cache";
 import { createPayment } from "./payment.actions";
 import { PAYMENT_METHOD } from "../constants";
+import { generateRandomNumber } from "../utils/generateRandomNumber";
 
 // =================================================================
 // 1. CREATE ORDER (ایجاد سفارش اولیه)
@@ -77,8 +78,12 @@ export async function createOrder(): Promise<ActionResult<string>> {
       };
     }
 
+    // generate refNumber
+    const refNumber = generateRandomNumber("Anima");
+
     const orderData = insertOrderSchema.parse({
       userId: userId, // اصلاح شد
+      refNumber,
       shippingAddress: user.address,
       paymentMethod: user.paymentMethod || PAYMENT_METHOD.ONLINE,
       itemsPrice: cart.itemsPrice,

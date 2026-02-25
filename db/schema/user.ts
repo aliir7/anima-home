@@ -11,9 +11,10 @@ import {
 export const users = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: text("name").default("NO_NAME"),
-  email: text("email").notNull().unique(),
+  email: text("email").unique(),
   emailVerified: timestamp("emailVerified", { mode: "date" }),
-  // -- اطلاعات موبایل (اضافه شده برای OTP آینده) --
+  otp: varchar("otp", { length: 10 }),
+  otpExpiresAt: timestamp("otpExpiresAt", { mode: "date" }),
   phone: varchar("phone", { length: 20 }).unique(),
   phoneVerified: timestamp("phoneVerified", { mode: "date" }), // 👈 فیلد جدید
   image: text("image"),

@@ -44,6 +44,7 @@
     "embla-carousel-react": "^8.6.0",
     "esbuild": "^0.25.4",
     "eslint-plugin-drizzle": "^0.2.3",
+    "input-otp": "^1.4.2",
     "lucide-react": "^0.501.0",
     "mime": "^4.0.7",
     "next": "16.1.6",

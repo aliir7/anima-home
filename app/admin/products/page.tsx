@@ -3,6 +3,7 @@ import { getAllProductCategories } from "@/db/queries/categoriesQueries";
 import { getAllProducts, getProductsCount } from "@/db/queries/productQueries";
 import { PAGE_SIZE } from "@/lib/constants";
 import ProductTable from "@/components/shared/Admin/Products/ProductTable";
+import { requireAdmin } from "@/lib/auth/authGuard";
 
 export const metadata: Metadata = {
   title: "محصولات",
@@ -16,6 +17,7 @@ type AdminProductsPageProps = {
 };
 
 async function AdminProductsPage({ searchParams }: AdminProductsPageProps) {
+  requireAdmin();
   const page = (await searchParams)?.page ?? 1;
   const currentPage = Number(page);
   const projectsId = (await searchParams).id ?? "";

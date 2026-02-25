@@ -35,6 +35,7 @@ export const paymentMethodSchema = z.object({
 // ==========================================
 export const insertOrderSchema = z.object({
   userId: z.string().min(1, "شناسه کاربر الزامی است"),
+  refNumber: z.string().optional(),
   itemsPrice: z.number().int().nonnegative("قیمت هر آیتم باید عددی مثبت باشد"),
   totalPrice: z.number().int().nonnegative("قیمت نهایی باید عددی مثبت باشد"),
   taxPrice: z.number().int().nonnegative("مالیات باید عددی مثبت باشد"),
