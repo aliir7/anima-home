@@ -18,7 +18,7 @@ function ServicesMenu() {
               خدمات
             </NavigationMenuTrigger>
             <NavigationMenuContent>
-              <ul className="flex min-w-[150px] flex-col gap-2 p-3 text-center">
+              <ul className="flex min-w-37.5 flex-col gap-2 p-3 text-center">
                 {services.map((item) => (
                   <li key={item.title}>
                     <Link

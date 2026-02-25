@@ -25,7 +25,7 @@ function ProductCard({ product, href }: ProductCardProps) {
   const firstVariant = product.variants?.[0];
   if (!firstVariant) return null;
 
-  const [discountPercent] = useState(15);
+  const [discountPercent] = useState(0);
 
   const discountedPrice = Math.round(
     firstVariant.price * (1 - discountPercent / 100),
@@ -96,8 +96,8 @@ function ProductCard({ product, href }: ProductCardProps) {
         <div className="mt-auto pt-3">
           <div className="flex flex-col">
             <span
-              className={`text-muted-foreground text-xs ${
-                discountPercent > 0 ? "line-through" : ""
+              className={`text-muted-foreground text-base ${
+                discountPercent > 0 ? "text-xs line-through" : "font-semibold"
               }`}
             >
               {firstVariant.price.toLocaleString("fa-IR")} تومان

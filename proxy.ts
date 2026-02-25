@@ -1,109 +1,75 @@
-// middleware.ts
+// proxy.ts
 import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { authRoutes, publicRoutes, adminRoutes } from "./lib/routes";
 import { sanitizeUrl } from "./lib/utils/urlUtils";
 
-/**
- * Quick sanitizer + redirect rules for obviously invalid paths:
- *  - paths like "/&" or "/$" => redirect to "/"
- *  - trailing /& or /$ => strip and redirect
- *
- * Put this BEFORE auth checks to avoid unnecessary token reads.
- */
-function handleBadPathRedirect(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const url = req.nextUrl.clone();
   const pathname = url.pathname || "";
 
-  // If path is exactly one or more of & or $ (e.g. "/&", "/$$")
+  // متغیری برای نگهداری پاسخ نهایی
+  let response: NextResponse | null = null;
+
+  // 1) Quick bad-path redirect
   if (/^\/[&$]+$/.test(pathname)) {
     url.pathname = "/";
-    return NextResponse.redirect(url, 301);
-  }
-
-  // If path ends with & or $ (e.g. "/something&" or "/something/$")
-  if (/[&$]+$/.test(pathname)) {
+    response = NextResponse.redirect(url, 301);
+  } else if (/[&$]+$/.test(pathname)) {
     url.pathname = pathname.replace(/[&$]+$/g, "") || "/";
-    // sanitize result
     url.pathname = sanitizeUrl(url.pathname);
-    return NextResponse.redirect(url, 301);
+    response = NextResponse.redirect(url, 301);
   }
 
-  return null;
-}
+  // 2) Auth & Role Checks (فقط اگر تا الان ریدایرکتی تنظیم نشده باشد)
+  if (!response) {
+    const isDev = process.env.NODE_ENV === "development";
+    const token = await getToken({
+      req,
+      secret: process.env.NEXTAUTH_SECRET,
+      secureCookie: !isDev,
+    });
 
-function ensureSessionCartId(req: NextRequest) {
-  const hasSessionCartId = req.cookies.get("sessionCartId");
+    const isLoggedIn = !!token;
+    const isAdmin = token?.role === "admin";
 
-  if (hasSessionCartId) return null;
+    const matchesRoute = (pathname: string, routes: string[]) => {
+      return routes.some(
+        (route) => pathname === route || pathname.startsWith(`${route}/`),
+      );
+    };
 
-  const response = NextResponse.next();
+    const isPublic = matchesRoute(pathname, publicRoutes);
+    const isAuthRoute = matchesRoute(pathname, authRoutes);
+    const isAdminRoute = matchesRoute(pathname, adminRoutes);
 
-  response.cookies.set("sessionCartId", crypto.randomUUID(), {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 30, // 30 days
-  });
+    if (isAdminRoute && !isAdmin) {
+      response = NextResponse.redirect(new URL("/", req.nextUrl));
+    } else if (isAuthRoute && isLoggedIn) {
+      response = NextResponse.redirect(new URL("/", req.nextUrl));
+    } else if (!isPublic && !isAuthRoute && !isLoggedIn) {
+      response = NextResponse.redirect(new URL("/sign-in", req.nextUrl));
+    } else {
+      // اگر مشکلی نبود، اجازه عبور بده
+      response = NextResponse.next();
+    }
+  }
+
+  // 3) Set Session Cart ID Cookie on the FINAL response
+  // حالا چه ریدایرکت شده باشد چه نشده باشد، کوکی را روی پاسخ نهایی ست می‌کنیم
+  const hasSessionCartId = req.cookies.has("sessionCartId");
+  if (!hasSessionCartId) {
+    response.cookies.set("sessionCartId", crypto.randomUUID(), {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 30, // 30 days
+    });
+  }
 
   return response;
-}
-
-export async function proxy(req: NextRequest) {
-  // 1) quick bad-path redirect
-  const badRedirect = handleBadPathRedirect(req);
-  if (badRedirect) return badRedirect;
-
-  const cartCookieResponse = ensureSessionCartId(req);
-  if (cartCookieResponse) return cartCookieResponse;
-
-  // 2) continue with your auth logic
-  const { nextUrl } = req;
-  const pathname = nextUrl.pathname;
-  const isDev = process.env.NODE_ENV === "development";
-
-  const token = await getToken({
-    req,
-    secret: process.env.NEXTAUTH_SECRET,
-    secureCookie: !isDev,
-  });
-
-  const isLoggedIn = !!token;
-  const isAdmin = token?.role === "admin";
-
-  const matchesRoute = (pathname: string, routes: string[]) => {
-    return routes.some(
-      (route) => pathname === route || pathname.startsWith(`${route}/`),
-    );
-  };
-
-  const isPublic = matchesRoute(pathname, publicRoutes);
-  const isAuthRoute = matchesRoute(pathname, authRoutes);
-  const isAdminRoute = matchesRoute(pathname, adminRoutes);
-
-  // ✅ مسیرهای عمومی → دسترسی آزاد
-  if (isPublic) {
-    return NextResponse.next();
-  }
-
-  // 🔒 مسیرهای ادمین فقط برای ادمین‌ها
-  if (isAdminRoute && !isAdmin) {
-    return NextResponse.redirect(new URL("/", nextUrl));
-  }
-
-  // 🔄 مسیرهای احراز هویت برای کاربران لاگین‌نشده
-  if (isAuthRoute && isLoggedIn) {
-    return NextResponse.redirect(new URL("/", nextUrl));
-  }
-
-  // 🔐 مسیرهای محافظت‌شده برای کاربران لاگین‌نشده
-  if (!isPublic && !isAuthRoute && !isLoggedIn) {
-    return NextResponse.redirect(new URL("/sign-in", nextUrl));
-  }
-
-  return NextResponse.next();
 }
 
 export const config = {

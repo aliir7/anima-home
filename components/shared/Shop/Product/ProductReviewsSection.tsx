@@ -33,7 +33,9 @@ export function ProductReviewsSection({
           <div className="space-y-3">
             <p className="font-medium">نظر خود را بنویسید</p>
             <Textarea placeholder="نظر شما درباره این محصول..." />
-            <Button className="w-fit">ثبت نظر</Button>
+            <Button className="mt-4 w-fit rounded-full px-4 py-2">
+              ثبت نظر
+            </Button>
           </div>
 
           <Separator />

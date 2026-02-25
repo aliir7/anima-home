@@ -49,7 +49,7 @@ async function UserDropdown({ user }: UserDropdownProps) {
             <Link href="/my-account">پروفایل من</Link>
           )}
         </DropdownMenuItem>
-        {admin &&
+        {!admin &&
           menu.map((item, index) => (
             <DropdownMenuItem
               key={index}

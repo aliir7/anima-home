@@ -13,6 +13,7 @@ import { ProductReviewsSection } from "./ProductReviewsSection";
 import { ProductSpecs } from "./ProductSpecs";
 import CartActionsHandler from "../CartActionsHandler";
 import Link from "next/link";
+import Rating from "@/components/ui/Rating";
 
 type ProductDetailsProps = {
   product: ProductWithRelations;
@@ -28,7 +29,7 @@ export default function ProductDetailsClient({
   const firstVariant = product.variants?.[0];
   if (!firstVariant) return null;
 
-  const [discountPercent] = useState(15);
+  const [discountPercent] = useState(0);
 
   const discountedPrice = Math.round(
     firstVariant.price * (1 - discountPercent / 100),
@@ -57,30 +58,24 @@ export default function ProductDetailsClient({
 
         {/* INFO */}
         <div className="space-y-6 text-right lg:col-span-4">
-          <div className="space-y-2">
-            <h1 className="text-xl leading-8 font-bold">{product.title}</h1>
+          <div className="space-y-1">
+            <h3 className="text-xl leading-8 font-bold">{product.title}</h3>
 
             {/* ✅ Meta bar */}
-            <div className="text-muted-foreground flex flex-wrap items-center gap-3 text-sm">
+            <div className="text-muted-foreground flex flex-wrap items-center gap-3 text-sm dark:text-neutral-600">
               {product.category?.name && <span>{product.category.name}</span>}
 
               <span className="flex items-center gap-1">
-                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                {product.rating} ({product.numReviews})
+                <Rating rate={4} size={14} />
               </span>
             </div>
           </div>
 
-          <Separator />
-
           {/* Variant desc */}
-          <p className="text-muted-foreground text-sm leading-7">
-            {firstVariant.title}
-          </p>
+
           {/* ✅ SPECS */}
           {firstVariant.specs && Object.keys(firstVariant.specs).length > 0 && (
             <>
-              <Separator />
               <ProductSpecs specs={firstVariant.specs} />
             </>
           )}
@@ -88,8 +83,10 @@ export default function ProductDetailsClient({
             <>
               <Separator />
               <div>
-                <p className="mb-2 font-medium">توضیحات</p>
-                <p className="text-muted-foreground text-sm leading-7">
+                <p className="text-primary mb-2 font-semibold dark:text-neutral-800">
+                  توضیحات
+                </p>
+                <p className="text-muted-foreground text-sm leading-7 font-medium dark:text-neutral-700">
                   {product.description}
                 </p>
               </div>
@@ -100,7 +97,7 @@ export default function ProductDetailsClient({
         {/* BUY BOX */}
         <div className="lg:col-span-3">
           <Card className="sticky top-24">
-            <CardContent className="space-y-4 p-6">
+            <CardContent className="space-y-5 p-6">
               {discountPercent > 0 && (
                 <Badge variant="destructive" className="w-fit">
                   {discountPercent}٪ تخفیف
@@ -108,10 +105,11 @@ export default function ProductDetailsClient({
               )}
 
               <div className="flex flex-col">
-                <span className="text-muted-foreground text-sm line-through">
-                  {firstVariant.price.toLocaleString("fa-IR")} تومان
-                </span>
-
+                {discountPercent > 0 && (
+                  <span className="text-muted-foreground text-sm line-through">
+                    {firstVariant.price.toLocaleString("fa-IR")} تومان
+                  </span>
+                )}
                 <span className="text-primary text-2xl font-bold">
                   {discountedPrice.toLocaleString("fa-IR")} تومان
                 </span>
@@ -119,7 +117,7 @@ export default function ProductDetailsClient({
 
               <Badge
                 variant={firstVariant.stock > 0 ? "secondary" : "destructive"}
-                className="w-fit"
+                className="w-fit rounded-full px-2 py-1 dark:bg-green-300 dark:text-neutral-800"
               >
                 {firstVariant.stock > 0 ? `موجود` : "ناموجود"}
               </Badge>

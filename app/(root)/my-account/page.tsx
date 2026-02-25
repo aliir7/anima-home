@@ -26,7 +26,6 @@ async function MyAccountPage() {
 
       <main className="h-fit w-full space-y-8 md:w-3/4">
         <UserDetails />
-        <LogoutSection />
       </main>
     </div>
   );

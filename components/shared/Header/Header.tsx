@@ -12,7 +12,7 @@ import { CartItem } from "@/types";
 async function Header() {
   const session = await auth();
   const cart = await getMyCart();
-  const cartItemsNumber = (cart?.items as CartItem[]).length ?? 0;
+  const cartItemsNumber = cart?.items ? (cart.items as CartItem[]).length : 0;
 
   return (
     <header className="bg-primary dark:bg-muted w-full border-b text-white shadow-md">

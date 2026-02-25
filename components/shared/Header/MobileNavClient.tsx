@@ -95,6 +95,13 @@ function MobileNavClient({ user }: MobileNavClientProps) {
           </Accordion>
           <Button
             variant="link"
+            onClick={() => handleNavigate("/shop/cart")}
+            className="cursor-pointer justify-start text-right text-base hover:underline dark:text-white"
+          >
+            سبد خرید
+          </Button>
+          <Button
+            variant="link"
             onClick={() => handleNavigate("/about")}
             className="cursor-pointer justify-start text-right text-base hover:underline dark:text-white"
           >

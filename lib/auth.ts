@@ -2,7 +2,6 @@
 import NextAuth from "next-auth";
 import type { NextAuthConfig } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { NextResponse } from "next/server";
 
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { db } from "@/db";
@@ -42,7 +41,7 @@ export const authConfig = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.sub = user.id; // 👈 اضافه شد برای حل مشکل production
+        token.sub = user.id;
         token.role = user.role;
 
         if (user.name === "NO_NAME") {
@@ -76,30 +75,9 @@ export const authConfig = {
 
       return session;
     },
-    authorized({ request, auth }) {
-      // Check for session cart cookie
-      if (!request.cookies.get("sessionCartId")) {
-        // Generate new session cart id
-        const sessionCartId = crypto.randomUUID();
 
-        // Clone request Headers
-        const newRequestHeaders = new Headers(request.headers);
-
-        //Create new response add new headers
-        const response = NextResponse.next({
-          request: {
-            headers: newRequestHeaders,
-          },
-        });
-
-        // Set newly generated sessionCartId in the response cookie
-        response.cookies.set("sessionCartId", sessionCartId);
-
-        return response;
-      } else {
-        return true;
-      }
-    },
+    // ❌ بخش authorized به طور کامل از اینجا حذف شد
+    // چون proxy.ts به بهترین شکل این کارها رو انجام میده
   },
 
   providers: [
@@ -139,6 +117,7 @@ export const authConfig = {
     }),
   ],
   events: {
+    // ✅ این بخش عالیه و باید بمونه
     async signIn({ user }) {
       const cookieStore = await cookies();
       const sessionCartId = cookieStore.get("sessionCartId")?.value;

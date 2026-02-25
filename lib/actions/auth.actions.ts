@@ -197,8 +197,6 @@ export async function signinWithCredentials(
 
 // signOut user action
 export async function userSignOut() {
-  const currentCart = await getMyCart();
-  await db.delete(carts).where(eq(carts.id, currentCart?.id!));
   await signOut();
 }
 
