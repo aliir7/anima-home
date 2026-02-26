@@ -13,8 +13,14 @@ import { deleteOrder, getAllOrders } from "@/lib/actions/order.actions";
 import { requireAdmin } from "@/lib/auth/authGuard";
 import formatPrice from "@/lib/utils/formatPrice";
 import { format } from "date-fns-jalali";
+import { Metadata } from "next";
 import Link from "next/link";
-// ایمپورت‌های کامپوننت‌های UI خودتان را اینجا قرار دهید (Button, Table, formatDateTime و ...)
+
+export const metadata: Metadata = {
+  title: "سفارش‌ها",
+};
+
+export const revalidate = 0;
 
 export default async function AdminOrdersPage({
   searchParams,

@@ -55,7 +55,7 @@ export default async function OrderResultPage({
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
               <CreditCard className="h-8 w-8 text-green-600" />
             </div>
-            <CardTitle className="text-2xl text-green-700">
+            <CardTitle className="text-lg text-green-700 md:text-2xl">
               سفارش ثبت شد، منتظر پرداخت
             </CardTitle>
             <div className="flex justify-center rounded-full">
@@ -77,7 +77,7 @@ export default async function OrderResultPage({
                 rawValue="5041721219513430" // مقداری که در کلیپ‌بورد کپی می‌شود (انگلیسی بدون فاصله)
               />
 
-              <div className="flex justify-between px-4 text-sm text-neutral-600">
+              <div className="flex justify-between px-2 text-xs text-neutral-600 md:px-4 md:text-sm">
                 <span>
                   به نام: <strong>امید رضایی نصرت</strong>
                 </span>
@@ -108,7 +108,7 @@ export default async function OrderResultPage({
                 پس از واریز، تصویر رسید را در واتساپ ارسال کنید تا سفارش پردازش
                 شود.
               </p>
-              <div className="flex flex-col gap-3 sm:flex-row">
+              <div className="flex flex-col gap-3">
                 <Button
                   className="w-full rounded-full bg-green-600 text-white hover:bg-green-700"
                   asChild
@@ -118,6 +118,15 @@ export default async function OrderResultPage({
                     target="_blank"
                   >
                     ارسال رسید در واتساپ
+                  </Link>
+                </Button>
+                <Button
+                  className="text-primary w-full rounded-full dark:text-white"
+                  asChild
+                  variant="outline"
+                >
+                  <Link href={`/my-account/orders/order/${orderId}`}>
+                    مشاهده جزئیات سفارش
                   </Link>
                 </Button>
               </div>
@@ -168,7 +177,7 @@ export default async function OrderResultPage({
       <Card className="dark:bg-neutralDark border-green-200 bg-green-50/30">
         <CardHeader className="space-y-4 text-center">
           <CheckCircle2 className="mx-auto h-16 w-16 text-green-600" />
-          <CardTitle className="text-2xl text-green-600">
+          <CardTitle className="text-lg text-green-600 md:text-2xl">
             پرداخت با موفقیت انجام شد
           </CardTitle>
           <div className="flex justify-center rounded-full">
@@ -179,7 +188,7 @@ export default async function OrderResultPage({
         </CardHeader>
 
         <CardContent className="space-y-6">
-          <div className="rounded-full border border-green-100 bg-white p-4 text-center text-sm leading-7 text-green-800 shadow-sm dark:bg-neutral-50">
+          <div className="rounded-lg border border-green-100 bg-white p-4 text-center text-xs leading-4 text-green-800 shadow-sm md:rounded-full md:text-sm md:leading-7 dark:bg-neutral-50">
             پرداخت شما با موفقیت تایید شد و سفارش در صف پردازش قرار گرفت. از
             خرید شما سپاسگزاریم.
           </div>
@@ -203,7 +212,9 @@ export default async function OrderResultPage({
               className="w-full rounded-full bg-green-600 text-white hover:bg-green-700"
               asChild
             >
-              <Link href={`/my-account/orders`}>مشاهده سفارشات من</Link>
+              <Link href={`/my-account/orders/${orderId}`}>
+                مشاهده سفارش من
+              </Link>
             </Button>
           </div>
         </CardContent>

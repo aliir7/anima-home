@@ -42,16 +42,16 @@ export default function CopyableCardNumber({
         variant="ghost"
         size="icon"
         onClick={handleCopy}
-        className="h-8 w-8 text-neutral-500 hover:bg-green-50 hover:text-green-600"
+        className="h-4 w-4 text-neutral-500 hover:bg-green-50 hover:text-green-600 md:h-8 md:w-8"
         title="کپی شماره کارت"
       >
         {copied ? (
-          <Check className="h-4 w-4 text-green-600" />
+          <Check className="h-2 w-2 text-green-600 md:h-4 md:w-4" />
         ) : (
-          <Copy className="h-4 w-4" />
+          <Copy className="h-2 w-2 md:h-4 md:w-4" />
         )}
       </Button>
-      <span className="dir-ltr font-mono text-xl font-bold tracking-widest text-neutral-800">
+      <span className="dir-ltr font-mono text-sm font-bold tracking-widest text-neutral-800 md:text-xl">
         {cardNumber}
       </span>
     </div>

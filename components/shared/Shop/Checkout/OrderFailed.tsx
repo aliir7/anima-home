@@ -19,7 +19,7 @@ function OrderFailed({ orderId, reason }: OrderFailedProps) {
         </CardHeader>
 
         <CardContent className="space-y-6">
-          <div className="flex flex-col gap-2 rounded-md bg-red-50 p-4 text-sm leading-7 text-red-700">
+          <div className="flex flex-col gap-2 rounded-md bg-red-50 p-4 text-xs leading-7 text-red-700 md:text-sm">
             {/* نمایش دلیل خطا در صورت وجود */}
             {reason && (
               <p>

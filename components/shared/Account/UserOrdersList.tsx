@@ -33,9 +33,14 @@ export default function UserOrdersList({ orders }: UserOrdersListProps) {
                 {format(order.createdAt, "yyyy/MM/dd")}
               </p>
 
-              <p className="font-medium">
-                مبلغ: {formatPrice(order.totalPrice)}
-              </p>
+              <div className="space-y-1">
+                <p className="text-xs font-normal">
+                  کدرهگیری: {order.refNumber}
+                </p>
+                <p className="font-medium">
+                  مبلغ: {formatPrice(order.totalPrice)}
+                </p>
+              </div>
             </div>
 
             <Activity

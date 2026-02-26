@@ -29,6 +29,10 @@ import { revalidatePath } from "next/cache";
 import { createPayment } from "./payment.actions";
 import { PAYMENT_METHOD } from "../constants";
 import { generateRandomNumber } from "../utils/generateRandomNumber";
+import {
+  sendOrderSuccessSmsToAdmin,
+  sendOrderSuccessSmsToClient,
+} from "./sms.actions";
 
 // =================================================================
 // 1. CREATE ORDER (ایجاد سفارش اولیه)
@@ -232,6 +236,9 @@ export async function createOrderAndHandlePayment(): Promise<
     if (user.paymentMethod === PAYMENT_METHOD.CARD) {
       // ✅ تغییر مهم: هدایت به صفحه نتیجه با پارامتر method=cardToCard
       // این باعث می‌شود صفحه نتیجه، متن آبی رنگ و شماره کارت را نمایش دهد
+      // ارسال پیامک به کاربر و ادمین برای ثبت سفارش
+      sendOrderSuccessSmsToClient(orderId);
+      sendOrderSuccessSmsToAdmin(orderId);
       return {
         success: true,
         message: "سفارش ثبت شد. جهت تکمیل پرداخت اقدام نمایید.",
@@ -335,6 +342,10 @@ export async function updateOrderToPaid({
       })
       .where(eq(orders.id, orderId));
   });
+
+  // ارسال پیامک به کاربر و ادمین برای ثبت سفارش
+  sendOrderSuccessSmsToClient(orderId);
+  sendOrderSuccessSmsToAdmin(orderId);
 }
 
 // =================================================================
@@ -556,7 +567,8 @@ export async function deliverOrder(orderId: string) {
 export async function updateOrderToPaidCOD(orderId: string) {
   try {
     await updateOrderToPaid({ orderId });
-    revalidatePath(`/order/${orderId}`);
+    revalidatePath(`my-account/orders/order/${orderId}`);
+    revalidatePath(`admin/orders/order/${orderId}`);
     return { success: true, message: "سفارش پرداخت در محل تایید شد" };
   } catch (error) {
     return { success: false, message: formatError(error) };

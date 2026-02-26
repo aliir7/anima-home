@@ -43,7 +43,7 @@ async function UserOrdersPage({
       <PaginationControls
         currentPage={currentPage}
         totalPages={totalPages}
-        basePath="/my-account"
+        basePath="/my-account/orders"
       />
     </section>
   );

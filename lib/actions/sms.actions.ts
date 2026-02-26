@@ -7,8 +7,14 @@ import { eq } from "drizzle-orm";
 import crypto from "crypto";
 import { generateRandomNumber } from "../utils/generateRandomNumber";
 import { db } from "@/db";
-
-// ... existing actions ...
+import { Order, ShippingAddress } from "@/types";
+import { getOrderById } from "./order.actions";
+import {
+  ADMIN_MOBILE_NUMBER,
+  NEXT_PUBLIC_OTP_TEMPLATE_ID,
+  ORDER_SUCCESS_ADMIN_TEMPLATE_ID,
+  ORDER_SUCCESS_CLIENT_TEMPLATE_ID,
+} from "../constants";
 
 // 1. اکشن ارسال کد تایید
 export async function sendOtpAction(mobile: string) {
@@ -49,7 +55,7 @@ export async function sendOtpAction(mobile: string) {
     // ارسال پیامک
     const smsResult = await sendFastSms({
       mobile,
-      templateId: Number(process.env.NEXT_PUBLIC_OTP_TEMPLATE_ID),
+      templateId: Number(NEXT_PUBLIC_OTP_TEMPLATE_ID),
       parameters: [
         { name: "VERIFICATIONCODE", value: otpCode },
         { name: "TIME", value: currentTime },
@@ -92,5 +98,84 @@ export async function signinWithOtpAction(data: {
       };
     }
     return { success: false, error: { message: "خطای ناشناخته رخ داد." } };
+  }
+}
+
+export async function sendOrderSuccessSmsToClient(id: string) {
+  try {
+    // get orderById
+    const order = await getOrderById(id);
+
+    if (!order) {
+      console.error("Order SMS Skipped: Order not found");
+      return;
+    }
+
+    const { fullName, phone } = order.shippingAddress as ShippingAddress;
+
+    if (!phone || !fullName) {
+      console.warn(
+        "Order SMS Skipped: Missing phone or fullname in shipping address.",
+      );
+      return;
+    }
+
+    const orderId = order.refNumber ?? order?.id;
+    const result = await sendFastSms({
+      mobile: phone,
+      templateId: Number(ORDER_SUCCESS_CLIENT_TEMPLATE_ID),
+      parameters: [
+        { name: "FULLNAME", value: fullName },
+        { name: "ORDERID", value: orderId! },
+      ],
+    });
+
+    if (!result) {
+      console.error("SMS Provider Error: Failed to send order success SMS.");
+    } else {
+      console.log(`Order SMS sent to ${phone} for Order #${orderId}`);
+    }
+  } catch (err) {
+    console.error("Internal Error sending order SMS:", err);
+  }
+}
+
+export async function sendOrderSuccessSmsToAdmin(id: string) {
+  try {
+    // get orderById
+    const order = await getOrderById(id);
+
+    if (!order) {
+      console.error("Order SMS Skipped: Order not found");
+      return;
+    }
+
+    const { fullName, phone } = order.shippingAddress as ShippingAddress;
+
+    if (!phone || !fullName) {
+      console.warn(
+        "Order SMS Skipped: Missing phone or fullname in shipping address.",
+      );
+      return;
+    }
+    const orderId = order.refNumber ?? order?.id;
+
+    const result = await sendFastSms({
+      mobile: ADMIN_MOBILE_NUMBER,
+      templateId: Number(ORDER_SUCCESS_ADMIN_TEMPLATE_ID),
+      parameters: [
+        { name: "FULLNAME", value: fullName },
+        { name: "PHONE", value: phone },
+        { name: "ORDERID", value: orderId! },
+      ],
+    });
+
+    if (!result) {
+      console.error("SMS Provider Error: Failed to send order success SMS.");
+    } else {
+      console.log(`Order SMS sent to ${phone} for Order #${orderId}`);
+    }
+  } catch (err) {
+    console.error("Internal Error sending order SMS:", err);
   }
 }

@@ -145,3 +145,14 @@ export const ZIBAL_MERCHANT = process.env.ZIBAL_MERCHANT || "zibal";
 
 const isDev = process.env.NODE_ENV === "development";
 export const PAYMENT_CALLBACK_URL = isDev ? SERVER_URL : ROOT_URL;
+
+//  sms constants
+export const NEXT_PUBLIC_OTP_TEMPLATE_ID =
+  process.env.NEXT_PUBLIC_OTP_TEMPLATE_ID ?? "";
+
+export const ORDER_SUCCESS_CLIENT_TEMPLATE_ID =
+  process.env.ORDER_SUCCESS_CLIENT_TEMPLATE_ID ?? "";
+export const ORDER_SUCCESS_ADMIN_TEMPLATE_ID =
+  process.env.ORDER_SUCCESS_ADMIN_TEMPLATE_ID ?? "";
+
+export const ADMIN_MOBILE_NUMBER = process.env.ADMIN_MOBILE_NUMBER ?? "";
