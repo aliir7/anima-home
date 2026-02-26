@@ -48,7 +48,7 @@ function ProductCard({ product, href }: ProductCardProps) {
           alt={firstVariant.title}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           // اضافه شدن object-cover الزامی است
-          className="object-cover object-center transition-transform duration-300 group-hover:scale-90"
+          className="object-center transition-transform duration-300 group-hover:scale-105"
         />
 
         {product.category?.name && (
