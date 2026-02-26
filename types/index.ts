@@ -145,6 +145,16 @@ export type Order = z.infer<typeof insertOrderSchema> & {
   user: { name: string; email: string };
   paymentResult: PaymentResult;
 };
+
+export type OrderList = Omit<Order, "orderItems" | "paymentResult" | "user"> & {
+  user: { name: string }; // در کوئری فقط نام کاربر گرفته شده
+};
+
+export type OrdersPaginatedData = {
+  ordersList: OrderList[];
+  totalPages: number;
+};
+
 // PAYMENT TYPES
 export type PaymentMethod =
   (typeof PAYMENT_METHOD)[keyof typeof PAYMENT_METHOD];

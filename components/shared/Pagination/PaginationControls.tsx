@@ -8,13 +8,15 @@ import {
   PaginationLink,
   PaginationNext,
 } from "@/components/ui/pagination";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback } from "react";
 
 type PaginationControlsProps = {
   totalPages: number;
-  currentPage: number;
+  currentPage: number; // نام پراپ را با صفحه‌ی والد هماهنگ کنید (معمولاً page است)
   onPageChange?: (page: number) => void;
   basePath?: string;
+  urlParamName?: string; // امکان تغییر نام پارامتر در URL (پیش‌فرض page)
 };
 
 function PaginationControls({
@@ -22,27 +24,44 @@ function PaginationControls({
   currentPage,
   onPageChange,
   basePath,
+  urlParamName = "page",
 }: PaginationControlsProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  if (totalPages <= 1) return null;
+  // محاسبه شماره صفحه فعلی (در صورتی که currentPage پاس داده نشود، از URL می‌خواند)
+  const page = currentPage || Number(searchParams.get(urlParamName)) || 1;
 
-  const goToPage = (page: number) => {
-    if (page < 1 || page > totalPages) return;
+  // تابع ایجاد URL جدید با حفظ سایر پارامترها (مثل query)
+  const createPageUrl = useCallback(
+    (pageNumber: number) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set(urlParamName, pageNumber.toString());
+      return `${basePath || "?"}?${params.toString()}`;
+    },
+    [searchParams, basePath, urlParamName],
+  );
 
-    if (onPageChange) return onPageChange(page);
-    if (basePath) return router.push(`${basePath}?page=${page}`);
+  const handlePageChange = (newPage: number) => {
+    if (newPage < 1 || newPage > totalPages) return;
 
-    if (process.env.NODE_ENV !== "production") {
-      console.warn(
-        "PaginationControls: either onPageChange or basePath must be provided",
-      );
+    // اگر متد دستی پاس داده شده (برای حالت کلاینت کامل)
+    if (onPageChange) {
+      onPageChange(newPage);
+      return;
+    }
+
+    // اگر مسیر پایه وجود دارد (برای حالت سرور و مسیریابی)
+    if (basePath) {
+      router.push(createPageUrl(newPage));
     }
   };
 
-  // 🔹 نمایش محدوده صفحات محدود (برای مثال 5 صفحه)
+  if (totalPages <= 1) return null;
+
+  // منطق نمایش صفحات (بدون تغییر)
   const MAX_VISIBLE = 5;
-  let start = Math.max(1, currentPage - 2);
+  let start = Math.max(1, page - 2);
   let end = Math.min(totalPages, start + MAX_VISIBLE - 1);
 
   if (end - start < MAX_VISIBLE - 1) {
@@ -57,24 +76,22 @@ function PaginationControls({
   return (
     <Pagination className="mt-8 flex justify-center">
       <PaginationContent className="gap-2">
-        {/* قبلی */}
+        {/* دکمه قبلی */}
         <PaginationItem>
           <PaginationPrevious
-            onClick={() => goToPage(currentPage - 1)}
+            onClick={() => handlePageChange(page - 1)}
             className={`${
-              currentPage === 1
-                ? "pointer-events-none opacity-50"
-                : "cursor-pointer"
+              page === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"
             } rounded-full`}
           />
         </PaginationItem>
 
-        {/* صفحه اول در صورت مخفی بودن */}
+        {/* صفحه اول */}
         {start > 1 && (
           <>
             <PaginationItem>
               <PaginationLink
-                onClick={() => goToPage(1)}
+                onClick={() => handlePageChange(1)}
                 className="cursor-pointer rounded-full"
               >
                 1
@@ -86,29 +103,27 @@ function PaginationControls({
           </>
         )}
 
-        {/* صفحات اصلی */}
-        {visiblePages.map((page) => {
-          const isActive = page === currentPage;
-
+        {/* صفحات میانی */}
+        {visiblePages.map((p) => {
+          const isActive = p === page;
           return (
-            <PaginationItem key={page}>
+            <PaginationItem key={p}>
               <PaginationLink
-                aria-current={isActive ? "page" : undefined}
                 isActive={isActive}
-                onClick={() => goToPage(page)}
+                onClick={() => handlePageChange(p)}
                 className={`cursor-pointer rounded-full transition-colors ${
                   isActive
                     ? "bg-primary hover:bg-primary/90 text-white dark:bg-neutral-900 dark:hover:bg-neutral-700"
                     : "hover:bg-muted"
                 }`}
               >
-                {page}
+                {p}
               </PaginationLink>
             </PaginationItem>
           );
         })}
 
-        {/* صفحه آخر در صورت مخفی بودن */}
+        {/* صفحه آخر */}
         {end < totalPages && (
           <>
             {end < totalPages - 1 && (
@@ -116,7 +131,7 @@ function PaginationControls({
             )}
             <PaginationItem>
               <PaginationLink
-                onClick={() => goToPage(totalPages)}
+                onClick={() => handlePageChange(totalPages)}
                 className="cursor-pointer rounded-full"
               >
                 {totalPages}
@@ -125,12 +140,12 @@ function PaginationControls({
           </>
         )}
 
-        {/* بعدی */}
+        {/* دکمه بعدی */}
         <PaginationItem>
           <PaginationNext
-            onClick={() => goToPage(currentPage + 1)}
+            onClick={() => handlePageChange(page + 1)}
             className={`${
-              currentPage === totalPages
+              page === totalPages
                 ? "pointer-events-none opacity-50"
                 : "cursor-pointer"
             } rounded-full`}

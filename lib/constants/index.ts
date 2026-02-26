@@ -121,6 +121,7 @@ export const adminRoutes = [
   { label: "متریال", href: "/admin/materials", icon: BookImage },
   { label: "یراق آلات", href: "/admin/tools", icon: Drill },
   { label: "محصولات", href: "/admin/products", icon: Boxes },
+  { label: "سفارش‌ها", href: "/admin/orders", icon: Package },
   { label: "دسته‌بندی‌ها", href: "/admin/categories", icon: Layers3 },
   { label: "تنظیمات", href: "/admin/settings", icon: Settings },
 ];

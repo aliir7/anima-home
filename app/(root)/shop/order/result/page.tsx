@@ -90,7 +90,10 @@ export default async function OrderResultPage({
             <Separator className="bg-green-100" />
 
             <div className="space-y-4 text-sm">
-              <Row label="شماره سفارش" value={order.id} />
+              <Row
+                label="کد رهگیری سفارش"
+                value={order.refNumber ?? order.id}
+              />
               <Row
                 label="مبلغ قابل پرداخت"
                 value={formatPrice(order.totalPrice)}
@@ -111,7 +114,7 @@ export default async function OrderResultPage({
                   asChild
                 >
                   <Link
-                    href={`https://wa.me/989129277302?text=سلام، رسید پرداخت سفارش شماره ${order.id} را ارسال می‌کنم.`}
+                    href={`https://wa.me/989129277302?text=سلام، رسید پرداخت سفارش شماره ${order.refNumber} را ارسال می‌کنم.`}
                     target="_blank"
                   >
                     ارسال رسید در واتساپ
@@ -184,7 +187,7 @@ export default async function OrderResultPage({
           <Separator className="bg-green-100" />
 
           <div className="space-y-4 text-sm">
-            <Row label="شماره سفارش" value={order.id} />
+            <Row label="شماره سفارش" value={order.refNumber ?? order.id} />
             <Row
               label="مبلغ پرداخت‌شده"
               value={`${formatPrice(order.totalPrice)}`}

@@ -1,6 +1,12 @@
 "use server";
 
-import { ActionResult, CartItem, Order } from "@/types";
+import {
+  ActionResult,
+  CartItem,
+  Order,
+  OrderList,
+  OrdersPaginatedData,
+} from "@/types";
 import { auth } from "../auth";
 import { getMyCart } from "./cart.actions";
 import { getUserById } from "./user.actions";
@@ -398,25 +404,61 @@ export async function getAllOrders({
   limit?: number;
   page?: number;
   query?: string;
-}) {
-  // ساخت شرط جستجو در صورت وجود query
-  // توجه: جستجو با ilike روی فیلدهای UUID مثل order.id در پستگرس مستقیماً کار نمی‌کند
-  // معمولاً جستجو بر اساس نام کاربر یا شماره سفارش (اگر فیلد عددی جدا دارید) انجام می‌شود.
-  // در اینجا یک شرط ساده قرار دادیم که اگر نیاز بود توسعه دهید.
+}): Promise<ActionResult<OrdersPaginatedData>> {
+  try {
+    const searchCondition = query
+      ? ilike(orders.refNumber, `%${query}%`)
+      : undefined;
 
-  const data = await db.query.orders.findMany({
-    orderBy: [desc(orders.createdAt)],
-    limit: limit,
-    offset: (page - 1) * limit,
-    with: { user: { columns: { name: true } } },
-  });
+    // دریافت داده خام از دیتابیس
+    const rawData = await db.query.orders.findMany({
+      where: searchCondition,
+      orderBy: [desc(orders.createdAt)],
+      limit: limit,
+      offset: (page - 1) * limit,
+      with: { user: { columns: { name: true } } },
+    });
 
-  const [countResult] = await db.select({ count: count() }).from(orders);
+    // محاسبه تعداد کل نتایج برای Pagination
+    const [countResult] = await db
+      .select({ count: count() })
+      .from(orders)
+      .where(searchCondition);
 
-  return {
-    data,
-    totalPages: Math.ceil(countResult.count / limit),
-  };
+    const ordersList: OrderList[] = rawData.map((item) => {
+      return {
+        // کپی کردن فیلدهای مشترک (id, createdAt, totalPrice, ...)
+        ...item,
+
+        // رفع خطای shippingAddress (تبدیل unknown به تایپ مورد نظر)
+        shippingAddress: item.shippingAddress as Order["shippingAddress"],
+
+        // رفع خطای احتمالی null بودن user (اگر کاربر حذف شده باشد)
+        user: item.user ? { name: item.user.name } : { name: "کاربر حذف شده" },
+
+        // اطمینان از اینکه فیلدهای حذف شده (Omit) مقداردهی نمی‌شوند یا اگر می‌شوند تایپ‌اسکریپت نادیده بگیرد
+      } as OrderList;
+    });
+
+    // بازگرداندن پاسخ موفق بر اساس ActionResult
+    return {
+      success: true,
+      data: {
+        ordersList: ordersList,
+        totalPages: Math.ceil(countResult.count / limit),
+      },
+    };
+  } catch (error) {
+    console.error("Fetch Orders Error:", error);
+    // بازگرداندن پاسخ خطا بر اساس ActionResult
+    return {
+      success: false,
+      error: {
+        type: "custom",
+        message: "خطا در برقراری ارتباط با دیتابیس و دریافت سفارشات",
+      },
+    };
+  }
 }
 
 // =================================================================
