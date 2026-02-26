@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form"; // ✅ Controller اضافه شد
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Smartphone, Mail, Timer, ArrowLeft } from "lucide-react";
@@ -10,9 +10,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp"; // ✅ کامپوننت‌های OTP اضافه شدند
 
-import { MobileValues, SignupFormValues } from "@/types";
-import { signupFormSchema } from "@/lib/validations/usersValidations"; // mobileSchema را ایمپورت کنید
+import { SignupFormValues } from "@/types";
+import { signupFormSchema } from "@/lib/validations/usersValidations";
 import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
 import { signupAction } from "@/lib/actions/auth.actions";
 import { mobileSchema } from "@/lib/validations/smsValidations";
@@ -24,10 +29,10 @@ export default function SignUpForm() {
   const router = useRouter();
 
   // مدیریت تب فعال
-  const [activeTab, setActiveTab] = useState("mobile"); // پیش‌فرض روی موبایل (می‌توانید به email تغییر دهید)
+  const [activeTab, setActiveTab] = useState("mobile");
 
   // ============================================================
-  // بخش 1: لاجیک فرم ایمیل (کد قبلی شما)
+  // بخش 1: لاجیک فرم ایمیل
   // ============================================================
   const {
     register: registerEmail,
@@ -47,8 +52,6 @@ export default function SignUpForm() {
         "top-right",
         "ایمیل فعالسازی برای شما ارسال شد",
       );
-      // برای ثبت‌نام ایمیلی معمولاً به صفحه لاگین یا صفحه انتظار تایید هدایت می‌شوند
-      // اما اگر می‌خواهید مستقیم لاگین شوند باید استراتژی دیگری داشته باشید
       router.push("/sign-in");
     }
     if (!result.success && result.error.type === "custom") {
@@ -65,6 +68,7 @@ export default function SignUpForm() {
 
   const {
     register: registerMobile,
+    control: controlMobile, // ✅ control اضافه شد
     formState: { errors: errorsMobile },
     watch: watchMobile,
     trigger: triggerMobile,
@@ -72,6 +76,10 @@ export default function SignUpForm() {
   } = useForm<{ mobile: string; code: string }>({
     resolver: zodResolver(mobileSchema) as any,
     mode: "onTouched",
+    defaultValues: {
+      mobile: "",
+      code: "",
+    },
   });
 
   const mobileValue = watchMobile("mobile");
@@ -113,13 +121,12 @@ export default function SignUpForm() {
   // تایید نهایی و ثبت‌نام/ورود
   const onVerifyOtp = async () => {
     const { mobile, code } = getMobileValues();
-    if (!code || code.length < 6) {
+    if (!code || code.length < 5) {
       showErrorToast("کد تایید نامعتبر است", "top-right");
       return;
     }
 
     startTransition(async () => {
-      // استفاده از همان اکشن ورود، چون اگر کاربر نباشد ساخته می‌شود
       const result = await signinWithOtpAction({ mobile, code });
       if (result.success) {
         showSuccessToast("خوش آمدید! ثبت‌نام شما انجام شد.", "top-right");
@@ -137,12 +144,12 @@ export default function SignUpForm() {
   return (
     <div className="w-full">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="mb-6 grid w-full grid-cols-2">
-          <TabsTrigger value="mobile">
+        <TabsList className="mb-6 grid w-full grid-cols-2 rounded-full">
+          <TabsTrigger value="mobile" className="rounded-full">
             <Smartphone className="ml-2 h-4 w-4" />
             با موبایل
           </TabsTrigger>
-          <TabsTrigger value="email">
+          <TabsTrigger value="email" className="rounded-full">
             <Mail className="ml-2 h-4 w-4" />
             با ایمیل
           </TabsTrigger>
@@ -162,7 +169,7 @@ export default function SignUpForm() {
                   </Label>
                   <Input
                     id="mobile"
-                    dir="rtl"
+                    dir="ltr"
                     type="tel"
                     className="outline-light dark:outline-dark mt-4 rounded-full text-center tracking-widest"
                     placeholder="09xxxxxxxxx"
@@ -198,20 +205,42 @@ export default function SignUpForm() {
                 </div>
 
                 <div>
-                  <Label htmlFor="code" className="flex-row-reverse">
+                  <Label htmlFor="code" className="mb-4 block text-center">
                     کد تایید
                   </Label>
-                  <Input
-                    id="code"
-                    dir="ltr"
-                    maxLength={6}
-                    className="outline-light dark:outline-dark mt-2 rounded-full text-center text-lg font-bold tracking-[10px]"
-                    placeholder="- - - - - -"
-                    {...registerMobile("code")}
-                  />
+
+                  {/* ✅ استفاده از Controller برای InputOTP */}
+                  <div className="flex justify-center" dir="ltr">
+                    <Controller
+                      control={controlMobile}
+                      name="code"
+                      render={({ field }) => (
+                        <InputOTP
+                          maxLength={6}
+                          value={field.value}
+                          onChange={field.onChange}
+                        >
+                          <InputOTPGroup>
+                            <InputOTPSlot index={0} />
+                            <InputOTPSlot index={1} />
+                            <InputOTPSlot index={2} />
+                            <InputOTPSlot index={3} />
+                            <InputOTPSlot index={4} />
+                            <InputOTPSlot index={5} />
+                          </InputOTPGroup>
+                        </InputOTP>
+                      )}
+                    />
+                  </div>
+
+                  {errorsMobile.code && (
+                    <p className="text-destructive mt-2 text-center text-sm">
+                      {errorsMobile.code.message}
+                    </p>
+                  )}
                 </div>
 
-                <div className="flex flex-row-reverse items-center justify-between px-2 text-sm">
+                <div className="mt-4 flex flex-row-reverse items-center justify-between px-2 text-sm">
                   {timer > 0 ? (
                     <span className="text-muted-foreground flex items-center">
                       <Timer className="ml-1 h-4 w-4" />
@@ -241,19 +270,21 @@ export default function SignUpForm() {
           </div>
         </TabsContent>
 
-        {/* --- تب ایمیل (فرم قبلی شما) --- */}
+        {/* --- تب ایمیل (RTL شده) --- */}
         <TabsContent value="email">
           <form
             onSubmit={handleSubmitEmail(onEmailSubmit)}
-            className="space-y-4"
+            className="space-y-4 text-right" // ✅ راست‌چین کردن کل فرم
+            dir="rtl" // ✅ جهت دایرکشن راست به چپ
           >
             <div>
-              <Label htmlFor="name">نام</Label>
+              <Label htmlFor="name">نام و نام خانوادگی</Label>
               <Input
                 id="name"
+                dir="rtl"
                 {...registerEmail("name")}
-                className="outline-light dark:outline-dark mt-4 rounded-full"
-                placeholder="نام و نام خانوادگی"
+                className="outline-light dark:outline-dark mt-2 rounded-full"
+                placeholder="نام خود را وارد کنید"
               />
               {errorsEmail.name && (
                 <p className="text-destructive mt-2">
@@ -266,9 +297,10 @@ export default function SignUpForm() {
               <Label htmlFor="email">ایمیل</Label>
               <Input
                 id="email"
+                dir="rtl" // اگرچه ایمیل انگلیسی است اما در فرم فارسی پلیس‌هولدر راست‌چین زیباتر است
                 type="email"
                 {...registerEmail("email")}
-                className="outline-light dark:outline-dark mt-4 rounded-full"
+                className="outline-light dark:outline-dark mt-2 flex-row-reverse rounded-full text-right" // تایپ کردن چپ‌چین باشد
                 placeholder="name@example.com"
               />
               {errorsEmail.email && (
@@ -282,9 +314,10 @@ export default function SignUpForm() {
               <Label htmlFor="password">رمز عبور</Label>
               <Input
                 id="password"
+                dir="rtl"
                 type="password"
                 {...registerEmail("password")}
-                className="outline-light dark:outline-dark mt-4 rounded-full"
+                className="outline-light dark:outline-dark mt-2 rounded-full"
                 placeholder="حداقل ۶ کاراکتر"
               />
               {errorsEmail.password && (
@@ -298,9 +331,10 @@ export default function SignUpForm() {
               <Label htmlFor="confirmPassword">تکرار رمز عبور</Label>
               <Input
                 id="confirmPassword"
+                dir="rtl"
                 type="password"
                 {...registerEmail("confirmPassword")}
-                className="outline-light dark:outline-dark mt-4 rounded-full"
+                className="outline-light dark:outline-dark mt-2 rounded-full"
                 placeholder="تکرار رمز عبور"
               />
               {errorsEmail.confirmPassword && (

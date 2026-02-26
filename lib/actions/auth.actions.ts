@@ -119,6 +119,7 @@ export async function signupAction(
         ...user,
         name: user.name ?? "",
         password: user.password ?? "",
+        email: user.email ?? "",
       },
     };
   } catch (err) {
@@ -153,7 +154,7 @@ export async function signinWithCredentials(
 
     const { email, password } = validated.data;
 
-    const user = await getUserByEmail(email);
+    const user = await getUserByEmail(email!);
 
     if (!user || !user.password) {
       return {

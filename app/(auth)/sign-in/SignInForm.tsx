@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form"; // ✅ Controller اضافه شد
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -19,6 +19,11 @@ import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
 import { signinWithCredentials } from "@/lib/actions/auth.actions";
 import { mobileSchema } from "@/lib/validations/smsValidations";
 import { sendOtpAction, signinWithOtpAction } from "@/lib/actions/sms.actions";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 
 type SignInFormProps = {
   verified?: boolean;
@@ -27,7 +32,7 @@ type SignInFormProps = {
 
 export default function SignInForm({ verified }: SignInFormProps) {
   const [showPassword, setShowPassword] = useState(false);
-  const [activeTab, setActiveTab] = useState("mobile"); // پیش‌فرض روی موبایل
+  const [activeTab, setActiveTab] = useState("mobile");
 
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
@@ -43,7 +48,7 @@ export default function SignInForm({ verified }: SignInFormProps) {
   }, [verified]);
 
   // ============================================================
-  // بخش 1: لاجیک فرم ایمیل (کد قبلی شما بدون تغییر)
+  // بخش 1: لاجیک فرم ایمیل
   // ============================================================
   const {
     register: registerEmail,
@@ -70,7 +75,7 @@ export default function SignInForm({ verified }: SignInFormProps) {
   };
 
   // ============================================================
-  // بخش 2: لاجیک فرم موبایل (OTP)
+  // بخش 2: لاجیک فرم موبایل (OTP) - ✅ اصلاح شده
   // ============================================================
   const [step, setStep] = useState<"mobile" | "code">("mobile");
   const [timer, setTimer] = useState(0);
@@ -78,6 +83,7 @@ export default function SignInForm({ verified }: SignInFormProps) {
 
   const {
     register: registerMobile,
+    control: controlMobile, // ✅ این خط اضافه شد
     formState: { errors: errorsMobile },
     watch: watchMobile,
     trigger: triggerMobile,
@@ -85,11 +91,15 @@ export default function SignInForm({ verified }: SignInFormProps) {
   } = useForm<{ mobile: string; code: string }>({
     resolver: zodResolver(mobileSchema) as any,
     mode: "onChange",
+    defaultValues: {
+      mobile: "",
+      code: "",
+    },
   });
 
   const mobileValue = watchMobile("mobile");
 
-  // تایمر معکوس برای ارسال مجدد کد
+  // تایمر معکوس
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (timer > 0) {
@@ -104,7 +114,6 @@ export default function SignInForm({ verified }: SignInFormProps) {
     return `${minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
   };
 
-  // ارسال کد تایید
   const onSendOtp = async () => {
     const isValid = await triggerMobile("mobile");
     if (!isValid) return;
@@ -112,6 +121,7 @@ export default function SignInForm({ verified }: SignInFormProps) {
     const mobile = getMobileValues("mobile");
 
     startTransitionMobile(async () => {
+      // شبیه‌سازی ارسال (یا فراخوانی اکشن واقعی)
       const result = await sendOtpAction(mobile);
       if (result.success) {
         showSuccessToast("کد تایید ارسال شد", "top-right");
@@ -123,8 +133,8 @@ export default function SignInForm({ verified }: SignInFormProps) {
     });
   };
 
-  // تایید کد و ورود
   const onVerifyOtp = async () => {
+    // برای سابمیت نهایی می‌توانیم از handleSubmit هم استفاده کنیم، اما روش دستی شما هم صحیح است
     const { mobile, code } = getMobileValues();
     if (!code || code.length < 5) {
       showErrorToast("کد تایید نامعتبر است", "top-right");
@@ -143,14 +153,11 @@ export default function SignInForm({ verified }: SignInFormProps) {
     });
   };
 
-  // ============================================================
-  // رندر کامپوننت
-  // ============================================================
   return (
     <div className="w-full">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="mb-6 grid w-full grid-cols-2">
-          <TabsTrigger value="mobile">
+        <TabsList className="mb-6 grid w-full grid-cols-2 rounded-full">
+          <TabsTrigger value="mobile" className="rounded-full">
             <Smartphone className="ml-2 h-4 w-4" />
             با موبایل
           </TabsTrigger>
@@ -160,8 +167,8 @@ export default function SignInForm({ verified }: SignInFormProps) {
           </TabsTrigger>
         </TabsList>
 
-        {/* --- تب موبایل (ورود با کد یکبار مصرف) --- */}
-        <TabsContent value="mobile">
+        {/* --- تب موبایل --- */}
+        <TabsContent value="mobile" className="rounded-full">
           <div className="space-y-6">
             {step === "mobile" ? (
               <div className="animate-in fade-in slide-in-from-right-4 space-y-4 duration-300">
@@ -207,18 +214,43 @@ export default function SignInForm({ verified }: SignInFormProps) {
                 </div>
 
                 <div>
-                  <Label htmlFor="code">کد تایید</Label>
-                  <Input
-                    id="code"
-                    dir="ltr"
-                    maxLength={6}
-                    className="outline-light dark:outline-dark my-4 rounded-full text-center text-lg font-bold tracking-[10px]"
-                    placeholder="- - - - - -"
-                    {...registerMobile("code")}
-                  />
+                  <Label htmlFor="code" className="mb-2 block text-center">
+                    کد تایید
+                  </Label>
+
+                  {/* ✅ استفاده از Controller به جای register برای InputOTP */}
+                  <div className="flex justify-center" dir="ltr">
+                    <Controller
+                      control={controlMobile}
+                      name="code"
+                      render={({ field }) => (
+                        <InputOTP
+                          maxLength={6}
+                          value={field.value}
+                          onChange={field.onChange}
+                          className="gap-2"
+                        >
+                          <InputOTPGroup>
+                            <InputOTPSlot index={0} />
+                            <InputOTPSlot index={1} />
+                            <InputOTPSlot index={2} />
+                            <InputOTPSlot index={3} />
+                            <InputOTPSlot index={4} />
+                            <InputOTPSlot index={5} />
+                          </InputOTPGroup>
+                        </InputOTP>
+                      )}
+                    />
+                  </div>
+
+                  {errorsMobile.code && (
+                    <p className="text-destructive mt-2 text-center text-sm">
+                      {errorsMobile.code.message}
+                    </p>
+                  )}
                 </div>
 
-                <div className="flex items-center justify-between px-2 text-sm">
+                <div className="mt-4 flex items-center justify-between px-2 text-sm">
                   {timer > 0 ? (
                     <span className="text-muted-foreground flex items-center">
                       <Timer className="ml-1 h-4 w-4" />
@@ -248,8 +280,9 @@ export default function SignInForm({ verified }: SignInFormProps) {
           </div>
         </TabsContent>
 
-        {/* --- تب ایمیل (کد قبلی شما) --- */}
-        <TabsContent value="email">
+        {/* --- تب ایمیل --- */}
+        <TabsContent value="email" className="rounded-full">
+          {/* ... همان کدهای قبلی ... */}
           <form
             className="space-y-6 text-right"
             onSubmit={handleSubmitEmail(onEmailSubmit)}
@@ -260,6 +293,7 @@ export default function SignInForm({ verified }: SignInFormProps) {
               </Label>
               <Input
                 id="email"
+                dir="rtl"
                 type="email"
                 className="outline-light dark:outline-dark my-4 rounded-full"
                 placeholder="ایمیل خود را وارد کنید"
@@ -272,12 +306,13 @@ export default function SignInForm({ verified }: SignInFormProps) {
               )}
             </div>
 
-            <div className="relative">
+            <div className="relative flex-row-reverse">
               <Label htmlFor="password" className="flex-row-reverse">
                 رمز عبور
               </Label>
               <Input
                 id="password"
+                dir="rtl"
                 type={showPassword ? "text" : "password"}
                 className="outline-light dark:outline-dark my-4 rounded-full"
                 placeholder="رمز عبور خود را وارد کنید"
@@ -286,7 +321,7 @@ export default function SignInForm({ verified }: SignInFormProps) {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="text-muted-foreground hover:text-foreground absolute end-3 top-10"
+                className="text-muted-foreground hover:text-foreground absolute start-3 top-10"
                 tabIndex={-1}
               >
                 {showPassword ? (
@@ -310,7 +345,6 @@ export default function SignInForm({ verified }: SignInFormProps) {
               {isSubmittingEmail ? "در حال ورود..." : "ورود"}
             </Button>
 
-            {/* لینک فراموشی رمز فقط در تب ایمیل منطقی است */}
             <div className="mt-4 text-center">
               <Link
                 href={`/forgot-password${emailValue ? `?email=${encodeURIComponent(emailValue)}` : ""}`}
@@ -323,7 +357,6 @@ export default function SignInForm({ verified }: SignInFormProps) {
         </TabsContent>
       </Tabs>
 
-      {/* --- پانویس مشترک برای هر دو تب --- */}
       <CardFooter className="text-muted-foreground mt-2 flex flex-col items-center gap-4 pb-4 text-sm">
         <Link href="/sign-up">
           حساب کاربری ندارید؟{" "}
