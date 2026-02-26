@@ -36,10 +36,14 @@ export function useCartActions() {
   };
 
   // هندلر حذف از سبد خرید
-  const removeFromCart = (productId: string, removeAll: boolean = false) => {
+  const removeFromCart = (
+    productId: string,
+    variantId: string,
+    removeAll: boolean = false,
+  ) => {
     startRemoveTransition(async () => {
       // فرض بر این است که removeItemFromCart خروجی از نوع Promise<ActionResult<T>> دارد
-      const res = await removeItemFromCart(productId, removeAll);
+      const res = await removeItemFromCart(productId, variantId, removeAll);
       handleActionResponse(res);
     });
   };

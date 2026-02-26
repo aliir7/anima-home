@@ -131,6 +131,7 @@ export default function ProductDetailsClient({
                   slug: product.slug,
                   qty: 1,
                   image: firstVariant.images?.[0],
+                  variantId: firstVariant.id,
                 }}
                 cart={cart}
               />

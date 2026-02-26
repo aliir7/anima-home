@@ -67,7 +67,7 @@ function CartItems({ item, cart }: CartItemsProps) {
               variant="outline"
               disabled={isRemoving}
               className="cursor-pointer disabled:cursor-none dark:border dark:border-neutral-300 dark:text-neutral-900 dark:hover:bg-neutral-100"
-              onClick={() => removeFromCart(item.productId)}
+              onClick={() => removeFromCart(item.productId, item.variantId!)}
             >
               {isRemoving ? (
                 <Spinner className="h-4 w-4" />
@@ -88,7 +88,9 @@ function CartItems({ item, cart }: CartItemsProps) {
               size="icon"
               variant="outline"
               className="cursor-pointer dark:border dark:border-neutral-300 dark:text-neutral-900 dark:hover:bg-neutral-100"
-              onClick={() => removeFromCart(item.productId, true)}
+              onClick={() =>
+                removeFromCart(item.productId, item.variantId!, true)
+              }
             >
               {isRemoving ? (
                 <Spinner className="h-4 w-4" />

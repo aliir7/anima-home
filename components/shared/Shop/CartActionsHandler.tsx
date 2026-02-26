@@ -23,7 +23,7 @@ function CartActionsHandler({ cart, item }: CartActionsHandlerProps) {
       <Button
         type="button"
         variant="outline"
-        onClick={() => removeFromCart(item.productId)}
+        onClick={() => removeFromCart(item.productId, item.variantId!)}
       >
         {isRemoving ? (
           <Spinner className="h-4 w-4" />

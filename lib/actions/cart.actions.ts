@@ -139,65 +139,59 @@ export async function addItemToCart(
 }
 
 // =================================================================
-// REMOVE ITEM FROM CART ACTION
+// REMOVE ITEM FROM CART ACTION (FIXED)
 // =================================================================
 
+// تغییر ۱: اضافه شدن variantId به ورودی تابع
 export async function removeItemFromCart(
   productId: string,
+  variantId: string,
   removeAll: boolean = false,
 ): Promise<ActionResult<string>> {
   try {
-    // Check for cart cookie
     const sessionCartId = (await cookies()).get("sessionCartId")?.value;
     if (!sessionCartId) throw new Error("Cart session not found");
 
-    // Find product in database
+    // گرفتن اطلاعات محصول (فقط برای نمایش اسم در پیام موفقیت)
     const product = await db.query.products
       .findFirst({
         where: eq(products.id, productId),
-        with: {
-          variants: true,
-        },
       })
       .execute();
 
-    if (!product) {
-      throw new Error("محصول یافت نشد");
-    }
-    // Get user cart
+    if (!product) throw new Error("محصول یافت نشد");
+
     const cart = await getMyCart();
     if (!cart) throw new Error("سبد خرید یافت نشد");
 
-    // Check for item
-    const exist = (cart.items as CartItem[]).find(
-      (p) => p.productId === productId,
+    // تغییر ۲: پیدا کردن دقیق آیتم با ترکیب محصول و واریانت
+    const existIndex = (cart.items as CartItem[]).findIndex(
+      (p) => p.productId === productId && p.variantId === variantId,
     );
 
-    if (!exist) {
+    if (existIndex === -1) {
       throw new Error("آیتمی در سبد خرید یافت نشد");
     }
 
-    // Check if only one in qty
+    const exist = (cart.items as CartItem[])[existIndex];
+
+    // تغییر ۳: منطق حذف کردن
     if (exist.qty === 1 || removeAll) {
-      // Remove from cart
-      cart.items = (cart.items as CartItem[]).filter(
-        (p) => p.productId !== exist.productId,
-      );
+      // حذف کامل آیتم از آرایه
+      (cart.items as CartItem[]).splice(existIndex, 1);
     } else {
-      // Decrease qty
-      (cart.items as CartItem[]).find((p) => p.productId === productId)!.qty =
-        exist.qty - 1;
+      // کاهش تعداد
+      (cart.items as CartItem[])[existIndex].qty = exist.qty - 1;
     }
 
-    // Update cart in database
-    // ... در انتهای تابع
+    // آپدیت دیتابیس
     await db
       .update(carts)
       .set({
         items: cart.items,
         ...calculateCartPrice(cart.items as CartItem[]),
       })
-      .where(eq(carts.id, cart.id)); // <<<<< این خط حیاتی اضافه شد
+      .where(eq(carts.id, cart.id));
 
     revalidatePath(`/shop/products`);
     revalidatePath(`/shop/products/${product.seoSlug}`);
