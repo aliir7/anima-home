@@ -15,131 +15,125 @@ import { calculateCartPrice } from "../utils/calculateCartPrice";
 import { revalidatePath } from "next/cache";
 
 // =================================================================
-// ADD ITEM TO CART ACTION
+// ADD ITEM TO CART ACTION (FIXED)
 // =================================================================
 
 export async function addItemToCart(
   data: CartItem,
 ): Promise<ActionResult<string>> {
   try {
-    // Check for cart cookie
     const sessionCartId = (await cookies()).get("sessionCartId")?.value;
     if (!sessionCartId) throw new Error("Cart session not found");
 
-    // Get session and user ID
     const session = await auth();
     const userId = session?.user?.id ? (session.user.id as string) : undefined;
 
-    // Get cart
     const cart = await getMyCart();
 
-    // Parse and validate item
     const validation = cartItemSchema.safeParse(data);
-
     if (!validation.success) {
       return {
         success: false,
-        error: {
-          type: "zod",
-          issues: validation.error.issues,
-        },
+        error: { type: "zod", issues: validation.error.issues },
       };
     }
 
     const item = validation.data;
 
-    // Find product in database
+    // 1. پیدا کردن محصول و واریانت‌ها
     const product = await db.query.products
       .findFirst({
         where: eq(products.id, item.productId!),
-        with: {
-          variants: true,
-        },
+        with: { variants: true },
       })
-
       .execute();
 
-    if (!product) {
-      throw new Error("Product not found");
+    if (!product || !product.variants || product.variants.length === 0) {
+      throw new Error("Product not found or has no variants");
     }
+
+    // ✅ اصلاح ۱: اطمینان از وجود variantId
+    // اگر variantId فرستاده نشده، اولین واریانت محصول را به عنوان پیش‌فرض انتخاب می‌کنیم
+    let selectedVariant;
+    if (item.variantId) {
+      selectedVariant = product.variants.find((v) => v.id === item.variantId);
+    } else {
+      selectedVariant = product.variants[0];
+      // آی‌دی واریانت پیدا شده را به آیتم تزریق می‌کنیم تا در سبد خرید نال نباشد
+      item.variantId = selectedVariant.id;
+      // اختیاری: قیمت را هم از واریانت بگیرید تا دقیق باشد
+      item.price = selectedVariant.price;
+    }
+
+    if (!selectedVariant) {
+      throw new Error("واریانت مورد نظر یافت نشد");
+    }
+
+    // ساخت سبد خرید جدید (اگر وجود نداشت)
     if (!cart) {
-      // Create new cart object
+      // چک کردن موجودی
+      if (selectedVariant.stock < item.qty) {
+        throw new Error("موجودی کالا کافی نیست");
+      }
+
       const newCart = insertCartSchema.parse({
         userId: userId,
-        items: [item],
+        items: [item], // الان item حتما variantId دارد
         sessionCartId: sessionCartId,
         ...calculateCartPrice([item]),
       });
 
-      // Add to database
       await db
         .insert(carts)
         .values({ ...newCart })
         .execute();
 
       revalidatePath(`/shop/products`);
-      revalidatePath(`/shop/products/${product.seoSlug}`);
-
-      return {
-        success: true,
-        data: `${product.title} به سبد خرید اضافه شد `,
-      };
+      return { success: true, data: `${product.title} به سبد خرید اضافه شد` };
     }
 
-    // if Cart existing
+    // اگر سبد خرید وجود داشت
     else {
-      // Check if item is already in cart
+      // ✅ اصلاح ۲: چک کردن دقیق (هم محصول و هم واریانت باید یکی باشند)
       const existItem = (cart.items as CartItem[]).find(
-        (p) => p.productId === item.productId,
+        (p) => p.productId === item.productId && p.variantId === item.variantId,
       );
+
       if (existItem) {
-        // checking stock
-        const notEnough = product.variants.find(
-          (p) => p.stock < existItem.qty + 1,
-        );
-
-        if (notEnough) {
+        // ✅ اصلاح ۳: چک کردن موجودی فقط برای همان واریانت خاص
+        if (selectedVariant.stock < existItem.qty + 1) {
           throw new Error("موجودی کالا کافی نیست");
         }
-        // Increase the quantity
 
-        (cart.items as CartItem[]).find(
-          (p) => p.productId === item.productId,
-        )!.qty = existItem.qty + 1;
-      } // If item does not exist in cart
-      else {
-        // checking stock
-        const notEnough = product.variants.find((p) => p.stock < 1);
-        if (notEnough) {
+        // افزایش تعداد
+        existItem.qty += 1;
+      } else {
+        // آیتم جدید است
+        if (selectedVariant.stock < 1) {
           throw new Error("موجودی کالا کافی نیست");
         }
-        // Add item to the cart.items
         (cart.items as CartItem[]).push(item);
       }
-      // Save to database
+
+      // ذخیره در دیتابیس
       await db
         .update(carts)
         .set({
           items: cart.items,
           ...calculateCartPrice(cart.items as CartItem[]),
         })
-        .where(eq(carts.id, cart.id)); // <<<<< این خط حیاتی اضافه شد
+        .where(eq(carts.id, cart.id));
 
       revalidatePath(`/shop/products`);
-      revalidatePath(`/shop/products/${product.seoSlug}`);
-
       return {
         success: true,
-        data: `${product.title}${existItem ? "بروزرسانی شد  در" : "اضافه شد  به "}سبد خرید`,
+        data: `${product.title} ${existItem ? "بروزرسانی شد" : "اضافه شد"}`,
       };
     }
   } catch (err) {
     return {
       success: false,
-      error: {
-        type: "custom",
-        message: formatError(err),
-      },
+      error: { type: "custom", message: formatError(err) },
     };
   }
 }
