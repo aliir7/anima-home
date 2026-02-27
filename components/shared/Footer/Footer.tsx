@@ -1,6 +1,6 @@
 import { FaInstagram, FaTelegram, FaWhatsapp, FaYoutube } from "react-icons/fa";
 
-import { Mail, Phone } from "lucide-react";
+import { HeartIcon, Mail, Phone } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import aparatImg from "@/public/images/icon--black.svg";
@@ -190,7 +190,11 @@ export default function Footer() {
         © {new Date().getFullYear()} آنیماهوم - تمام حقوق محفوظ است.
         <br />
         <p className="mt-2">
-          توسعه و طراحی با <span className="text-red-500">❤</span> توسط:
+          توسعه و طراحی با{" "}
+          <span className="inline-flex">
+            <HeartIcon size={10} color="red" fill="red" />{" "}
+          </span>{" "}
+          توسط:
           <Link
             href="https://www.alirezaeii.ir/"
             target="_blank"
