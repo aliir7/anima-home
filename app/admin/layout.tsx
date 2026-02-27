@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import type { Metadata } from "next";
+import AdminSearch from "@/components/shared/Admin/AdminSearch";
 
 export const metadata: Metadata = {
   title: {
@@ -53,6 +54,7 @@ export default async function AdminLayout({
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
+          <AdminSearch />
         </header>
 
         {/* Page Content */}
