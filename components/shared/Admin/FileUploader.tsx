@@ -83,6 +83,7 @@ function FileUploader({
       <Input
         type="file"
         accept={accept}
+        className="outline-light dark:outline-dark rounded-full"
         multiple={multiple}
         onChange={handleFileChange}
         disabled={isUploading}

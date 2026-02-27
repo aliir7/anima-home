@@ -56,6 +56,7 @@ export default function ProductForm({
           categoryId: "",
           description: "",
           price: 0,
+          discountPercent: 0,
           stock: 0,
           sku: "",
           specs: [],
@@ -173,13 +174,13 @@ export default function ProductForm({
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="space-y-8 rounded-xl border bg-white p-6 shadow-sm"
+      className="dark:bg-muted space-y-8 rounded-xl border bg-white p-6 shadow-sm dark:text-neutral-50"
     >
       <div className="border-b pb-4">
-        <h2 className="text-xl font-bold text-gray-800">
+        <h2 className="text-xl font-bold text-gray-800 dark:text-neutral-50">
           {type === "Create" ? "افزودن محصول جدید" : "ویرایش محصول"}
         </h2>
-        <p className="text-muted-foreground mt-2 text-sm">
+        <p className="text-muted-foreground mt-2 text-sm dark:text-neutral-200">
           اطلاعات محصول را با دقت وارد کنید.
         </p>
       </div>
@@ -194,6 +195,7 @@ export default function ProductForm({
               id="title"
               {...register("title")}
               placeholder="مثلا: هود مخفی پودنیس H235"
+              className="outline-light dark:outline-dark rounded-full dark:placeholder:text-neutral-300"
             />
             {errors.title && (
               <p className="text-destructive text-xs">{errors.title.message}</p>
@@ -202,11 +204,14 @@ export default function ProductForm({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="brand">برند</Label>
+              <Label htmlFor="brand">
+                برند<span className="text-red-500">*</span>
+              </Label>
               <Input
                 id="brand"
                 {...register("brand")}
                 placeholder="مثلا: Podenis"
+                className="outline-light dark:outline-dark rounded-full dark:placeholder:text-neutral-300"
               />
               {errors.brand && (
                 <p className="text-destructive text-xs">
@@ -216,10 +221,12 @@ export default function ProductForm({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="categoryId">دسته‌بندی</Label>
+              <Label htmlFor="categoryId">
+                دسته‌بندی <span className="text-red-500">*</span>
+              </Label>
               <select
                 {...register("categoryId")}
-                className="border-input bg-background focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none dark:bg-neutral-50 dark:text-neutral-800"
+                className="border-input bg-background dark:bg-muted focus-visible:ring-ring flex h-10 w-full rounded-full border px-4 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none dark:text-neutral-300"
               >
                 <option value="">انتخاب کنید...</option>
                 {categories.map((cat) => (
@@ -237,11 +244,14 @@ export default function ProductForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="seo_slug">اسلاگ (URL)</Label>
+            <Label htmlFor="seo_slug">
+              اسلاگ (URL)<span className="text-red-500">*</span>
+            </Label>
             <Input
               id="seo_slug"
               {...register("seoSlug")}
               placeholder="podenis-hood-h235"
+              className="outline-light dark:outline-dark rounded-full dark:placeholder:text-neutral-300"
               dir="ltr"
             />
             {errors.seoSlug && (
@@ -252,22 +262,32 @@ export default function ProductForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">توضیحات</Label>
-            <Textarea id="description" {...register("description")} rows={4} />
+            <Label htmlFor="description">
+              توضیحات<span className="text-red-500">*</span>
+            </Label>
+            <Textarea
+              id="description"
+              {...register("description")}
+              rows={4}
+              className="outline-light dark:outline-dark dark:placeholder:text-neutral-300"
+            />
           </div>
 
-          <div className="space-y-4 rounded-lg border bg-gray-50 p-4">
-            <h3 className="text-sm font-semibold text-gray-700">
+          <div className="space-y-4 rounded-lg border bg-neutral-50 p-4 dark:bg-neutral-700">
+            <h3 className="text-sm font-semibold text-neutral-700 dark:text-neutral-50">
               اطلاعات انبار و قیمت
             </h3>
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="sku">SKU (کد)</Label>
+                <Label htmlFor="sku" className="text-xs md:text-sm">
+                  SKU (کد)
+                </Label>
                 <Input
                   id="sku"
                   {...register("sku")}
                   placeholder="H235-B"
                   dir="ltr"
+                  className="text-xs md:text-sm"
                 />
                 {errors.sku && (
                   <p className="text-destructive text-xs">
@@ -277,9 +297,12 @@ export default function ProductForm({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="price">قیمت (تومان)</Label>
+                <Label htmlFor="price" className="text-xs md:text-sm">
+                  قیمت (تومان)
+                </Label>
                 <Input
                   type="number"
+                  className="text-xs md:text-sm"
                   id="price"
                   {...(register("price", { valueAsNumber: true }) as any)}
                 />
@@ -291,10 +314,13 @@ export default function ProductForm({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="stock">موجودی</Label>
+                <Label htmlFor="stock" className="text-xs md:text-sm">
+                  موجودی
+                </Label>
                 <Input
                   type="number"
                   id="stock"
+                  className="text-xs md:text-sm"
                   {...(register("stock", { valueAsNumber: true }) as any)}
                 />
                 {errors.stock && (
@@ -303,12 +329,30 @@ export default function ProductForm({
                   </p>
                 )}
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="price" className="text-xs md:text-sm">
+                  درصد تخفیف
+                </Label>
+                <Input
+                  type="number"
+                  className="text-xs md:text-sm"
+                  id="discountPercent"
+                  {...(register("discountPercent", {
+                    valueAsNumber: true,
+                  }) as any)}
+                />
+                {errors.discountPercent && (
+                  <p className="text-destructive text-xs">
+                    {errors.discountPercent.message}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         </div>
 
         <div className="space-y-8">
-          <div className="space-y-4 rounded-lg border bg-gray-50 p-4">
+          <div className="dark:bg-muted space-y-4 rounded-lg border bg-gray-50 p-4">
             <h3 className="flex items-center gap-2 text-sm font-semibold">
               <ImageIcon size={18} /> تصاویر محصول
             </h3>
@@ -331,7 +375,7 @@ export default function ProductForm({
                 {currentImages.map((url, index) => (
                   <div
                     key={index}
-                    className="group relative aspect-square overflow-hidden rounded-md border bg-white shadow-sm"
+                    className="group relative aspect-square overflow-hidden rounded-full border bg-white shadow-sm"
                   >
                     <Image
                       src={url}
@@ -350,15 +394,15 @@ export default function ProductForm({
                 ))}
               </div>
             ) : (
-              <p className="text-muted-foreground rounded-md border-2 border-dashed py-4 text-center text-xs">
+              <p className="text-muted-foreground rounded-full border-2 border-dashed py-4 text-center text-xs">
                 هنوز تصویری اضافه نشده است
               </p>
             )}
           </div>
 
-          <div className="space-y-4 rounded-lg border bg-gray-50 p-4">
+          <div className="dark:bg-muted space-y-4 rounded-lg border bg-neutral-50 p-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-gray-700">
+              <h3 className="text-sm font-semibold text-neutral-700 dark:text-neutral-50">
                 مشخصات فنی
               </h3>
               <Button
@@ -366,7 +410,7 @@ export default function ProductForm({
                 onClick={() => append({ key: "", value: "" })}
                 variant="outline"
                 size="sm"
-                className="h-8 text-xs"
+                className="h-8 rounded-full text-xs"
               >
                 <Plus size={14} className="ml-1" /> افزودن سطر
               </Button>
@@ -382,7 +426,7 @@ export default function ProductForm({
                     <Input
                       {...(register(`specs.${index}.key`) as any)}
                       placeholder="عنوان (مثلا: موتور)"
-                      className="h-9 bg-white text-sm"
+                      className="h-9 rounded-full bg-white text-sm"
                     />
                     {e.specs?.[index]?.key && (
                       <span className="text-destructive text-[10px]">
@@ -395,7 +439,7 @@ export default function ProductForm({
                     <Input
                       {...(register(`specs.${index}.value`) as any)}
                       placeholder="مقدار (مثلا: توربو)"
-                      className="h-9 bg-white text-sm"
+                      className="h-9 rounded-full bg-white text-sm"
                     />
                     {e.specs?.[index]?.value && (
                       <span className="text-destructive text-[10px]">
@@ -430,7 +474,7 @@ export default function ProductForm({
         <Button
           type="submit"
           disabled={isFormSubmitting}
-          className="w-full cursor-pointer rounded-full px-4 py-6 text-sm font-medium disabled:cursor-none md:w-48 md:text-lg"
+          className="w-full cursor-pointer rounded-full px-4 py-2 font-medium disabled:cursor-none md:w-48 md:text-sm"
         >
           {isFormSubmitting
             ? "در حال پردازش..."
