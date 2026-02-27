@@ -7,17 +7,19 @@ import { Cart, CartItem } from "@/types";
 import { Minus, Plus, ShoppingCart } from "lucide-react";
 
 type CartActionsHandlerProps = {
-  cart?: Cart;
+  cart?: Cart | null;
   item: CartItem;
 };
 
 function CartActionsHandler({ cart, item }: CartActionsHandlerProps) {
   // use cart actions hook
-  const { removeFromCart, addToCart, isAdding, isRemoving } = useCartActions();
+  const { optimisticCart, removeFromCart, addToCart } = useCartActions(
+    cart?.items || [],
+  );
   // Check if item is in cart
-  const existItem =
-    cart && cart.items.find((p) => p.productId === item.productId);
-
+  const existItem = optimisticCart.find(
+    (p) => p.productId === item.productId && p.variantId === item.variantId,
+  );
   return existItem ? (
     <div>
       <Button
@@ -25,19 +27,16 @@ function CartActionsHandler({ cart, item }: CartActionsHandlerProps) {
         variant="outline"
         onClick={() => removeFromCart(item.productId, item.variantId!)}
       >
-        {isRemoving ? (
-          <Spinner className="h-4 w-4" />
-        ) : (
-          <Minus className="h-4 w-4" />
-        )}
+        <Minus className="h-4 w-4" />
       </Button>
       <span className="px-2">{existItem.qty}</span>
-      <Button type="button" variant="outline" onClick={() => addToCart(item)}>
-        {isAdding ? (
-          <Spinner className="h-4 w-4" />
-        ) : (
-          <Plus className="h-4 w-4" />
-        )}
+      <Button
+        type="button"
+        variant="outline"
+        size="icon"
+        onClick={() => addToCart(item)}
+      >
+        <Plus className="h-4 w-4" />
       </Button>
     </div>
   ) : (
@@ -47,11 +46,6 @@ function CartActionsHandler({ cart, item }: CartActionsHandlerProps) {
       type="button"
       onClick={() => addToCart(item)}
     >
-      {isAdding ? (
-        <Spinner className="h-4 w-4" />
-      ) : (
-        <Plus className="h-4 w-4" />
-      )}
       <ShoppingCart className="h-5 w-5" />
       افزودن به سبد خرید
     </Button>

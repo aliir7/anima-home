@@ -3,23 +3,25 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus, Trash2 } from "lucide-react";
-import { Cart, CartItem } from "@/types";
+import { CartItem } from "@/types";
 import formatPrice from "@/lib/utils/formatPrice";
-import { useCartActions } from "@/hooks/useCartActions";
-import { Spinner } from "@/components/ui/spinner";
 
+// اینجا توابع را در تایپ تعریف می‌کنیم
 type CartItemsProps = {
   item: CartItem;
-  cart?: Cart;
+  addToCart: (item: CartItem) => void;
+  removeFromCart: (
+    productId: string,
+    variantId: string,
+    removeAll?: boolean,
+  ) => void;
 };
 
-function CartItems({ item, cart }: CartItemsProps) {
-  // Check if item is in cart
-  const existItem =
-    cart && cart.items.find((p) => p.productId === item.productId);
-
-  const { addToCart, removeFromCart, isAdding, isRemoving } = useCartActions();
-
+export default function CartItems({
+  item,
+  addToCart,
+  removeFromCart,
+}: CartItemsProps) {
   return (
     <div className="flex gap-4 rounded-lg border bg-white p-4">
       {/* Image */}
@@ -49,15 +51,10 @@ function CartItems({ item, cart }: CartItemsProps) {
             <Button
               size="icon"
               variant="outline"
-              disabled={isAdding}
               onClick={() => addToCart(item)}
               className="cursor-pointer disabled:cursor-none dark:border dark:border-neutral-300 dark:text-neutral-900 dark:hover:bg-neutral-100"
             >
-              {isAdding ? (
-                <Spinner className="h-4 w-4" />
-              ) : (
-                <Plus className="h-4 w-4" />
-              )}
+              <Plus className="h-4 w-4" />
             </Button>
 
             <span className="w-6 text-center text-sm">{item.qty}</span>
@@ -65,15 +62,10 @@ function CartItems({ item, cart }: CartItemsProps) {
             <Button
               size="icon"
               variant="outline"
-              disabled={isRemoving}
               className="cursor-pointer disabled:cursor-none dark:border dark:border-neutral-300 dark:text-neutral-900 dark:hover:bg-neutral-100"
               onClick={() => removeFromCart(item.productId, item.variantId!)}
             >
-              {isRemoving ? (
-                <Spinner className="h-4 w-4" />
-              ) : (
-                <Minus className="h-4 w-4" />
-              )}
+              <Minus className="h-4 w-4" />
             </Button>
           </div>
 
@@ -92,11 +84,7 @@ function CartItems({ item, cart }: CartItemsProps) {
                 removeFromCart(item.productId, item.variantId!, true)
               }
             >
-              {isRemoving ? (
-                <Spinner className="h-4 w-4" />
-              ) : (
-                <Trash2 className="text-destructive h-4 w-4" />
-              )}
+              <Trash2 className="text-destructive h-4 w-4" />
             </Button>
           </div>
         </div>
@@ -104,5 +92,3 @@ function CartItems({ item, cart }: CartItemsProps) {
     </div>
   );
 }
-
-export default CartItems;

@@ -1,3 +1,4 @@
+import CartClientWrapper from "@/components/shared/Shop/Cart/CartClientWrapper";
 import CartItems from "@/components/shared/Shop/Cart/CartItems";
 import CartSummary from "@/components/shared/Shop/Cart/CartSummary";
 import EmptyCart from "@/components/shared/Shop/Cart/EmptyCart";
@@ -24,19 +25,7 @@ export default async function CartPage() {
         سبد خرید
       </h2>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-        {/* Cart Items */}
-        <div className="space-y-4 lg:col-span-8">
-          {cart.items.map((item, index) => (
-            <CartItems key={index} item={item} />
-          ))}
-        </div>
-
-        {/* Summary */}
-        <div className="lg:col-span-4">
-          <CartSummary cart={cart} />
-        </div>
-      </div>
+      <CartClientWrapper initialCart={cart} />
     </div>
   );
 }
