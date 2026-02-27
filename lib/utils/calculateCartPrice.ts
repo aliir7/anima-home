@@ -6,7 +6,7 @@ export function calculateCartPrice(items: CartItem[]) {
     0,
   );
 
-  const taxPrice = 0.1 * itemsPrice;
+  const taxPrice = 0 * itemsPrice;
   const totalPrice = itemsPrice + taxPrice;
 
   return {

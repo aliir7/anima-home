@@ -20,6 +20,7 @@ export const productVariants = pgTable("product_variants", {
   title: text("title").notNull(), // هود مخفی مدل H303
 
   price: integer("price").notNull(), // تومان
+  discountPercent: integer("discount_percent").default(0).notNull(),
   stock: integer("stock").default(0).notNull(),
 
   specs: jsonb("specs").notNull(),

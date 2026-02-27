@@ -22,6 +22,12 @@ export const createProductSchema = z.object({
     .int("قیمت باید عدد صحیح باشد")
     .nonnegative("قیمت نمیتواند عدد منفی باشد")
     .min(1000, "قیمت نامعتبر است"),
+  discountPercent: z.coerce
+    .number()
+    .int("قیمت باید عدد صحیح باشد")
+    .nonnegative("قیمت نمیتواند عدد منفی باشد")
+    .optional()
+    .default(0),
 
   stock: z.coerce
     .number()

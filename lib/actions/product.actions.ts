@@ -24,6 +24,7 @@ import { generateUniqueSlug } from "../utils/generateSlug";
 import { revalidatePath } from "next/cache";
 import { insertCategorySchema } from "../validations/categoryValidations";
 import { randomUUID } from "crypto";
+import { calculateProductPrice } from "../utils/calculateProductPrice";
 
 export async function createProductCategory(
   data: InsertCategoryValues,
@@ -147,6 +148,7 @@ export async function createProductAction(
       description,
       sku,
       price,
+      discountPercent,
       stock,
       specs,
       images,
@@ -216,7 +218,7 @@ export async function createProductAction(
         productId: newProduct.id,
         sku,
         title, // معمولاً تایتل واریانت همان تایتل محصول است مگر رنگ/سایز داشته باشد
-        price,
+        price: calculateProductPrice(price, discountPercent),
         stock,
         specs: specsObject,
         images,
