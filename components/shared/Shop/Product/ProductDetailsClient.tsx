@@ -110,9 +110,11 @@ export default function ProductDetailsClient({
                     {firstVariant.price.toLocaleString("fa-IR")} تومان
                   </span>
                 )}
-                <span className="text-primary text-xl font-bold">
-                  قیمت: {discountedPrice.toLocaleString("fa-IR")} تومان
-                </span>
+                {firstVariant.stock > 0 && (
+                  <span className="text-primary text-xl font-bold">
+                    قیمت: {discountedPrice.toLocaleString("fa-IR")} تومان
+                  </span>
+                )}
               </div>
 
               <Badge

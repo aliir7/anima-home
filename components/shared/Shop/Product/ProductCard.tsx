@@ -95,13 +95,21 @@ function ProductCard({ product, href }: ProductCardProps) {
         {/* Price */}
         <div className="mt-auto pt-3">
           <div className="flex flex-col">
-            <span
-              className={`text-muted-foreground text-base ${
-                discountPercent > 0 ? "text-xs line-through" : "font-semibold"
-              }`}
-            >
-              {firstVariant.price.toLocaleString("fa-IR")} تومان
-            </span>
+            {firstVariant.stock > 0 && (
+              <span
+                className={`text-muted-foreground text-base ${
+                  discountPercent > 0 ? "text-xs line-through" : "font-semibold"
+                }`}
+              >
+                {firstVariant.price.toLocaleString("fa-IR")} تومان
+              </span>
+            )}
+
+            {firstVariant.stock === 0 && (
+              <span className="text-base font-semibold text-red-500">
+                ناموجود
+              </span>
+            )}
 
             {discountPercent > 0 && (
               <span className="text-destructive text-base font-bold">
