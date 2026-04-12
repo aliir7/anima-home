@@ -107,7 +107,7 @@ function ProductCard({ product, href }: ProductCardProps) {
 
             {firstVariant.stock === 0 && (
               <span className="text-base font-semibold text-red-500">
-                ناموجود
+                تماس بگیرید
               </span>
             )}
 
