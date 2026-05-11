@@ -171,6 +171,8 @@ export default function Footer() {
               <Image
                 src={bleImg}
                 className="h-5 w-5"
+                width={40}
+                height={40}
                 alt="bleLogo"
                 loading="eager"
                 priority={true}
@@ -188,6 +190,8 @@ export default function Footer() {
               <Image
                 src={bleDark}
                 className="h-5 w-5"
+                width={40}
+                height={40}
                 alt="bleLogo"
                 loading="eager"
                 priority={true}
