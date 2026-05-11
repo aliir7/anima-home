@@ -1,5 +1,0 @@
-{
-  "app": "anima-home",
-  "port": 3000,
-  "disks": [{ "name": "anima-media", "mountTo": "uploads/media" }]
-}

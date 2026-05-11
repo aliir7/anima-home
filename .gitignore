@@ -41,5 +41,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# /.npmrc
-# .npmrc
+/.npmrc
+.npmrc
+/liara.json
+/package-lock.json
