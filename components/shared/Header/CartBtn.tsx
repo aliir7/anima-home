@@ -14,7 +14,7 @@ function CartBtn({ cartItemsNumber }: { cartItemsNumber: number }) {
         className="relative bg-transparent transition-all"
       >
         <Link href="/shop/cart">
-          <ShoppingBag className="h-6 w-6" />
+          <ShoppingBag className="h-6 w-6" aria-label="shopping-bag-icon" />
 
           {/* Badge */}
           <Activity mode={cartItemsNumber > 0 ? "visible" : "hidden"}>

@@ -5,7 +5,9 @@ import Link from "next/link";
 import Image from "next/image";
 import aparatImg from "@/public/images/icon--black.svg";
 import aparatDark from "@/public/images/icon--white.svg";
-import ZibalTrust from "./ZibalTrust";
+import bleImg from "@/public/images/logo/ble-logo.png";
+import bleDark from "@/public/images/logo/ble-logo-white.png";
+// import ZibalTrust from "./ZibalTrust";
 
 export default function Footer() {
   return (
@@ -159,7 +161,43 @@ export default function Footer() {
                 aria-label="Aparat"
               />
             </Link>
+            {/* ble logo */}
+            <Link
+              target="_blank"
+              href="https://ble.ir/AnimaHome"
+              aria-label="ble-link"
+              className="hover:text-primary active:text-primary opacity-70 transition duration-300 hover:opacity-100 dark:hidden"
+            >
+              <Image
+                src={bleImg}
+                className="h-5 w-5"
+                alt="bleLogo"
+                loading="eager"
+                priority={true}
+                decoding="async"
+                fetchPriority="high"
+                aria-label="ble"
+              />
+            </Link>
+            <Link
+              target="_blank"
+              href="https://ble.ir/AnimaHome"
+              aria-label="ble-link"
+              className="hover:text-primary active:text-primary hidden opacity-70 transition duration-300 hover:opacity-100 dark:block"
+            >
+              <Image
+                src={bleDark}
+                className="h-5 w-5"
+                alt="bleLogo"
+                loading="eager"
+                priority={true}
+                decoding="async"
+                fetchPriority="high"
+                aria-label="ble"
+              />
+            </Link>
           </div>
+
           <div className="mt-4 flex flex-wrap items-center gap-4">
             <Link
               referrerPolicy="origin"
@@ -179,9 +217,9 @@ export default function Footer() {
                 className="object-contain" // برای اینکه عکس دفرمه نشود
               />
             </Link>
-            <ZibalTrust />
+            {/* zibal logo */}
+            {/* <ZibalTrust /> */}
           </div>
-          {/* zibal */}
         </div>
       </div>
 
