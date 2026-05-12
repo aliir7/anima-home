@@ -12,6 +12,7 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "anima-bucket.hot.ir-central1.arvanstorage.ir",
+        pathname: "/**",
       },
 
       {
