@@ -45,6 +45,8 @@ function ProductCard({ product, href }: ProductCardProps) {
         <Image
           fill
           unoptimized
+          loading="eager"
+          priority
           src={
             getStorageUrl(firstVariant.images?.[0]) ?? "/images/placeholder.svg"
           }

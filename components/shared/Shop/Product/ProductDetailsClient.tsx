@@ -14,6 +14,7 @@ import { ProductSpecs } from "./ProductSpecs";
 import CartActionsHandler from "../CartActionsHandler";
 import Link from "next/link";
 import Rating from "@/components/ui/Rating";
+import { getStorageUrl } from "@/lib/utils/urlUtils";
 
 type ProductDetailsProps = {
   product: ProductWithRelations;
@@ -47,7 +48,12 @@ export default function ProductDetailsClient({
                 <Image
                   fill
                   unoptimized
-                  src={firstVariant.images?.[0] ?? "/images/placeholder.svg"}
+                  loading="eager"
+                  priority
+                  src={
+                    getStorageUrl(firstVariant.images?.[0]) ??
+                    "/images/placeholder.svg"
+                  }
                   alt={firstVariant.title}
                   className="object-contain"
                 />
@@ -95,67 +101,71 @@ export default function ProductDetailsClient({
         </div>
 
         {/* BUY BOX */}
-        <div className="lg:col-span-3">
-          <Card className="sticky top-24">
-            <CardContent className="space-y-5 p-6">
-              {discountPercent > 0 && (
-                <Badge variant="destructive" className="w-fit">
-                  {discountPercent}٪ تخفیف
-                </Badge>
-              )}
-
-              <div className="flex flex-col">
+        {firstVariant.stock > 0 && (
+          <div className="lg:col-span-3">
+            <Card className="sticky top-24">
+              <CardContent className="space-y-5 p-6">
                 {discountPercent > 0 && (
-                  <span className="text-muted-foreground text-sm line-through">
-                    {firstVariant.price.toLocaleString("fa-IR")} تومان
-                  </span>
+                  <Badge variant="destructive" className="w-fit">
+                    {discountPercent}٪ تخفیف
+                  </Badge>
                 )}
-                {firstVariant.stock > 0 && (
-                  <span className="text-primary text-xl font-bold">
-                    قیمت: {discountedPrice.toLocaleString("fa-IR")} تومان
-                  </span>
-                )}
-                {firstVariant.stock === 0 && (
-                  <span className="text-primary text-xl font-bold">
-                    تماس بگیرید
-                  </span>
-                )}
-              </div>
 
-              {/* <Badge
+                <div className="flex flex-col">
+                  {discountPercent > 0 && (
+                    <span className="text-muted-foreground text-sm line-through">
+                      {firstVariant.price.toLocaleString("fa-IR")} تومان
+                    </span>
+                  )}
+                  {firstVariant.stock > 0 && (
+                    <span className="text-primary text-xl font-bold">
+                      قیمت: {discountedPrice.toLocaleString("fa-IR")} تومان
+                    </span>
+                  )}
+                  {firstVariant.stock === 0 && (
+                    <span className="text-primary text-xl font-bold">
+                      تماس بگیرید
+                    </span>
+                  )}
+                </div>
+
+                {/* <Badge
                 variant={firstVariant.stock > 0 ? "secondary" : "destructive"}
                 className="w-fit rounded-full px-2 py-1 dark:bg-green-300 dark:text-neutral-800"
               >
                 {firstVariant.stock > 0 ? `موجود` : "ناموجود"}
               </Badge> */}
 
-              <CartActionsHandler
-                item={{
-                  productId: product.id,
-                  name: product.title,
-                  price:
-                    discountedPrice > 0 ? discountedPrice : firstVariant.price,
-                  slug: product.slug,
-                  qty: 1,
-                  image: firstVariant.images?.[0],
-                  variantId: firstVariant.id,
-                }}
-                cart={cart}
-              />
-              {cart?.items.length! > 0 && (
-                <Button
-                  className="w-full gap-2 rounded-full"
-                  size="lg"
-                  type="button"
-                  variant="outline"
-                  asChild
-                >
-                  <Link href="/shop/cart">رفتن به سبد خرید</Link>
-                </Button>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+                <CartActionsHandler
+                  item={{
+                    productId: product.id,
+                    name: product.title,
+                    price:
+                      discountedPrice > 0
+                        ? discountedPrice
+                        : firstVariant.price,
+                    slug: product.slug,
+                    qty: 1,
+                    image: firstVariant.images?.[0],
+                    variantId: firstVariant.id,
+                  }}
+                  cart={cart}
+                />
+                {cart?.items.length! > 0 && (
+                  <Button
+                    className="w-full gap-2 rounded-full"
+                    size="lg"
+                    type="button"
+                    variant="outline"
+                    asChild
+                  >
+                    <Link href="/shop/cart">رفتن به سبد خرید</Link>
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
 
       {/* ✅ REVIEWS */}
