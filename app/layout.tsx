@@ -71,7 +71,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fa" dir="rtl" suppressHydrationWarning={true}>
+    <html
+      lang="fa"
+      dir="rtl"
+      suppressHydrationWarning={true}
+      data-scroll-behavior="smooth"
+    >
       <head>
         <SchemaScript />
       </head>

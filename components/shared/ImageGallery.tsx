@@ -53,7 +53,8 @@ function ImageGallery({ images }: ImageGalleryProps) {
               alt={`تصویر ${idx + 1}`}
               width={500}
               height={500}
-              loading="lazy"
+              loading="eager"
+              priority
               unoptimized
               className="h-48 w-full object-cover"
             />
@@ -92,7 +93,7 @@ function ImageGallery({ images }: ImageGalleryProps) {
             <TransformWrapper>
               <TransformComponent>
                 <Image
-                  src={selectedImage}
+                  src={getStorageUrl(selectedImage)}
                   alt="پیش‌نمایش"
                   width={1200}
                   height={800}
