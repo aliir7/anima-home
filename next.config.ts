@@ -1,7 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "standalone",
   images: {
     remotePatterns: [
       {
@@ -12,10 +11,9 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "anima-home.storage.c2.liara.site",
-        port: "",
-        pathname: "/**",
+        hostname: "anima-bucket.hot.ir-central1.arvanstorage.ir",
       },
+
       {
         protocol: "https",
         hostname: "anima-home.ir",

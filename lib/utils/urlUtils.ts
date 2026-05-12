@@ -17,3 +17,12 @@ export function sanitizeUrl(url: string) {
 
   return u;
 }
+
+export function getStorageUrl(path: string) {
+  if (!path) return "";
+
+  const base = process.env.NEXT_PUBLIC_STORAGE_URL;
+  if (!base) return path;
+
+  return `${base}/${path}`;
+}

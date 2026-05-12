@@ -7,9 +7,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Image from "next/image";
-// import { ROOT_URL } from "@/lib/constants";
+import { ROOT_BUCKET_URL } from "@/lib/constants";
 
 import Link from "next/link";
+import { getStorageUrl } from "@/lib/utils/urlUtils";
 
 type ItemCardProps = {
   title: string;
@@ -30,15 +31,16 @@ function ItemCard({
   buttonText = "مشاهده",
 }: ItemCardProps) {
   const firstImage = typeof imageUrl === "string" ? imageUrl : imageUrl?.at(0);
+
   const fullImageUrl = firstImage?.startsWith("http")
     ? firstImage
-    : `https://anima-home.ir${firstImage}`;
+    : `${ROOT_BUCKET_URL}/${firstImage}`;
   return (
     <Card className="flex h-full flex-col overflow-hidden transition-shadow hover:shadow-xl">
       <CardHeader className="px-4">
         <div className="relative h-48 w-full">
           <Image
-            src={fullImageUrl}
+            src={getStorageUrl(firstImage!)}
             alt={title}
             title={title}
             fill

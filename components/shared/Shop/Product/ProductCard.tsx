@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/card";
 import { ProductWithRelations } from "@/types";
 import Rating from "@/components/ui/Rating";
+import { getStorageUrl } from "@/lib/utils/urlUtils";
 
 type ProductCardProps = {
   product: ProductWithRelations;
@@ -44,7 +45,9 @@ function ProductCard({ product, href }: ProductCardProps) {
         <Image
           fill
           unoptimized
-          src={firstVariant.images?.[0] ?? "/images/placeholder.svg"}
+          src={
+            getStorageUrl(firstVariant.images?.[0]) ?? "/images/placeholder.svg"
+          }
           alt={firstVariant.title}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           // اضافه شدن object-cover الزامی است

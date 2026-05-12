@@ -3,6 +3,7 @@
 import BreadcrumbSection from "@/components/shared/BreadcrumbSection";
 import ItemCard from "@/components/shared/Items/ItemCard";
 import PaginationControls from "@/components/shared/Pagination/PaginationControls";
+import { getStorageUrl } from "@/lib/utils/urlUtils";
 import { Material } from "@/types";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -44,8 +45,8 @@ function MaterialsPageContent({
             key={mat.id}
             title={mat.title}
             description={mat.description ?? ""}
-            imageUrl={mat.image ?? ""}
-            href={mat.pdfUrl}
+            imageUrl={mat.image! ?? ""}
+            href={getStorageUrl(mat.pdfUrl)}
             buttonText="نمایش کاتولوگ"
           />
         ))}

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import { getStorageUrl } from "@/lib/utils/urlUtils";
 
 type ImageGalleryProps = {
   images: string[];
@@ -48,7 +49,7 @@ function ImageGallery({ images }: ImageGalleryProps) {
             className="relative cursor-zoom-in overflow-hidden rounded-lg border"
           >
             <Image
-              src={img}
+              src={getStorageUrl(img)}
               alt={`تصویر ${idx + 1}`}
               width={500}
               height={500}
