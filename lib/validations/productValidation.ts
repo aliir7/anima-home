@@ -33,7 +33,7 @@ export const createProductSchema = z.object({
     .number()
     .int()
     .nonnegative()
-    .min(1, "موجودی نمی‌تواند منفی باشد"),
+    .min(0, "موجودی نمی‌تواند منفی باشد"),
 
   // مدیریت ویژگی‌های فنی در فرم (آرایه) که بعدا به آبجکت تبدیل می‌شود
   specs: z

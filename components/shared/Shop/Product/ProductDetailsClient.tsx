@@ -110,17 +110,24 @@ export default function ProductDetailsClient({
                     {firstVariant.price.toLocaleString("fa-IR")} تومان
                   </span>
                 )}
-                <span className="text-primary text-xl font-bold">
-                  قیمت: {discountedPrice.toLocaleString("fa-IR")} تومان
-                </span>
+                {firstVariant.stock > 0 && (
+                  <span className="text-primary text-xl font-bold">
+                    قیمت: {discountedPrice.toLocaleString("fa-IR")} تومان
+                  </span>
+                )}
+                {firstVariant.stock === 0 && (
+                  <span className="text-primary text-xl font-bold">
+                    تماس بگیرید
+                  </span>
+                )}
               </div>
 
-              <Badge
+              {/* <Badge
                 variant={firstVariant.stock > 0 ? "secondary" : "destructive"}
                 className="w-fit rounded-full px-2 py-1 dark:bg-green-300 dark:text-neutral-800"
               >
                 {firstVariant.stock > 0 ? `موجود` : "ناموجود"}
-              </Badge>
+              </Badge> */}
 
               <CartActionsHandler
                 item={{

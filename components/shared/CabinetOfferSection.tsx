@@ -52,7 +52,7 @@ function CabinetOfferSection() {
             >
               <Link
                 target="_blank"
-                href="https://wa.me/989129277302"
+                href="https://ble.ir/AnimaHome"
                 aria-label="Whatsapp"
               >
                 دریافت مشاوره

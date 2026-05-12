@@ -18,7 +18,7 @@ function HeroSection() {
       />
 
       {/* لایه تیره نیمه شفاف */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+      <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/20 to-transparent" />
 
       {/* متن روی تصویر */}
       <div className="absolute inset-0 top-3/4 bottom-1/3 flex items-center justify-center md:top-1/2 md:bottom-1/3">
