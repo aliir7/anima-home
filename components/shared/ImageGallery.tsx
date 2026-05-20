@@ -53,9 +53,8 @@ function ImageGallery({ images }: ImageGalleryProps) {
               alt={`تصویر ${idx + 1}`}
               width={500}
               height={500}
-              loading="eager"
-              priority
-              unoptimized
+              priority={true}
+              quality={75}
               className="h-48 w-full object-cover"
             />
           </div>

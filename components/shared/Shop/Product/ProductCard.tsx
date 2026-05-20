@@ -20,9 +20,10 @@ import { getStorageUrl } from "@/lib/utils/urlUtils";
 type ProductCardProps = {
   product: ProductWithRelations;
   href: string;
+  priority?: boolean;
 };
 
-function ProductCard({ product, href }: ProductCardProps) {
+function ProductCard({ product, href, priority = true }: ProductCardProps) {
   const firstVariant = product.variants?.[0];
   if (!firstVariant) return null;
 
@@ -44,9 +45,8 @@ function ProductCard({ product, href }: ProductCardProps) {
       >
         <Image
           fill
-          unoptimized
-          loading="eager"
-          priority
+          quality={75}
+          priority={priority}
           src={
             getStorageUrl(firstVariant.images?.[0]) ?? "/images/placeholder.svg"
           }

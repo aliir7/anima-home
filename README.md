@@ -1,8 +1,8 @@
 # 🏠 پروژه انیما هوم (Anima Home)
 
-این پروژه با استفاده از فریم‌ورک قدرتمند [Next.js 15](https://nextjs.org) و تایپ‌اسکریپت توسعه داده شده و در حال حاضر به‌صورت آنلاین روی دامنه [`anima-home.ir`](https://anima-home.ir) میزبانی می‌شود.
+این پروژه با استفاده از فریم‌ورک قدرتمند [Next.js 16](https://nextjs.org) و تایپ‌اسکریپت توسعه داده شده و در حال حاضر به‌صورت آنلاین روی دامنه [`anima-home.ir`](https://anima-home.ir) میزبانی می‌شود.
 
-> **✔️ این پروژه بر بستر سرویس ابری لیارا (Liara) پیاده‌سازی شده است.**
+> **✔️ این پروژه بر بستر سرویس ابری چابکان (Chabokan) پیاده‌سازی شده است.**
 
 ---
 
@@ -17,7 +17,7 @@
 - [Zod](https://zod.dev)
 - [NextAuth v5](https://authjs.dev)
 - [Vazirmatn Font](https://github.com/rastikerdar/vazirmatn) (فونت فارسی پروژه)
-- [Liara Platform](https://liara.ir)
+- [Chabokan Platform](https://chabokan.net)
 
 ---
 
@@ -54,7 +54,7 @@
 - [Shadcn UI](https://ui.shadcn.com/docs)
 - [Zod Validation](https://zod.dev/)
 - [Tanstack Query](https://tanstack.com/query/latest)
-- [Liara Docs](https://docs.liara.ir)
+- [Chabokan Docs](https://docs.chabokan.net)
 
 ---
 

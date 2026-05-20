@@ -35,6 +35,8 @@ export default function ProductDetailsClient({
   const discountedPrice = Math.round(
     firstVariant.price * (1 - discountPercent / 100),
   );
+  const imageSrc =
+    getStorageUrl(firstVariant.images?.[0]) ?? "/images/placeholder.svg";
 
   return (
     <div className="wrapper px-4 py-8">
@@ -46,15 +48,16 @@ export default function ProductDetailsClient({
             <CardContent className="p-6">
               <div className="relative aspect-square">
                 <Image
-                  fill
-                  unoptimized
-                  loading="eager"
-                  priority
                   src={
                     getStorageUrl(firstVariant.images?.[0]) ??
                     "/images/placeholder.svg"
                   }
                   alt={firstVariant.title}
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 40vw"
+                  quality={80}
+                  placeholder="empty"
                   className="object-contain"
                 />
               </div>

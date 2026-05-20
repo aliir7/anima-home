@@ -48,7 +48,7 @@ function ClientWrapper({
         </div>
       </div>{" "}
       <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-        {items.map((item) => (
+        {items.map((item, index) => (
           <ItemCard
             key={item.id}
             title={item.title}
@@ -56,6 +56,7 @@ function ClientWrapper({
             showDescription={true}
             buttonText="مشاهده بیشتر"
             imageUrl={item.images?.[0] || "/placeholder.svg"}
+            priority={index < 2}
             href={`${basePath}/${item.seoSlug}`}
           />
         ))}

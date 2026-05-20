@@ -3,11 +3,6 @@
 
 @custom-variant dark (&:is(.dark *));
 
-@font-face {
-  font-family: "Vazir";
-  src: url("./fonts/Vazir.ttf") format("truetype");
-}
-
 :root {
   --color-background: #f9f9f9;
   --color-foreground: #1e1e1e;
