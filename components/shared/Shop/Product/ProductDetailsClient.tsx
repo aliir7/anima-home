@@ -56,7 +56,7 @@ export default function ProductDetailsClient({
                   fill
                   priority
                   sizes="(max-width: 1024px) 100vw, 40vw"
-                  quality={80}
+                  quality={75}
                   placeholder="empty"
                   className="object-contain"
                 />
