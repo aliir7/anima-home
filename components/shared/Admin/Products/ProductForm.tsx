@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import FileUploader from "@/components/shared/Admin/FileUploader";
 import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
-import { Plus, Trash2, X, Image as ImageIcon } from "lucide-react";
+import { Plus, Trash2, X, Image as ImageIcon, Globe } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -55,6 +55,10 @@ export default function ProductForm({
           seoSlug: "",
           categoryId: "",
           description: "",
+          metaTitle: "",
+          metaDescription: "",
+          shortDescription: "",
+          isIndexable: true,
           price: 0,
           discountPercent: 0,
           stock: 0,
@@ -93,17 +97,17 @@ export default function ProductForm({
   useEffect(() => {
     if (!product) return;
 
-    const primaryVariant =
-      product.variants && product.variants.length > 0
-        ? product.variants[0]
-        : null;
-
+    const primaryVariant = product.variants?.[0] || null;
     reset({
       title: product.title ?? "",
       brand: product.brand ?? "",
       seoSlug: product.seoSlug ?? "",
       categoryId: product.categoryId ?? product.category?.id ?? "",
       description: product.description ?? "",
+      metaTitle: product.metaTitle ?? "",
+      metaDescription: product.metaDescription ?? "",
+      shortDescription: product.shortDescription ?? "",
+      isIndexable: product.isIndexable ?? true,
       price: primaryVariant?.price ?? 0,
       stock: primaryVariant?.stock ?? 0,
       sku: primaryVariant?.sku ?? "",
@@ -132,6 +136,11 @@ export default function ProductForm({
       shouldValidate: true,
     });
   };
+
+  const watchTitle = watch("title");
+  const watchMetaTitle = watch("metaTitle");
+  const watchMetaDescription = watch("metaDescription");
+  const watchSeoSlug = watch("seoSlug");
 
   const removeImageFromGallery = (indexToRemove: number) => {
     const filtered = currentImages.filter((_, idx) => idx !== indexToRemove);
@@ -349,6 +358,132 @@ export default function ProductForm({
               </div>
             </div>
           </div>
+          {/* --- شروع بخش سئو (Yoast Style) --- */}
+          <div className="mt-6 space-y-6 rounded-xl border bg-neutral-50 p-6 dark:bg-blue-900/10">
+            <div className="flex items-center gap-2 border-b pb-3">
+              <div className="flex-center gap-2">
+                <Globe className="text-blue-600" size={20} />
+                <h3 className="text-sm font-bold text-blue-900 dark:text-blue-100">
+                  تنظیمات سئو
+                </h3>
+              </div>
+            </div>
+
+            {/* Google Preview Snippet */}
+            <div className="space-y-2 rounded-lg border bg-white p-4 shadow-sm dark:bg-neutral-800">
+              <span className="text-[10px] font-medium tracking-wider text-neutral-500 uppercase">
+                پیش‌نمایش در نتایج گوگل
+              </span>
+              <div className="max-w-full space-y-1 overflow-hidden">
+                <div className="cursor-pointer truncate font-sans text-[17px] leading-tight text-[#1a0dab] hover:underline dark:text-blue-400">
+                  {watchMetaTitle || watchTitle || "عنوان محصول در اینجا..."}
+                </div>
+                <div className="truncate font-sans text-[13px] text-[#006621] dark:text-green-500">
+                  {`https://anima-home.com/products/${watchSeoSlug || "slug"}`}
+                </div>
+                <div className="line-clamp-2 font-sans text-[12px] leading-relaxed text-[#4d5156] dark:text-neutral-400">
+                  {watchMetaDescription ||
+                    "لطفا توضیحات متا را وارد کنید تا پیش‌نمایش گوگل تکمیل شود. در صورت خالی بودن، گوگل بخشی از متن را نمایش می‌دهد."}
+                </div>
+              </div>
+            </div>
+
+            {/* SEO Inputs */}
+            <div className="space-y-6">
+              {/* SEO Title */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="metaTitle" className="text-xs">
+                    عنوان سئو (Meta Title)
+                    <span className="text-red-500">*</span>
+                  </Label>
+                  <span
+                    className={`text-[12px] ${(watchMetaTitle?.length || 0) > 60 ? "text-orange-500" : "text-neutral-400"}`}
+                  >
+                    {watchMetaTitle?.length || 0} / 60
+                  </span>
+                </div>
+                <Input
+                  id="metaTitle"
+                  {...register("metaTitle")}
+                  placeholder="مثلا: خرید و قیمت هود پودنیس مدل H235"
+                  className="h-9 rounded-full bg-white text-sm placeholder:p-1 placeholder:text-xs dark:bg-neutral-900"
+                />
+                <div className="h-1 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
+                  <div
+                    className={`h-full transition-all duration-500 ${
+                      (watchMetaTitle?.length || 0) > 60
+                        ? "bg-orange-500"
+                        : (watchMetaTitle?.length || 0) > 45
+                          ? "bg-green-500"
+                          : "bg-yellow-500"
+                    }`}
+                    style={{
+                      width: `${Math.min(((watchMetaTitle?.length || 0) / 60) * 100, 100)}%`,
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Meta Description */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="metaDescription" className="text-xs">
+                    توضیحات متا (Meta Description){" "}
+                    <span className="text-red-500">*</span>
+                  </Label>
+                  <span
+                    className={`text-[12px] ${(watchMetaDescription?.length || 0) > 155 ? "text-orange-500" : "text-neutral-400"}`}
+                  >
+                    {watchMetaDescription?.length || 0} / 155
+                  </span>
+                </div>
+                <Textarea
+                  id="metaDescription"
+                  {...register("metaDescription")}
+                  placeholder="توضیحات کوتاهی که در گوگل نمایش داده می‌شود..."
+                  className="resize-none rounded-xl bg-white text-sm placeholder:p-1 placeholder:text-xs dark:bg-neutral-900"
+                  rows={3}
+                />
+                <div className="h-1 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
+                  <div
+                    className={`h-full transition-all duration-500 ${
+                      (watchMetaDescription?.length || 0) > 155
+                        ? "bg-orange-500"
+                        : (watchMetaDescription?.length || 0) > 120
+                          ? "bg-green-500"
+                          : "bg-yellow-500"
+                    }`}
+                    style={{
+                      width: `${Math.min(((watchMetaDescription?.length || 0) / 155) * 100, 100)}%`,
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Indexing Checkbox */}
+              <div className="flex items-center gap-3 rounded-lg border border-dashed bg-white/50 p-3 dark:bg-black/20">
+                <input
+                  type="checkbox"
+                  id="isIndexable"
+                  {...register("isIndexable")}
+                  className="h-4 w-4 cursor-pointer rounded accent-blue-600 transition-all"
+                />
+                <div className="grid gap-1.5 leading-none">
+                  <Label
+                    htmlFor="isIndexable"
+                    className="cursor-pointer text-xs font-semibold"
+                  >
+                    نمایش در نتایج جستجو (Indexable)
+                  </Label>
+                  <p className="text-muted-foreground text-[10px]">
+                    اگر غیرفعال باشد، این صفحه به موتورهای جستجو معرفی نمی‌شود.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* --- پایان بخش سئو --- */}
         </div>
 
         <div className="space-y-8">

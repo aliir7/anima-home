@@ -24,3 +24,9 @@ export const isURL = (message = "لینک معتبر نیست.") =>
     },
     { message },
   );
+
+export const slugSchema = z
+  .string()
+  .trim()
+  .min(3, "اسلاگ الزامی است")
+  .regex(/^[a-z0-9-]+$/, "فقط حروف انگلیسی کوچک، اعداد و خط تیره مجاز است");

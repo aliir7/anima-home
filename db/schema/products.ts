@@ -20,9 +20,13 @@ export const products = pgTable("products", {
   title: text("title").notNull(),
   brand: text("brand").notNull(),
   slug: text("slug").notNull().unique(),
-  seoSlug: text("seo_slug").notNull().unique().default(""),
+  seoSlug: text("seo_slug").notNull().unique(),
 
   description: text("description"),
+  metaTitle: text("meta_title"),
+  metaDescription: text("meta_description"),
+  shortDescription: text("short_description"),
+  isIndexable: boolean("is_indexable").default(true).notNull(),
   rating: decimal("rating", { precision: 2, scale: 1 })
     .default("0.0")
     .notNull(),
