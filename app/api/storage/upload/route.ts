@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
     const fileName = `${folder}/${uuid()}${extension}`;
 
     const command = new PutObjectCommand({
-      Bucket: process.env.LIARA_BUCKET_NAME!,
+      Bucket: process.env.ARVAN_BUCKET_NAME!,
       Key: fileName,
       Body: buffer,
       ContentType: file.type,
@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     await s3.send(command);
 
     results.push({
-      url: `${process.env.LIARA_ENDPOINT_PUBLIC_URL}/${fileName}`,
+      url: `${process.env.NEXT_PUBLIC_STORAGE_URL}/${fileName}`,
       key: fileName,
     });
   }

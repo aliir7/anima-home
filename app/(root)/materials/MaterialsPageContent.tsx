@@ -40,12 +40,13 @@ function MaterialsPageContent({
       <h2 className="mt-2 text-xl font-bold">متریال ها</h2>
 
       <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-        {materials.map((mat) => (
+        {materials.map((mat, index) => (
           <ItemCard
             key={mat.id}
             title={mat.title}
             description={mat.description ?? ""}
             imageUrl={mat.image! ?? ""}
+            priority={index < 2}
             href={getStorageUrl(mat.pdfUrl)}
             buttonText="نمایش کاتولوگ"
           />
