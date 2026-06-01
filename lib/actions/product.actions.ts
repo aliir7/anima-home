@@ -269,6 +269,10 @@ export async function updateProductAction(
       stock,
       specs,
       images,
+      metaTitle,
+      metaDescription,
+      isIndexable,
+      shortDescription,
     } = validation.data;
 
     // 2. بررسی وجود محصول

@@ -18,6 +18,7 @@ import {
   createProductAction,
   updateProductAction,
 } from "@/lib/actions/product.actions";
+import { getSafeImageSrc } from "@/lib/utils/urlUtils";
 
 type Category = { id: string; name: string };
 
@@ -164,7 +165,9 @@ export default function ProductForm({
           router.push("/admin/products");
           return;
         }
+        console.log(data, productId);
         const result = await updateProductAction(productId, data as any);
+
         if (result.success) {
           showSuccessToast(
             result.message || "محصول بروزرسانی شد",
@@ -513,9 +516,10 @@ export default function ProductForm({
                     className="group relative aspect-square overflow-hidden rounded-full border bg-white shadow-sm"
                   >
                     <Image
-                      src={url}
+                      src={getSafeImageSrc(url)}
                       alt={`prod-${index}`}
                       fill
+                      sizes="(max-width: 640px) 33vw, 25vw"
                       className="object-cover"
                     />
                     <button
