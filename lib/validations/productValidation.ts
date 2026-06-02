@@ -1,5 +1,10 @@
 import z from "zod/v4";
-import { isURL, isUUID, slugSchema } from "./helpersValidations";
+import {
+  isImagePathOrURL,
+  isURL,
+  isUUID,
+  slugSchema,
+} from "./helpersValidations";
 
 export const createProductSchema = z.object({
   // --- مربوط به جدول products ---
@@ -30,6 +35,7 @@ export const createProductSchema = z.object({
     .optional(),
 
   isIndexable: z.coerce.boolean().optional().default(true),
+  isActive: z.coerce.boolean().optional().default(true),
 
   // --- مربوط به جدول product_variants ---
   sku: z.string().min(1, "کد کالا (SKU) الزامی است"),
@@ -64,8 +70,13 @@ export const createProductSchema = z.object({
     .default([]),
 
   // تصاویر
-  images: z.array(isURL("لینک تصاویر معتبر نیست")).default([]),
+  images: z.array(isImagePathOrURL("لینک تصاویر معتبر نیست")).default([]),
 });
 
 // Schema for updating products (without id since it's passed separately)
-export const updateProductSchema = createProductSchema.partial();
+export const updateProductSchema = createProductSchema
+  .omit({ images: true })
+  .extend({
+    images: z.array(z.string()).optional(),
+  })
+  .partial();

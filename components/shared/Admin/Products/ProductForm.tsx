@@ -13,7 +13,10 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { createProductValues, ProductWithRelations } from "@/types";
-import { createProductSchema } from "@/lib/validations/productValidation";
+import {
+  createProductSchema,
+  updateProductSchema,
+} from "@/lib/validations/productValidation";
 import {
   createProductAction,
   updateProductAction,
@@ -38,6 +41,15 @@ export default function ProductForm({
   const router = useRouter();
   const [isFormSubmitting, setIsFormSubmitting] = useState(false);
 
+  // normalize image
+  const normalizeImages = (images: unknown): string[] => {
+    if (!Array.isArray(images)) return [];
+
+    return images.filter(
+      (img): img is string => typeof img === "string" && img.trim().length > 0,
+    );
+  };
+
   const {
     register,
     control,
@@ -47,7 +59,9 @@ export default function ProductForm({
     formState: { errors },
     reset,
   } = useForm<createProductValues>({
-    resolver: zodResolver(createProductSchema) as any,
+    resolver: zodResolver(
+      type === "Create" ? createProductSchema : updateProductSchema,
+    ) as any,
     defaultValues: (() => {
       if (!product) {
         return {
@@ -56,10 +70,11 @@ export default function ProductForm({
           seoSlug: "",
           categoryId: "",
           description: "",
+          shortDescription: "",
           metaTitle: "",
           metaDescription: "",
-          shortDescription: "",
           isIndexable: true,
+          isActive: true,
           price: 0,
           discountPercent: 0,
           stock: 0,
@@ -80,7 +95,13 @@ export default function ProductForm({
         seoSlug: product.seoSlug ?? "",
         categoryId: product.categoryId ?? product.category?.id ?? "",
         description: product.description ?? "",
+        shortDescription: product.shortDescription ?? "",
+        metaTitle: product.metaTitle ?? "",
+        metaDescription: product.metaDescription ?? "",
+        isIndexable: product.isIndexable ?? true,
+        isActive: product.isActive ?? true,
         price: primaryVariant?.price ?? 0,
+        discountPercent: 0,
         stock: primaryVariant?.stock ?? 0,
         sku: primaryVariant?.sku ?? "",
         specs: primaryVariant
@@ -89,27 +110,29 @@ export default function ProductForm({
               value,
             }))
           : [],
-        images: primaryVariant?.images ?? [],
+        images: normalizeImages(primaryVariant?.images) ?? [],
       } as createProductValues;
     })(),
   });
 
-  // Reset form when `product` changes — extract variant values if ProductWithRelations
   useEffect(() => {
     if (!product) return;
 
     const primaryVariant = product.variants?.[0] || null;
+
     reset({
       title: product.title ?? "",
       brand: product.brand ?? "",
       seoSlug: product.seoSlug ?? "",
       categoryId: product.categoryId ?? product.category?.id ?? "",
       description: product.description ?? "",
+      shortDescription: product.shortDescription ?? "",
       metaTitle: product.metaTitle ?? "",
       metaDescription: product.metaDescription ?? "",
-      shortDescription: product.shortDescription ?? "",
       isIndexable: product.isIndexable ?? true,
+      isActive: product.isActive ?? true,
       price: primaryVariant?.price ?? 0,
+      discountPercent: 0,
       stock: primaryVariant?.stock ?? 0,
       sku: primaryVariant?.sku ?? "",
       specs: primaryVariant
@@ -118,30 +141,32 @@ export default function ProductForm({
             value,
           }))
         : [],
-      images: primaryVariant?.images ?? [],
+      images: normalizeImages(primaryVariant?.images) ?? [],
     });
   }, [product, reset]);
 
-  // Use explicit any for errors to avoid index typing issues in the template
   const e = errors as any;
 
-  const { fields, append, remove } = useFieldArray({ control, name: "specs" });
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "specs",
+  });
 
   const currentImages = watch("images") || [];
+  const watchTitle = watch("title");
+  const watchSeoSlug = watch("seoSlug");
+  const watchMetaTitle = watch("metaTitle");
+  const watchMetaDescription = watch("metaDescription");
+  const watchShortDescription = watch("shortDescription");
 
   const handleUploadSuccess = (
     uploadedFiles: { url: string; key: string }[],
   ) => {
-    const newUrls = uploadedFiles.map((f) => f.url);
+    const newUrls = uploadedFiles.map((file) => file.url);
     setValue("images", [...currentImages, ...newUrls], {
       shouldValidate: true,
     });
   };
-
-  const watchTitle = watch("title");
-  const watchMetaTitle = watch("metaTitle");
-  const watchMetaDescription = watch("metaDescription");
-  const watchSeoSlug = watch("seoSlug");
 
   const removeImageFromGallery = (indexToRemove: number) => {
     const filtered = currentImages.filter((_, idx) => idx !== indexToRemove);
@@ -150,9 +175,21 @@ export default function ProductForm({
 
   const onSubmit = async (data: createProductValues) => {
     setIsFormSubmitting(true);
+
     try {
       if (type === "Create") {
-        const result = await createProductAction(data);
+        const createPayload = {
+          ...data,
+          images: Array.isArray(data.images)
+            ? data.images.filter(
+                (img): img is string =>
+                  typeof img === "string" && img.trim().length > 0,
+              )
+            : [],
+        };
+
+        const result = await createProductAction(createPayload);
+
         if (result.success) {
           showSuccessToast(result.message || "محصول ثبت شد", "bottom-right");
           reset();
@@ -160,23 +197,35 @@ export default function ProductForm({
         } else {
           showErrorToast(result.message as string, "bottom-right");
         }
-      } else {
-        if (!productId) {
-          router.push("/admin/products");
-          return;
-        }
-        console.log(data, productId);
-        const result = await updateProductAction(productId, data as any);
 
-        if (result.success) {
-          showSuccessToast(
-            result.message || "محصول بروزرسانی شد",
-            "bottom-right",
-          );
-          router.push("/admin/products");
-        } else {
-          showErrorToast(result.message as string, "bottom-right");
-        }
+        return;
+      }
+
+      if (!productId) {
+        router.push("/admin/products");
+        return;
+      }
+
+      const updatePayload = {
+        ...data,
+        images: Array.isArray(data.images)
+          ? data.images.filter(
+              (img): img is string =>
+                typeof img === "string" && img.trim().length > 0,
+            )
+          : [],
+      };
+
+      const result = await updateProductAction(productId, updatePayload as any);
+
+      if (result.success) {
+        showSuccessToast(
+          result.message || "محصول بروزرسانی شد",
+          "bottom-right",
+        );
+        router.push("/admin/products");
+      } else {
+        showErrorToast(result.message as string, "bottom-right");
       }
     } finally {
       setIsFormSubmitting(false);
@@ -185,7 +234,9 @@ export default function ProductForm({
 
   return (
     <form
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(onSubmit, (errs) =>
+        console.log("validation errors:", errs),
+      )}
       className="dark:bg-muted space-y-8 rounded-xl border bg-white p-6 shadow-sm dark:text-neutral-50"
     >
       <div className="border-b pb-4">
@@ -217,7 +268,7 @@ export default function ProductForm({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="brand">
-                برند<span className="text-red-500">*</span>
+                برند <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="brand"
@@ -257,7 +308,7 @@ export default function ProductForm({
 
           <div className="space-y-2">
             <Label htmlFor="seo_slug">
-              اسلاگ (URL)<span className="text-red-500">*</span>
+              اسلاگ (URL) <span className="text-red-500">*</span>
             </Label>
             <Input
               id="seo_slug"
@@ -275,20 +326,64 @@ export default function ProductForm({
 
           <div className="space-y-2">
             <Label htmlFor="description">
-              توضیحات<span className="text-red-500">*</span>
+              توضیحات <span className="text-red-500">*</span>
             </Label>
             <Textarea
               id="description"
               {...register("description")}
               rows={4}
               className="outline-light dark:outline-dark dark:placeholder:text-neutral-300"
+              placeholder="توضیحات کامل محصول را وارد کنید..."
             />
+            {errors.description && (
+              <p className="text-destructive text-xs">
+                {errors.description.message}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="shortDescription">توضیحات کوتاه</Label>
+              <span
+                className={`text-[12px] ${(watchShortDescription?.length || 0) > 300 ? "text-orange-500" : "text-neutral-400"}`}
+              >
+                {watchShortDescription?.length || 0} / 300
+              </span>
+            </div>
+            <Textarea
+              id="shortDescription"
+              {...register("shortDescription")}
+              rows={3}
+              placeholder="خلاصه‌ای کوتاه برای نمایش در کارت محصول یا معرفی سریع..."
+              className="outline-light dark:outline-dark resize-none dark:placeholder:text-neutral-300"
+            />
+            <div className="h-1 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
+              <div
+                className={`h-full transition-all duration-500 ${
+                  (watchShortDescription?.length || 0) > 300
+                    ? "bg-orange-500"
+                    : (watchShortDescription?.length || 0) > 220
+                      ? "bg-green-500"
+                      : "bg-yellow-500"
+                }`}
+                style={{
+                  width: `${Math.min(((watchShortDescription?.length || 0) / 300) * 100, 100)}%`,
+                }}
+              />
+            </div>
+            {errors.shortDescription && (
+              <p className="text-destructive text-xs">
+                {errors.shortDescription.message}
+              </p>
+            )}
           </div>
 
           <div className="space-y-4 rounded-lg border bg-neutral-50 p-4 dark:bg-neutral-700">
             <h3 className="text-sm font-semibold text-neutral-700 dark:text-neutral-50">
               اطلاعات انبار و قیمت
             </h3>
+
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="sku" className="text-xs md:text-sm">
@@ -341,8 +436,9 @@ export default function ProductForm({
                   </p>
                 )}
               </div>
+
               <div className="space-y-2">
-                <Label htmlFor="price" className="text-xs md:text-sm">
+                <Label htmlFor="discountPercent" className="text-xs md:text-sm">
                   درصد تخفیف
                 </Label>
                 <Input
@@ -360,8 +456,28 @@ export default function ProductForm({
                 )}
               </div>
             </div>
+
+            <div className="flex items-center gap-3 rounded-lg border border-dashed bg-white/50 p-3 dark:bg-black/20">
+              <input
+                type="checkbox"
+                id="isActive"
+                {...register("isActive")}
+                className="h-4 w-4 cursor-pointer rounded accent-green-600 transition-all"
+              />
+              <div className="grid gap-1.5 leading-none">
+                <Label
+                  htmlFor="isActive"
+                  className="cursor-pointer text-xs font-semibold"
+                >
+                  فعال بودن محصول
+                </Label>
+                <p className="text-muted-foreground text-[10px]">
+                  اگر غیرفعال باشد، محصول در سایت نمایش داده نمی‌شود.
+                </p>
+              </div>
+            </div>
           </div>
-          {/* --- شروع بخش سئو (Yoast Style) --- */}
+
           <div className="mt-6 space-y-6 rounded-xl border bg-neutral-50 p-6 dark:bg-blue-900/10">
             <div className="flex items-center gap-2 border-b pb-3">
               <div className="flex-center gap-2">
@@ -372,7 +488,6 @@ export default function ProductForm({
               </div>
             </div>
 
-            {/* Google Preview Snippet */}
             <div className="space-y-2 rounded-lg border bg-white p-4 shadow-sm dark:bg-neutral-800">
               <span className="text-[10px] font-medium tracking-wider text-neutral-500 uppercase">
                 پیش‌نمایش در نتایج گوگل
@@ -391,9 +506,7 @@ export default function ProductForm({
               </div>
             </div>
 
-            {/* SEO Inputs */}
             <div className="space-y-6">
-              {/* SEO Title */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="metaTitle" className="text-xs">
@@ -426,13 +539,17 @@ export default function ProductForm({
                     }}
                   />
                 </div>
+                {errors.metaTitle && (
+                  <p className="text-destructive text-xs">
+                    {errors.metaTitle.message}
+                  </p>
+                )}
               </div>
 
-              {/* Meta Description */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="metaDescription" className="text-xs">
-                    توضیحات متا (Meta Description){" "}
+                    توضیحات متا (Meta Description)
                     <span className="text-red-500">*</span>
                   </Label>
                   <span
@@ -462,9 +579,13 @@ export default function ProductForm({
                     }}
                   />
                 </div>
+                {errors.metaDescription && (
+                  <p className="text-destructive text-xs">
+                    {errors.metaDescription.message}
+                  </p>
+                )}
               </div>
 
-              {/* Indexing Checkbox */}
               <div className="flex items-center gap-3 rounded-lg border border-dashed bg-white/50 p-3 dark:bg-black/20">
                 <input
                   type="checkbox"
@@ -486,7 +607,6 @@ export default function ProductForm({
               </div>
             </div>
           </div>
-          {/* --- پایان بخش سئو --- */}
         </div>
 
         <div className="space-y-8">
@@ -502,6 +622,7 @@ export default function ProductForm({
               multiple={true}
               onUploaded={handleUploadSuccess}
             />
+
             {errors.images && (
               <p className="text-destructive text-xs">
                 {errors.images.message}

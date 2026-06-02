@@ -25,6 +25,24 @@ export const isURL = (message = "لینک معتبر نیست.") =>
     { message },
   );
 
+export const isImagePathOrURL = (message = "لینک یا مسیر تصویر معتبر نیست.") =>
+  z.string().refine(
+    (val) => {
+      const normalized = val?.trim();
+      if (!normalized) return false;
+
+      if (normalized.startsWith("/")) return true;
+
+      try {
+        new URL(normalized);
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    { message },
+  );
+
 export const slugSchema = z
   .string()
   .trim()
