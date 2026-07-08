@@ -1,31 +1,31 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Form,
-  FormField,
   FormControl,
+  FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Spinner } from "@/components/ui/spinner";
+import { updateUserPaymentMethod } from "@/lib/actions/user.actions";
 import {
   DEFAULT_PAYMENT_METHOD,
   PAYMENT_METHOD_LABEL,
   PAYMENT_METHODS,
 } from "@/lib/constants";
-import { paymentMethodSchema } from "@/lib/validations/orderValidations";
-import { Button } from "@/components/ui/button";
-import { RadioGroupItem, RadioGroup } from "@/components/ui/radio-group";
-import { Spinner } from "@/components/ui/spinner";
-import { useTransition } from "react";
-import { PaymentMethod, PaymentMethodFormValues } from "@/types";
-import { ArrowLeft } from "lucide-react";
-import { updateUserPaymentMethod } from "@/lib/actions/user.actions";
 import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
-import { Card, CardContent } from "@/components/ui/card";
+import { paymentMethodSchema } from "@/lib/validations/orderValidations";
+import { PaymentMethod, PaymentMethodFormValues } from "@/types";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
+import { useForm } from "react-hook-form";
 
 type PaymentMethodFormProps = {
   preferredPaymentMethod: PaymentMethod | null;
@@ -97,6 +97,7 @@ function PaymentMethodForm({ preferredPaymentMethod }: PaymentMethodFormProps) {
                               <RadioGroupItem
                                 value={method}
                                 checked={field.value === method}
+                                defaultChecked={method === "CARD"}
                               />
                             </FormControl>
                             {/* 
