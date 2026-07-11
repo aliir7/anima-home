@@ -10,6 +10,6 @@ export const mobileSchema = z.object({
 });
 
 export const otpSchema = z.object({
-  mobile: z.string(),
+  mobile: mobileSchema.shape.mobile,
   code: z.string().length(6, "کد تایید باید 6 رقم باشد"), // طبق عکس شما کد ۵ رقمی معمول است، اگر ۴ یا ۶ است تغییر دهید
 });

@@ -1,27 +1,27 @@
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
-import { useForm, Controller } from "react-hook-form"; // ✅ Controller اضافه شد
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useSearchParams, useRouter } from "next/navigation";
-import { Smartphone, Mail, Timer, ArrowLeft } from "lucide-react";
+import { ArrowLeft, Mail, Smartphone, Timer } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState, useTransition } from "react";
+import { Controller, useForm, useWatch } from "react-hook-form"; // ✅ Controller اضافه شد
 
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp"; // ✅ کامپوننت‌های OTP اضافه شدند
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import { SignupFormValues } from "@/types";
-import { signupFormSchema } from "@/lib/validations/usersValidations";
-import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
 import { signupAction } from "@/lib/actions/auth.actions";
-import { mobileSchema } from "@/lib/validations/smsValidations";
 import { sendOtpAction, signinWithOtpAction } from "@/lib/actions/sms.actions";
+import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
+import { mobileSchema } from "@/lib/validations/smsValidations";
+import { signupFormSchema } from "@/lib/validations/usersValidations";
+import { SignupFormValues } from "@/types";
 
 export default function SignUpForm() {
   const searchParams = useSearchParams();
@@ -82,7 +82,10 @@ export default function SignUpForm() {
     },
   });
 
-  const mobileValue = watchMobile("mobile");
+  const mobileValue = useWatch({
+    control: controlMobile,
+    name: "mobile",
+  });
 
   // تایمر معکوس
   useEffect(() => {
@@ -209,7 +212,6 @@ export default function SignUpForm() {
                     کد تایید
                   </Label>
 
-                  {/* ✅ استفاده از Controller برای InputOTP */}
                   <div className="flex justify-center" dir="ltr">
                     <Controller
                       control={controlMobile}
@@ -218,15 +220,36 @@ export default function SignUpForm() {
                         <InputOTP
                           maxLength={6}
                           value={field.value}
-                          onChange={field.onChange}
+                          onChange={(value) => {
+                            field.onChange(value);
+                            triggerMobile("code");
+                          }}
                         >
-                          <InputOTPGroup>
-                            <InputOTPSlot index={0} />
-                            <InputOTPSlot index={1} />
-                            <InputOTPSlot index={2} />
-                            <InputOTPSlot index={3} />
-                            <InputOTPSlot index={4} />
-                            <InputOTPSlot index={5} />
+                          <InputOTPGroup className="gap-2">
+                            <InputOTPSlot
+                              index={0}
+                              className="h-12 w-12 rounded-xl text-lg font-semibold shadow-sm"
+                            />
+                            <InputOTPSlot
+                              index={1}
+                              className="h-12 w-12 rounded-xl text-lg font-semibold shadow-sm"
+                            />
+                            <InputOTPSlot
+                              index={2}
+                              className="h-12 w-12 rounded-xl text-lg font-semibold shadow-sm"
+                            />
+                            <InputOTPSlot
+                              index={3}
+                              className="h-12 w-12 rounded-xl text-lg font-semibold shadow-sm"
+                            />
+                            <InputOTPSlot
+                              index={4}
+                              className="h-12 w-12 rounded-xl text-lg font-semibold shadow-sm"
+                            />
+                            <InputOTPSlot
+                              index={5}
+                              className="h-12 w-12 rounded-xl text-lg font-semibold shadow-sm"
+                            />
                           </InputOTPGroup>
                         </InputOTP>
                       )}
