@@ -5,6 +5,7 @@ import ProductCard from "./Product/ProductCard";
 import { useDataFilters } from "@/hooks/useDataFilters";
 import FilterDropdown from "../Filters/FilterDropDown";
 import PaginationControls from "../Pagination/PaginationControls";
+import ShopHeader from "./ShopHeader";
 
 type Props = {
   items: ProductWithRelations[];
@@ -38,6 +39,8 @@ export default function ShopContent({
 
   return (
     <div className="space-y-12">
+      <ShopHeader />
+
       {/* Toolbar */}
       <div className="bg-card flex flex-col gap-4 rounded-full border px-8 py-6 shadow-sm md:flex-row md:items-center md:justify-between">
         <div className="flex flex-wrap items-center gap-3">
