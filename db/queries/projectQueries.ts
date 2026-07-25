@@ -3,6 +3,7 @@ import { db } from "..";
 import { projects } from "../schema/projects";
 import { normalizeProject } from "@/lib/utils/normalize";
 import { eq, sql } from "drizzle-orm";
+import { cache } from "react";
 
 export async function getAllProjects({
   page,
@@ -150,29 +151,38 @@ export async function getProjectBySlug(
   }
 }
 
-export async function getProjectBySeoSlug(
-  seoSlug: string,
-): Promise<QueryResult<ProjectWithCategory>> {
-  try {
-    const [data] = await db
-      .select()
-      .from(projects)
-      .where(eq(projects.seoSlug, seoSlug));
+export const getProjectBySeoSlug = cache(
+  async (seoSlug: string): Promise<QueryResult<ProjectWithCategory>> => {
+    try {
+      const [data] = await db
+        .select()
+        .from(projects)
+        .where(eq(projects.seoSlug, seoSlug));
 
-    if (!data) {
-      return { success: false, error: "پروژه‌ای با این اسلاگ یافت نشد" };
+      if (!data) {
+        return {
+          success: false,
+          error: "پروژه‌ای با این اسلاگ یافت نشد",
+        };
+      }
+
+      const fixedData = {
+        ...data,
+        images: data.images as string[],
+        videos: data.videos as string[],
+      };
+
+      return {
+        success: true,
+        data: normalizeProject(fixedData),
+      };
+    } catch (error) {
+      console.error(error);
+
+      return {
+        success: false,
+        error: "خطا در دریافت پروژه",
+      };
     }
-
-    const fixedData = {
-      ...data,
-      images: data.images as unknown as string[],
-      videos: data.videos as unknown as string[],
-    };
-
-    const normalized = normalizeProject(fixedData);
-    return { success: true, data: normalized };
-  } catch (error) {
-    console.error("Error in getProjectBySeoSlug:", error);
-    return { success: false, error: "خطا در دریافت پروژه" };
-  }
-}
+  },
+);
