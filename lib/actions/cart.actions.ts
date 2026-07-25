@@ -1,204 +1,209 @@
 "use server";
 
+import { db } from "@/db";
+import { carts, products } from "@/db/schema";
 import { ActionResult, CartItem } from "@/types";
+import { and, eq, isNull } from "drizzle-orm";
+import { Session } from "next-auth";
+import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { auth } from "../auth";
+import { calculateCartPrice } from "../utils/calculateCartPrice";
 import { formatError } from "../utils/formatError";
-import { db } from "@/db";
-import { and, eq, isNull } from "drizzle-orm";
-import { carts, products } from "@/db/schema";
 import {
   cartItemSchema,
   insertCartSchema,
 } from "../validations/cartValidations";
-import { calculateCartPrice } from "../utils/calculateCartPrice";
-import { revalidatePath } from "next/cache";
+import { findProductWithVariants } from "./product.actions";
+
+/* -------------------------------------------------------------------------- */
+/*                               Private Helpers                              */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * شناسه سبد خرید مهمان را از Cookie دریافت می‌کند.
+ */
+async function getSessionCartId() {
+  return (await cookies()).get("sessionCartId")?.value;
+}
+
+/**
+ * Session کاربر جاری را برمی‌گرداند.
+ *
+ * فقط همین Helper باید auth() را صدا بزند.
+ */
+async function getCurrentSession() {
+  return auth();
+}
+
+/**
+ * به‌روزرسانی سبد خرید
+ *
+ * مسئولیت‌ها:
+ * 1- محاسبه مجدد قیمت‌ها
+ * 2- ذخیره در دیتابیس
+ * 3- Revalidate صفحات فروشگاه
+ */
+async function updateCart(
+  cartId: string,
+  items: CartItem[],
+  paths: string[] = [],
+) {
+  await db
+    .update(carts)
+    .set({
+      items,
+      ...calculateCartPrice(items),
+    })
+    .where(eq(carts.id, cartId));
+
+  revalidatePath("/shop/products");
+
+  for (const path of paths) {
+    revalidatePath(path);
+  }
+}
 
 // =================================================================
-// ADD ITEM TO CART ACTION (FIXED)
+// ADD ITEM TO CART
 // =================================================================
 
 export async function addItemToCart(
   data: CartItem,
 ): Promise<ActionResult<string>> {
   try {
-    const sessionCartId = (await cookies()).get("sessionCartId")?.value;
-    if (!sessionCartId) throw new Error("Cart session not found");
-
-    const session = await auth();
-    const userId = session?.user?.id ? (session.user.id as string) : undefined;
-
-    const cart = await getMyCart();
+    /* -------------------------------------------------------------------------- */
+    /*                               1. Validate Input                            */
+    /* -------------------------------------------------------------------------- */
 
     const validation = cartItemSchema.safeParse(data);
+
     if (!validation.success) {
       return {
         success: false,
-        error: { type: "zod", issues: validation.error.issues },
+        error: {
+          type: "zod",
+          issues: validation.error.issues,
+        },
       };
     }
 
     const item = validation.data;
 
-    // 1. پیدا کردن محصول و واریانت‌ها
-    const product = await db.query.products
-      .findFirst({
-        where: eq(products.id, item.productId!),
-        with: { variants: true },
-      })
-      .execute();
+    /* -------------------------------------------------------------------------- */
+    /*                              2. Find Product                               */
+    /* -------------------------------------------------------------------------- */
 
-    if (!product || !product.variants || product.variants.length === 0) {
-      throw new Error("Product not found or has no variants");
+    const product = await findProductWithVariants(item.productId!);
+    if (!product) {
+      throw new Error("محصول یافت نشد.");
     }
 
-    // ✅ اصلاح ۱: اطمینان از وجود variantId
-    // اگر variantId فرستاده نشده، اولین واریانت محصول را به عنوان پیش‌فرض انتخاب می‌کنیم
-    let selectedVariant;
-    if (item.variantId) {
-      selectedVariant = product.variants.find((v) => v.id === item.variantId);
-    } else {
-      selectedVariant = product.variants[0];
-      // آی‌دی واریانت پیدا شده را به آیتم تزریق می‌کنیم تا در سبد خرید نال نباشد
-      item.variantId = selectedVariant.id;
-      // اختیاری: قیمت را هم از واریانت بگیرید تا دقیق باشد
-      item.price = selectedVariant.price;
+    if (!product.variants.length) {
+      throw new Error("این محصول هیچ واریانتی ندارد.");
     }
+
+    /* -------------------------------------------------------------------------- */
+    /*                             3. Select Variant                              */
+    /* -------------------------------------------------------------------------- */
+
+    const selectedVariant = item.variantId
+      ? product.variants.find((variant) => variant.id === item.variantId)
+      : product.variants[0];
 
     if (!selectedVariant) {
-      throw new Error("واریانت مورد نظر یافت نشد");
+      throw new Error("واریانت انتخاب شده یافت نشد.");
     }
 
-    // ساخت سبد خرید جدید (اگر وجود نداشت)
+    // اگر Variant ارسال نشده بود
+    // اولین Variant را به عنوان پیش‌فرض ثبت می‌کنیم.
+    item.variantId ??= selectedVariant.id;
+
+    // Snapshot قیمت در زمان افزودن به سبد
+    item.price = selectedVariant.price;
+
+    /* -------------------------------------------------------------------------- */
+    /*                       4. Get Current Cart & Session                         */
+    /* -------------------------------------------------------------------------- */
+
+    const session = await getCurrentSession();
+
+    const sessionCartId = await getSessionCartId();
+
+    if (!session?.user?.id && !sessionCartId) {
+      throw new Error("شناسه سبد خرید یافت نشد.");
+    }
+
+    const cart = await getMyCart(session);
+
+    /* -------------------------------------------------------------------------- */
+    /*                          5. Create New Cart                                */
+    /* -------------------------------------------------------------------------- */
+
     if (!cart) {
-      // چک کردن موجودی
       if (selectedVariant.stock < item.qty) {
-        throw new Error("موجودی کالا کافی نیست");
+        throw new Error("موجودی کالا کافی نیست.");
       }
 
       const newCart = insertCartSchema.parse({
-        userId: userId,
-        items: [item], // الان item حتما variantId دارد
-        sessionCartId: sessionCartId,
+        userId: session?.user?.id,
+        sessionCartId,
+        items: [item],
         ...calculateCartPrice([item]),
       });
 
-      await db
-        .insert(carts)
-        .values({ ...newCart })
-        .execute();
+      await db.insert(carts).values(newCart);
 
-      revalidatePath(`/shop/products`);
-      return { success: true, data: `${product.title} به سبد خرید اضافه شد` };
-    }
+      revalidatePath("/shop/products");
 
-    // اگر سبد خرید وجود داشت
-    else {
-      // ✅ اصلاح ۲: چک کردن دقیق (هم محصول و هم واریانت باید یکی باشند)
-      const existItem = (cart.items as CartItem[]).find(
-        (p) => p.productId === item.productId && p.variantId === item.variantId,
-      );
-
-      if (existItem) {
-        // ✅ اصلاح ۳: چک کردن موجودی فقط برای همان واریانت خاص
-        if (selectedVariant.stock < existItem.qty + 1) {
-          throw new Error("موجودی کالا کافی نیست");
-        }
-
-        // افزایش تعداد
-        existItem.qty += 1;
-      } else {
-        // آیتم جدید است
-        if (selectedVariant.stock < 1) {
-          throw new Error("موجودی کالا کافی نیست");
-        }
-        (cart.items as CartItem[]).push(item);
-      }
-
-      // ذخیره در دیتابیس
-      await db
-        .update(carts)
-        .set({
-          items: cart.items,
-          ...calculateCartPrice(cart.items as CartItem[]),
-        })
-        .where(eq(carts.id, cart.id));
-
-      revalidatePath(`/shop/products`);
       return {
         success: true,
-        data: `${product.title} ${existItem ? "بروزرسانی شد" : "اضافه شد"}`,
+        data: `${product.title} به سبد خرید اضافه شد.`,
       };
     }
-  } catch (err) {
-    return {
-      success: false,
-      error: { type: "custom", message: formatError(err) },
-    };
-  }
-}
 
-// =================================================================
-// REMOVE ITEM FROM CART ACTION (FIXED)
-// =================================================================
+    /* -------------------------------------------------------------------------- */
+    /*                           6. Update Existing Cart                          */
+    /* -------------------------------------------------------------------------- */
 
-// تغییر ۱: اضافه شدن variantId به ورودی تابع
-export async function removeItemFromCart(
-  productId: string,
-  variantId: string,
-  removeAll: boolean = false,
-): Promise<ActionResult<string>> {
-  try {
-    const sessionCartId = (await cookies()).get("sessionCartId")?.value;
-    if (!sessionCartId) throw new Error("Cart session not found");
+    const items = [...(cart.items as CartItem[])];
 
-    // گرفتن اطلاعات محصول (فقط برای نمایش اسم در پیام موفقیت)
-    const product = await db.query.products
-      .findFirst({
-        where: eq(products.id, productId),
-      })
-      .execute();
-
-    if (!product) throw new Error("محصول یافت نشد");
-
-    const cart = await getMyCart();
-    if (!cart) throw new Error("سبد خرید یافت نشد");
-
-    // تغییر ۲: پیدا کردن دقیق آیتم با ترکیب محصول و واریانت
-    const existIndex = (cart.items as CartItem[]).findIndex(
-      (p) => p.productId === productId && p.variantId === variantId,
+    const itemIndex = items.findIndex(
+      (cartItem) =>
+        cartItem.productId === item.productId &&
+        cartItem.variantId === item.variantId,
     );
 
-    if (existIndex === -1) {
-      throw new Error("آیتمی در سبد خرید یافت نشد");
-    }
+    if (itemIndex >= 0) {
+      const currentItem = items[itemIndex];
 
-    const exist = (cart.items as CartItem[])[existIndex];
+      if (selectedVariant.stock < currentItem.qty + 1) {
+        throw new Error("موجودی کالا کافی نیست.");
+      }
 
-    // تغییر ۳: منطق حذف کردن
-    if (exist.qty === 1 || removeAll) {
-      // حذف کامل آیتم از آرایه
-      (cart.items as CartItem[]).splice(existIndex, 1);
+      items[itemIndex] = {
+        ...currentItem,
+        qty: currentItem.qty + 1,
+      };
     } else {
-      // کاهش تعداد
-      (cart.items as CartItem[])[existIndex].qty = exist.qty - 1;
+      if (selectedVariant.stock < item.qty) {
+        throw new Error("موجودی کالا کافی نیست.");
+      }
+
+      items.push(item);
     }
 
-    // آپدیت دیتابیس
-    await db
-      .update(carts)
-      .set({
-        items: cart.items,
-        ...calculateCartPrice(cart.items as CartItem[]),
-      })
-      .where(eq(carts.id, cart.id));
+    /* -------------------------------------------------------------------------- */
+    /*                               7. Save Cart                                 */
+    /* -------------------------------------------------------------------------- */
 
-    revalidatePath(`/shop/products`);
-    revalidatePath(`/shop/products/${product.seoSlug}`);
+    await updateCart(cart.id, items);
 
     return {
       success: true,
-      data: `${product.title} از سبد خرید حذف شد`,
+      data: `${product.title} ${
+        itemIndex >= 0 ? "بروزرسانی شد." : "به سبد خرید اضافه شد."
+      }`,
     };
   } catch (err) {
     return {
@@ -212,36 +217,141 @@ export async function removeItemFromCart(
 }
 
 // =================================================================
+// REMOVE ITEM FROM CART
+// =================================================================
+
+export async function removeItemFromCart(
+  productId: string,
+  variantId: string,
+  removeAll = false,
+): Promise<ActionResult<string>> {
+  try {
+    /* -------------------------------------------------------------------------- */
+    /*                              1. Find Product                               */
+    /* -------------------------------------------------------------------------- */
+
+    const product = await db.query.products.findFirst({
+      where: eq(products.id, productId),
+    });
+
+    if (!product) {
+      throw new Error("محصول یافت نشد.");
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /*                           2. Get Current Cart                              */
+    /* -------------------------------------------------------------------------- */
+
+    const session = await getCurrentSession();
+
+    const cart = await getMyCart(session);
+
+    if (!cart) {
+      throw new Error("سبد خرید یافت نشد.");
+    }
+
+    const items = [...(cart.items as CartItem[])];
+
+    /* -------------------------------------------------------------------------- */
+    /*                             3. Find Cart Item                              */
+    /* -------------------------------------------------------------------------- */
+
+    const itemIndex = items.findIndex(
+      (item) => item.productId === productId && item.variantId === variantId,
+    );
+
+    if (itemIndex === -1) {
+      throw new Error("آیتم مورد نظر در سبد خرید وجود ندارد.");
+    }
+
+    const currentItem = items[itemIndex];
+
+    /* -------------------------------------------------------------------------- */
+    /*                             4. Update Items                                */
+    /* -------------------------------------------------------------------------- */
+
+    let updatedItems: CartItem[];
+
+    // حذف کامل آیتم
+    if (removeAll || currentItem.qty === 1) {
+      updatedItems = items.filter((_, index) => index !== itemIndex);
+    } else {
+      // فقط کاهش تعداد
+      updatedItems = items.map((item, index) =>
+        index === itemIndex
+          ? {
+              ...item,
+              qty: item.qty - 1,
+            }
+          : item,
+      );
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /*                              5. Save Changes                               */
+    /* -------------------------------------------------------------------------- */
+
+    await updateCart(cart.id, updatedItems, [
+      `/shop/products/${product.seoSlug}`,
+    ]);
+
+    return {
+      success: true,
+      data: `${product.title} از سبد خرید حذف شد.`,
+    };
+  } catch (err) {
+    return {
+      success: false,
+      error: {
+        type: "custom",
+        message: formatError(err),
+      },
+    };
+  }
+}
+// =================================================================
 // GET MY CART ACTION (نسخه اصلاح شده)
 // =================================================================
 
-export async function getMyCart() {
-  const sessionCartId = (await cookies()).get("sessionCartId")?.value;
-  // اگر کوکی وجود نداشت، سبدی هم وجود ندارد
-  if (!sessionCartId) return undefined;
+/**
+ * دریافت سبد خرید کاربر جاری
+ *
+ * سناریوها:
+ *
+ * 1- اگر کاربر لاگین کرده باشد
+ *    => جستجو بر اساس userId
+ *
+ * 2- اگر کاربر مهمان باشد
+ *    => جستجو بر اساس sessionCartId
+ *
+ * نکته:
+ * Merge سبد مهمان هنگام Login انجام می‌شود،
+ * بنابراین این تابع فقط مسئول خواندن سبد خرید است.
+ */
+export async function getMyCart(session?: Session | null) {
+  const sessionCartId = await getSessionCartId();
 
-  const session = await auth();
-  const userId = session?.user?.id;
-
-  // شرط جستجوی بهینه:
-  // 1. اگر کاربر لاگین کرده: سبدی را پیدا کن که userId آن متعلق به این کاربر است.
-  // 2. اگر کاربر مهمان است: سبدی را پیدا کن که sessionCartId آن با کوکی یکی است و userId ندارد.
-  const cart = await db.query.carts.findFirst({
-    where: userId
-      ? eq(carts.userId, userId)
-      : and(eq(carts.sessionCartId, sessionCartId), isNull(carts.userId)),
-  });
-
-  if (!cart) {
-    // حالت دیگر: شاید سبد برای کاربر مهمان بوده و حالا لاگین کرده.
-    // در این حالت، باید سبد مهمان را پیدا کنیم و userId را به آن متصل کنیم.
-    // این منطق پیچیده‌تر است و معمولا در زمان لاگین انجام می‌شود (merge cart).
-    // برای سادگی، فعلا فقط سبد مهمان را برمی‌گردانیم اگر سبد کاربری نبود.
-    const guestCart = await db.query.carts.findFirst({
-      where: eq(carts.sessionCartId, sessionCartId),
-    });
-    return guestCart;
+  if (!session?.user?.id && !sessionCartId) {
+    return undefined;
   }
 
-  return cart;
+  return db.query.carts.findFirst({
+    where: session?.user?.id
+      ? eq(carts.userId, session.user.id)
+      : and(eq(carts.sessionCartId, sessionCartId!), isNull(carts.userId)),
+  });
+}
+
+/**
+ * تعداد آیتم‌های موجود در سبد خرید
+ *
+ * مناسب برای:
+ * - Header
+ * - Navbar
+ * - Badge
+ */
+export async function getCartItemsCount(session?: Session | null) {
+  const cart = await getMyCart(session);
+
+  return Array.isArray(cart?.items) ? (cart.items as CartItem[]).length : 0;
 }

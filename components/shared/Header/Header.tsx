@@ -1,19 +1,16 @@
+import { getCartItemsCount } from "@/lib/actions/cart.actions";
 import { auth } from "@/lib/auth";
+import UserDropdown from "../Account/UserDropdown";
+import CartBtn from "./CartBtn";
 import Logo from "./Logo";
 import MobileNav from "./MobileNav";
 import ModeToggle from "./ModeToggle";
 import NavBar from "./NavBar";
 import SignupBtn from "./SignupBtn";
-import UserDropdown from "../Account/UserDropdown";
-import CartBtn from "./CartBtn";
-import { getMyCart } from "@/lib/actions/cart.actions";
-import { CartItem } from "@/types";
 
 async function Header() {
   const session = await auth();
-  const cart = await getMyCart();
-  const cartItemsNumber = cart?.items ? (cart.items as CartItem[]).length : 0;
-
+  const cartItemsNumber = await getCartItemsCount(session);
   return (
     <header className="bg-primary dark:bg-muted w-full border-b text-white shadow-md">
       <div className="wrapper flex-between">

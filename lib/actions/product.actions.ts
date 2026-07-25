@@ -527,3 +527,12 @@ export async function getProductById(
     };
   }
 }
+
+export async function findProductWithVariants(productId: string) {
+  return db.query.products.findFirst({
+    where: eq(products.id, productId),
+    with: {
+      variants: true,
+    },
+  });
+}

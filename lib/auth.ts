@@ -1,22 +1,22 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import NextAuth from "next-auth";
 import type { NextAuthConfig } from "next-auth";
+import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { db } from "@/db";
+import { getUserByEmail } from "@/db/queries/getUserByEmail";
 import {
   accounts,
-  users,
-  sessions,
-  verificationTokens,
   carts,
+  sessions,
+  users,
+  verificationTokens,
 } from "@/db/schema";
-import { signinSchema } from "./validations/usersValidations";
-import { eq } from "drizzle-orm";
+import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import bcrypt from "bcryptjs";
+import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
-import { getUserByEmail } from "@/db/queries/getUserByEmail";
+import { signinSchema } from "./validations/usersValidations";
 
 export const authConfig = {
   trustHost: true,
@@ -50,19 +50,9 @@ export const authConfig = {
         // 🟢 تغییر: چون ایمیل ممکن است نال باشد، از موبایل به عنوان نام پیش‌فرض استفاده می‌کنیم
         if (user.name === "NO_NAME") {
           token.name =
-            (user as any).phone || user.email?.split("@")[0] || "کاربر جدید";
-        }
-      } else {
-        if (!token.sub) {
-          return token;
-        }
-
-        const dbUser = await db.query.users.findFirst({
-          where: eq(users.id, token.sub),
-        });
-
-        if (dbUser) {
-          token.role = dbUser.role;
+            user.name === "NO_NAME"
+              ? (user as any).phone || user.email?.split("@")[0] || "کاربر جدید"
+              : user.name;
         }
       }
 
