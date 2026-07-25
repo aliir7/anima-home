@@ -13,7 +13,7 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 
   // Maximum concurrent connections
-  max: 2,
+  max: 5,
 
   // Maximum time to wait for a new connection
   connectionTimeoutMillis: 5_000,
