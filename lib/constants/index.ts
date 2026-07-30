@@ -19,6 +19,7 @@ export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || "Anima-Home";
 export const SERVER_URL =
   process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000";
 export const ROOT_URL = "https://anima-home.ir";
+export const ROOT_BUCKET_URL = process.env.NEXT_PUBLIC_STORAGE_URL;
 export const APP_DESCRIPTION =
   "آنیما هوم؛ طراحی و اجرای تخصصی دکوراسیون داخلی، کمد، کابینت و تی‌وی‌وال با متریال روز و کیفیت بالا.";
 export const PAGE_SIZE = 6;

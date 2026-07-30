@@ -64,6 +64,7 @@ export default async function ProductsPage({
         تمام داده‌های مورد نیاز به کامپوننت کلاینت پاس داده می‌شود
         تا UI را رندر کرده و لینک‌های صحیح برای فیلتر و صفحه‌بندی بسازد.
       */}
+
       <ShopContent
         items={products ?? []}
         categories={categories}

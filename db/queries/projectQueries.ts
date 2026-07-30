@@ -3,176 +3,168 @@ import { db } from "..";
 import { projects } from "../schema/projects";
 import { normalizeProject } from "@/lib/utils/normalize";
 import { eq, sql } from "drizzle-orm";
+import { cache } from "react";
+import { withDbError } from "../helpers/withDbError";
 
-export async function getAllProjects({
-  page,
-  pageSize,
-}: {
-  page?: number;
-  pageSize?: number;
-}): Promise<QueryResult<ProjectWithCategory[]>> {
-  try {
-    const offset = ((page ?? 1) - 1) * (pageSize ?? 6);
-    const data = await db.query.projects.findMany({
-      with: {
-        category: {
-          with: {
-            parent: true,
+export const getAllProjects = cache(
+  async ({
+    page = 1,
+    pageSize = 6,
+  }: {
+    page?: number;
+    pageSize?: number;
+  }): Promise<QueryResult<ProjectWithCategory[]>> =>
+    withDbError(async () => {
+      const offset = (page - 1) * pageSize;
+
+      const data = await db.query.projects.findMany({
+        with: {
+          category: {
+            with: {
+              parent: true,
+            },
           },
         },
-      },
-      orderBy: (projects, { desc }) => [desc(projects.createdAt)],
-      limit: pageSize ?? 6,
-      offset,
-    });
 
-    const normalized = (data as Partial<ProjectWithCategory>[]).map(
-      normalizeProject,
-    );
+        orderBy: (projects, { desc }) => [desc(projects.createdAt)],
 
-    return { success: true, data: normalized };
-  } catch (error) {
-    console.error("Error in getAllProjects:", error);
-    return {
-      success: false,
-      error: "خطا در گرفتن لیست پروژه‌ها",
-    };
-  }
-}
+        limit: pageSize,
+        offset,
+      });
 
-export async function getFilteredProjects({
-  categoryId,
-  page,
-  pageSize,
-}: {
-  categoryId?: string;
-  page?: number;
-  pageSize?: number;
-}): Promise<QueryResult<ProjectWithCategory[]>> {
-  try {
-    const offset = ((page ?? 1) - 1) * (pageSize ?? 6);
+      return (data as Partial<ProjectWithCategory>[]).map(normalizeProject);
+    }, "خطا در گرفتن لیست پروژه‌ها"),
+);
 
-    const data = await db.query.projects.findMany({
-      where: categoryId ? eq(projects.categoryId, categoryId) : undefined,
-      with: {
-        category: {
-          with: {
-            parent: true, // دقیقا مثل getAllProjects
+export const getFilteredProjects = cache(
+  async ({
+    categoryId,
+    page = 1,
+    pageSize = 6,
+  }: {
+    categoryId?: string;
+    page?: number;
+    pageSize?: number;
+  }): Promise<QueryResult<ProjectWithCategory[]>> =>
+    withDbError(async () => {
+      const offset = (page - 1) * pageSize;
+
+      const data = await db.query.projects.findMany({
+        where: categoryId ? eq(projects.categoryId, categoryId) : undefined,
+
+        with: {
+          category: {
+            with: {
+              parent: true,
+            },
           },
         },
-      },
-      orderBy: (projects, { desc }) => [
-        projects.categoryId,
-        desc(projects.createdAt),
-      ],
-      limit: pageSize ?? 6,
-      offset,
-    });
 
-    const normalized = (data as Partial<ProjectWithCategory>[]).map(
-      normalizeProject,
-    );
+        orderBy: (projects, { desc }) => [
+          projects.categoryId,
+          desc(projects.createdAt),
+        ],
 
-    return { success: true, data: normalized };
-  } catch (error) {
-    console.error("Error in getFilteredProjects:", error);
-    return { success: false, error: "خطا در گرفتن لیست پروژه‌ها" };
-  }
-}
+        limit: pageSize,
+        offset,
+      });
 
-export async function getProjectsCount(categoryId?: string): Promise<number> {
-  try {
-    const whereClause = categoryId
-      ? eq(projects.categoryId, categoryId)
-      : undefined;
+      return (data as Partial<ProjectWithCategory>[]).map(normalizeProject);
+    }, "خطا در گرفتن لیست پروژه‌ها"),
+);
 
-    const result = await db
-      .select({ count: sql<number>`COUNT(*)` })
-      .from(projects)
-      .where(whereClause);
+export const getProjectsCount = cache(
+  async (categoryId?: string): Promise<number> => {
+    try {
+      const whereClause = categoryId
+        ? eq(projects.categoryId, categoryId)
+        : undefined;
 
-    return Number(result[0]?.count ?? 0);
-  } catch (error) {
-    console.error("Error in getProjectsCount:", error);
-    return 0;
-  }
-}
+      const result = await db
+        .select({
+          count: sql<number>`COUNT(*)`,
+        })
+        .from(projects)
+        .where(whereClause);
 
-export async function getProjectById(
-  id: string,
-): Promise<QueryResult<ProjectWithCategory[]>> {
-  try {
-    const data = await db.select().from(projects).where(eq(projects.id, id));
+      return Number(result[0]?.count ?? 0);
+    } catch (error) {
+      console.error(error);
+      return 0;
+    }
+  },
+);
 
-    const normalized = (data as Partial<ProjectWithCategory>[]).map(
-      normalizeProject,
-    );
-    return { success: true, data: normalized };
-  } catch (error) {
-    console.log("Error in ProjectById:", error);
-    return { success: false, error: "خطا در گرفتن پروژه با آیدی" };
-  }
-}
+export const getProjectById = cache(
+  async (id: string): Promise<QueryResult<ProjectWithCategory[]>> =>
+    withDbError(async () => {
+      const data = await db.select().from(projects).where(eq(projects.id, id));
 
-export async function getProjectBySlug(
-  slug: string,
-): Promise<QueryResult<ProjectWithCategory>> {
-  try {
-    // 1) تلاش با seoSlug (کاننیکال)
-    let [row] = await db
-      .select()
-      .from(projects)
-      .where(eq(projects.seoSlug, slug));
+      return (data as Partial<ProjectWithCategory>[]).map(normalizeProject);
+    }, "خطا در گرفتن پروژه با آیدی"),
+);
 
-    // 2) اگر پیدا نشد، fallback به slug قدیمی (legacy)
-    if (!row) {
-      const [legacy] = await db
+export const getProjectBySlug = cache(
+  async (slug: string): Promise<QueryResult<ProjectWithCategory>> =>
+    withDbError(async () => {
+      // ابتدا تلاش با seoSlug (Canonical URL)
+      let [project] = await db
         .select()
         .from(projects)
-        .where(eq(projects.slug, slug));
-      if (!legacy) {
-        return { success: false, error: "پروژه‌ای با این اسلاگ یافت نشد" };
+        .where(eq(projects.seoSlug, slug));
+
+      // اگر پیدا نشد، اسلاگ قدیمی را بررسی کن
+      if (!project) {
+        [project] = await db
+          .select()
+          .from(projects)
+          .where(eq(projects.slug, slug));
       }
-      row = legacy;
+
+      if (!project) {
+        throw new Error("Project not found");
+      }
+
+      return normalizeProject({
+        ...project,
+        images: project.images as string[],
+        videos: (project.videos as string[]) ?? [],
+      });
+    }, "خطا در دریافت پروژه"),
+);
+
+export const getProjectBySeoSlug = cache(
+  async (seoSlug: string): Promise<QueryResult<ProjectWithCategory>> => {
+    try {
+      const [data] = await db
+        .select()
+        .from(projects)
+        .where(eq(projects.seoSlug, seoSlug));
+
+      if (!data) {
+        return {
+          success: false,
+          error: "پروژه‌ای با این اسلاگ یافت نشد",
+        };
+      }
+
+      const fixedData = {
+        ...data,
+        images: data.images as string[],
+        videos: data.videos as string[],
+      };
+
+      return {
+        success: true,
+        data: normalizeProject(fixedData),
+      };
+    } catch (error) {
+      console.error(error);
+
+      return {
+        success: false,
+        error: "خطا در دریافت پروژه",
+      };
     }
-
-    const fixedData = {
-      ...row,
-      images: row.images as unknown as string[],
-      videos: (row.videos as unknown as string[]) ?? [],
-    };
-
-    const normalized = normalizeProject(fixedData);
-    return { success: true, data: normalized };
-  } catch (error) {
-    console.log("Error in getProjectBySlug:", error);
-    return { success: false, error: "خطا در دریافت پروژه" };
-  }
-}
-
-export async function getProjectBySeoSlug(
-  seoSlug: string,
-): Promise<QueryResult<ProjectWithCategory>> {
-  try {
-    const [data] = await db
-      .select()
-      .from(projects)
-      .where(eq(projects.seoSlug, seoSlug));
-
-    if (!data) {
-      return { success: false, error: "پروژه‌ای با این اسلاگ یافت نشد" };
-    }
-
-    const fixedData = {
-      ...data,
-      images: data.images as unknown as string[],
-      videos: data.videos as unknown as string[],
-    };
-
-    const normalized = normalizeProject(fixedData);
-    return { success: true, data: normalized };
-  } catch (error) {
-    console.error("Error in getProjectBySeoSlug:", error);
-    return { success: false, error: "خطا در دریافت پروژه" };
-  }
-}
+  },
+);

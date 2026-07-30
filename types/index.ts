@@ -31,7 +31,7 @@ import {
   selectProjectSchema,
   updateProjectSchema,
 } from "@/lib/validations/projectsValidations";
-import { mobileSchema } from "@/lib/validations/smsValidations";
+import { mobileSchema, otpSchema } from "@/lib/validations/smsValidations";
 import {
   changePasswordSchema,
   contactFormSchema,
@@ -163,3 +163,4 @@ export type PaymentMethodFormValues = z.infer<typeof paymentMethodSchema>;
 export type PaymentResult = z.infer<typeof paymentResultSchema>;
 
 export type MobileValues = z.infer<typeof mobileSchema>;
+export type OtpValues = z.infer<typeof otpSchema>;

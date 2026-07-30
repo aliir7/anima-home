@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     const results = await Promise.all(
       keys.map(async (key) => {
         const command = new DeleteObjectCommand({
-          Bucket: process.env.LIARA_BUCKET_NAME!,
+          Bucket: process.env.ARVAN_BUCKET_NAME!,
           Key: key,
         });
 

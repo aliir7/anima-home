@@ -9,15 +9,13 @@ function HeroSection() {
         alt="hero-image"
         width={1200}
         height={600}
-        decoding="async"
-        sizes="(min-width: 1280px) 700px, (min-width: 768px) 50vw, 100vw"
-        fetchPriority="high"
+        sizes="100vw"
         priority={true}
-        loading="eager"
-        className="w-full object-cover"
+        fetchPriority="high"
+        className="h-auto w-full"
       />
 
-      {/* لایه تیره نیمه شفاف */}
+      {/* لایه تیره */}
       <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/20 to-transparent" />
 
       {/* متن روی تصویر */}

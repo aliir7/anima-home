@@ -1,17 +1,41 @@
 import z from "zod/v4";
-import { isURL, isUUID } from "./helpersValidations";
+import {
+  isImagePathOrURL,
+  isURL,
+  isUUID,
+  slugSchema,
+} from "./helpersValidations";
 
 export const createProductSchema = z.object({
   // --- مربوط به جدول products ---
   title: z.string().min(3, "عنوان باید حداقل ۳ کاراکتر باشد"),
   brand: z.string().min(2, "برند الزامی است"),
 
-  seoSlug: z
-    .string()
-    .min(3, "اسلاگ الزامی است")
-    .regex(/^[a-z0-9-]+$/, "فقط حروف انگلیسی کوچک، اعداد و خط تیره مجاز است"),
+  seoSlug: slugSchema,
   categoryId: isUUID("لطفا یک دسته‌بندی معتبر انتخاب کنید"),
   description: z.string().trim().optional(),
+  metaTitle: z
+    .string()
+    .trim()
+    .min(3, "متا تایتل خیلی کوتاه است")
+    .max(70, "متا تایتل بهتر است حداکثر ۷۰ کاراکتر باشد")
+    .optional(),
+
+  metaDescription: z
+    .string()
+    .trim()
+    .min(10, "متا دیسکریپشن خیلی کوتاه است")
+    .max(160, "متا دیسکریپشن بهتر است حداکثر ۱۶۰ کاراکتر باشد")
+    .optional(),
+
+  shortDescription: z
+    .string()
+    .trim()
+    .max(300, "توضیح کوتاه بهتر است حداکثر ۳۰۰ کاراکتر باشد")
+    .optional(),
+
+  isIndexable: z.coerce.boolean().optional().default(true),
+  isActive: z.coerce.boolean().optional().default(true),
 
   // --- مربوط به جدول product_variants ---
   sku: z.string().min(1, "کد کالا (SKU) الزامی است"),
@@ -46,8 +70,13 @@ export const createProductSchema = z.object({
     .default([]),
 
   // تصاویر
-  images: z.array(isURL("لینک تصاویر معتبر نیست")).default([]),
+  images: z.array(isImagePathOrURL("لینک تصاویر معتبر نیست")).default([]),
 });
 
 // Schema for updating products (without id since it's passed separately)
-export const updateProductSchema = createProductSchema.partial();
+export const updateProductSchema = createProductSchema
+  .omit({ images: true })
+  .extend({
+    images: z.array(z.string()).optional(),
+  })
+  .partial();

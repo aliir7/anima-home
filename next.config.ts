@@ -1,8 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "standalone",
+  productionBrowserSourceMaps: true,
   images: {
+    formats: ["image/avif", "image/webp"],
+    qualities: [70, 75, 80, 85],
     remotePatterns: [
       {
         protocol: "https",
@@ -12,10 +14,10 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "anima-home.storage.c2.liara.site",
-        port: "",
+        hostname: "anima-bucket.hot.ir-central1.arvanstorage.ir",
         pathname: "/**",
       },
+
       {
         protocol: "https",
         hostname: "anima-home.ir",

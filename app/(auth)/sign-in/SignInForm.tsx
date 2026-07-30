@@ -1,29 +1,26 @@
 "use client";
 
-import { useForm, Controller } from "react-hook-form"; // ✅ Controller اضافه شد
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState, useTransition } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Eye, EyeOff, Smartphone, Mail, Timer, ArrowLeft } from "lucide-react";
+import { Eye, EyeOff, Mail, Smartphone } from "lucide-react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState, useTransition } from "react";
+import { useForm } from "react-hook-form"; // ✅ Controller اضافه شد
 
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { CardFooter } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CardFooter } from "@/components/ui/card";
-
-import { SigninValues } from "@/types";
-import { signinSchema } from "@/lib/validations/usersValidations";
-import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
+import { useWatch } from "react-hook-form";
+import OtpForm from "@/components/shared/Auth/Otp/OtpForm";
+import OtpMobileInput from "@/components/shared/Auth/Otp/OtpMobileInput";
 import { signinWithCredentials } from "@/lib/actions/auth.actions";
-import { mobileSchema } from "@/lib/validations/smsValidations";
 import { sendOtpAction, signinWithOtpAction } from "@/lib/actions/sms.actions";
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot,
-} from "@/components/ui/input-otp";
+import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
+import { mobileSchema } from "@/lib/validations/smsValidations";
+import { signinSchema } from "@/lib/validations/usersValidations";
+import { SigninValues } from "@/types";
 
 type SignInFormProps = {
   verified?: boolean;
@@ -84,7 +81,7 @@ export default function SignInForm({ verified }: SignInFormProps) {
   const {
     register: registerMobile,
     control: controlMobile, // ✅ این خط اضافه شد
-    formState: { errors: errorsMobile },
+    formState: { errors: errorsMobile, isSubmitting },
     watch: watchMobile,
     trigger: triggerMobile,
     getValues: getMobileValues,
@@ -97,7 +94,10 @@ export default function SignInForm({ verified }: SignInFormProps) {
     },
   });
 
-  const mobileValue = watchMobile("mobile");
+  const mobileValue = useWatch({
+    control: controlMobile,
+    name: "mobile",
+  });
 
   // تایمر معکوس
   useEffect(() => {
@@ -171,111 +171,26 @@ export default function SignInForm({ verified }: SignInFormProps) {
         <TabsContent value="mobile" className="rounded-full">
           <div className="space-y-6">
             {step === "mobile" ? (
-              <div className="animate-in fade-in slide-in-from-right-4 space-y-4 duration-300">
-                <div className="">
-                  <Label htmlFor="mobile" className="flex-row-reverse">
-                    شماره موبایل
-                  </Label>
-                  <Input
-                    id="mobile"
-                    dir="ltr"
-                    type="tel"
-                    className="outline-light dark:outline-dark my-4 rounded-full text-center tracking-widest"
-                    placeholder="09xxxxxxxxx"
-                    {...registerMobile("mobile")}
-                  />
-                  {errorsMobile.mobile && (
-                    <p className="text-destructive mt-2 text-sm">
-                      {errorsMobile.mobile.message}
-                    </p>
-                  )}
-                </div>
-                <Button
-                  onClick={onSendOtp}
-                  disabled={isPendingMobile}
-                  className="mt-6 w-full rounded-full"
-                >
-                  {isPendingMobile ? "در حال ارسال..." : "دریافت کد تایید"}
-                </Button>
-              </div>
+              <OtpMobileInput
+                register={registerMobile}
+                errors={errorsMobile}
+                isPending={isSubmitting}
+                onSubmit={onSendOtp}
+              />
             ) : (
-              <div className="animate-in fade-in slide-in-from-right-4 space-y-4 duration-300">
-                <div className="mb-2 text-center">
-                  <p className="text-muted-foreground text-sm">
-                    کد ارسال شده به {mobileValue}
-                  </p>
-                  <button
-                    onClick={() => setStep("mobile")}
-                    className="text-primary mt-1 flex w-full items-center justify-center text-xs hover:underline"
-                  >
-                    <ArrowLeft className="mr-1 h-3 w-3" />
-                    ویرایش شماره
-                  </button>
-                </div>
-
-                <div>
-                  <Label htmlFor="code" className="mb-2 block text-center">
-                    کد تایید
-                  </Label>
-
-                  {/* ✅ استفاده از Controller به جای register برای InputOTP */}
-                  <div className="flex justify-center" dir="ltr">
-                    <Controller
-                      control={controlMobile}
-                      name="code"
-                      render={({ field }) => (
-                        <InputOTP
-                          maxLength={6}
-                          value={field.value}
-                          onChange={field.onChange}
-                          className="gap-2"
-                        >
-                          <InputOTPGroup>
-                            <InputOTPSlot index={0} />
-                            <InputOTPSlot index={1} />
-                            <InputOTPSlot index={2} />
-                            <InputOTPSlot index={3} />
-                            <InputOTPSlot index={4} />
-                            <InputOTPSlot index={5} />
-                          </InputOTPGroup>
-                        </InputOTP>
-                      )}
-                    />
-                  </div>
-
-                  {errorsMobile.code && (
-                    <p className="text-destructive mt-2 text-center text-sm">
-                      {errorsMobile.code.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="mt-4 flex items-center justify-between px-2 text-sm">
-                  {timer > 0 ? (
-                    <span className="text-muted-foreground flex items-center">
-                      <Timer className="ml-1 h-4 w-4" />
-                      {formatTime(timer)} تا ارسال مجدد
-                    </span>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={onSendOtp}
-                      disabled={isPendingMobile}
-                      className="text-primary font-medium hover:underline"
-                    >
-                      ارسال مجدد کد
-                    </button>
-                  )}
-                </div>
-
-                <Button
-                  onClick={onVerifyOtp}
-                  disabled={isPendingMobile}
-                  className="mt-6 w-full rounded-full"
-                >
-                  {isPendingMobile ? "در حال بررسی..." : "ورود"}
-                </Button>
-              </div>
+              <OtpForm
+                mobile={mobileValue}
+                control={controlMobile}
+                trigger={triggerMobile}
+                errors={errorsMobile}
+                timer={timer}
+                formatTime={formatTime}
+                isPending={isSubmitting}
+                submitText="ورود"
+                onEdit={() => setStep("mobile")}
+                onResend={onSendOtp}
+                onVerify={onVerifyOtp}
+              />
             )}
           </div>
         </TabsContent>
@@ -321,7 +236,7 @@ export default function SignInForm({ verified }: SignInFormProps) {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="text-muted-foreground hover:text-foreground absolute start-3 top-10"
+                className="text-muted-foreground hover:text-foreground absolute inset-s-3 top-10"
                 tabIndex={-1}
               >
                 {showPassword ? (

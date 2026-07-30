@@ -26,6 +26,10 @@ import { insertCategorySchema } from "../validations/categoryValidations";
 import { randomUUID } from "crypto";
 import { calculateProductPrice } from "../utils/calculateProductPrice";
 
+// =================================================================
+// CREATE PRODUCT CATEGORY ACTION
+// =================================================================
+
 export async function createProductCategory(
   data: InsertCategoryValues,
 ): Promise<ActionResult<unknown>> {
@@ -122,12 +126,15 @@ export async function createProductCategory(
   }
 }
 
-// create product
+// =================================================================
+// CREATE PRODUCT ACTION
+// =================================================================
+
 export async function createProductAction(
   data: createProductValues,
 ): Promise<ActionResult<unknown>> {
   try {
-    // get data & validations
+    // get data & validation
     const validation = createProductSchema.safeParse(data);
 
     if (!validation.success) {
@@ -139,13 +146,18 @@ export async function createProductAction(
         },
       };
     }
-    // if validation is pass
+    // if validation id passed
     const {
       title,
       brand,
       seoSlug,
       categoryId,
       description,
+      shortDescription,
+      metaTitle,
+      metaDescription,
+      isIndexable,
+      isActive,
       sku,
       price,
       discountPercent,
@@ -153,7 +165,7 @@ export async function createProductAction(
       specs,
       images,
     } = validation.data;
-    // checking new project not duplicated
+    // checking new product not duplicated
     const [existing] = await db
       .select()
       .from(products)
@@ -168,7 +180,7 @@ export async function createProductAction(
         },
       };
     }
-    // چک کردن یکتا بودن seoSlug
+    // checking seoSlug not duplicated
     const [existingSeo] = await db
       .select()
       .from(products)
@@ -183,10 +195,10 @@ export async function createProductAction(
         },
       };
     }
-    // generate slug
+
     const slug = await generateUniqueSlug(title);
 
-    // تبدیل آرایه ویژگی‌ها به آبجکت برای ذخیره در JSONB
+    // Convert To Jsonb
     const specsObject = specs.reduce(
       (acc, curr) => {
         if (curr.key && curr.value) acc[curr.key] = curr.value;
@@ -195,9 +207,8 @@ export async function createProductAction(
       {} as Record<string, string>,
     );
 
-    // create new product to database
+    // Creating new product to database
     await db.transaction(async (tx) => {
-      // ایجاد محصول والد
       const [newProduct] = await tx
         .insert(products)
         .values({
@@ -207,17 +218,20 @@ export async function createProductAction(
           slug,
           seoSlug,
           description,
-          isActive: true,
+          shortDescription,
+          metaTitle,
+          metaDescription,
+          isIndexable,
+          isActive,
           rating: "0.0",
           numReviews: 0,
         })
         .returning({ id: products.id });
 
-      // ایجاد واریانت
       await tx.insert(productVariants).values({
         productId: newProduct.id,
         sku,
-        title, // معمولاً تایتل واریانت همان تایتل محصول است مگر رنگ/سایز داشته باشد
+        title,
         price: calculateProductPrice(price, discountPercent),
         stock,
         specs: specsObject,
@@ -249,7 +263,6 @@ export async function updateProductAction(
   data: updateProductValues,
 ): Promise<ActionResult<unknown>> {
   try {
-    // 1. اعتبارسنجی داده‌های ورودی
     const validation = updateProductSchema.safeParse(data);
     if (!validation.success) {
       return {
@@ -269,11 +282,15 @@ export async function updateProductAction(
       stock,
       specs,
       images,
+      metaTitle,
+      metaDescription,
+      isIndexable,
+      shortDescription,
+      isActive,
     } = validation.data;
 
-    // 2. بررسی وجود محصول
     const [productToUpdate] = await db
-      .select({ id: products.id })
+      .select({ id: products.id, seoSlug: products.seoSlug })
       .from(products)
       .where(eq(products.id, productId));
 
@@ -287,8 +304,6 @@ export async function updateProductAction(
       };
     }
 
-    // 3. بررسی یکتا بودن عنوان (در صورت تغییر)
-    // این قسمت علت اصلی خطا بود. با این validation، title دیگر undefined نیست.
     const [existingTitle] = await db
       .select()
       .from(products)
@@ -304,7 +319,6 @@ export async function updateProductAction(
       };
     }
 
-    // 4. بررسی یکتا بودن SEO Slug (در صورت تغییر)
     const [existingSeo] = await db
       .select()
       .from(products)
@@ -320,7 +334,6 @@ export async function updateProductAction(
       };
     }
 
-    // 5. تبدیل ویژگی‌ها به آبجکت JSON
     const specsArray = specs || [];
     const specsObject = specsArray.reduce(
       (acc, curr) => {
@@ -330,10 +343,7 @@ export async function updateProductAction(
       {} as Record<string, string>,
     );
 
-    // 6. اجرای تراکنش برای آپدیت محصول و واریانت
     await db.transaction(async (tx) => {
-      // آپدیت جدول اصلی محصولات
-      // متد set در Drizzle به صورت هوشمند مقادیر undefined را نادیده می‌گیرد
       await tx
         .update(products)
         .set({
@@ -342,15 +352,19 @@ export async function updateProductAction(
           seoSlug,
           categoryId,
           description,
+          shortDescription,
+          metaDescription,
+          metaTitle,
+          isIndexable,
+          isActive,
         })
         .where(eq(products.id, productId));
 
-      // آپدیت جدول واریانت‌ها
       await tx
         .update(productVariants)
         .set({
           sku,
-          title, // عنوان واریانت نیز آپدیت می‌شود
+          title,
           price,
           stock,
           specs: specsObject,
@@ -360,7 +374,10 @@ export async function updateProductAction(
     });
 
     revalidatePath("/admin/products");
-    revalidatePath(`shop/products/${seoSlug}`);
+    revalidatePath(`/shop/products/${seoSlug}`);
+    if (productToUpdate.seoSlug !== seoSlug) {
+      revalidatePath(`/shop/products/${productToUpdate.seoSlug}`);
+    }
 
     return { success: true, data: { message: "محصول با موفقیت ویرایش شد" } };
   } catch (err) {
@@ -509,4 +526,13 @@ export async function getProductById(
       },
     };
   }
+}
+
+export async function findProductWithVariants(productId: string) {
+  return db.query.products.findFirst({
+    where: eq(products.id, productId),
+    with: {
+      variants: true,
+    },
+  });
 }
