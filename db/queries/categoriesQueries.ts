@@ -1,114 +1,76 @@
-import { eq } from "drizzle-orm";
-import { db } from "..";
-import { categories } from "../schema/index";
 import { CategoryWithParent, QueryResult } from "@/types";
+import { eq } from "drizzle-orm";
+import { cache } from "react";
+import { db } from "..";
+import { withDbError } from "../helpers/withDbError";
+import { categories } from "../schema/index";
 
-export async function getCategoryBySlug(
-  slug: string,
-): Promise<QueryResult<CategoryWithParent[]>> {
-  try {
-    const data = await db.query.categories.findMany({
-      where: eq(categories.slug, slug),
-      with: {
-        parent: true,
-        children: true,
-      },
-    });
+export const getCategoryBySlug = cache(
+  async (slug: string): Promise<QueryResult<CategoryWithParent[]>> =>
+    withDbError(async () => {
+      const data = await db.query.categories.findMany({
+        where: eq(categories.slug, slug),
+        with: {
+          parent: true,
+          children: true,
+        },
+      });
+      return data;
+    }, "خطا در گرفتن دسته‌بندی با اسلاگ"),
+);
 
-    return { success: true, data };
-  } catch (error) {
-    console.error("Error in getCategoryBySlug:", error);
-    return {
-      success: false,
-      error: "خطا در گرفتن دسته‌بندی با اسلاگ",
-    };
-  }
-}
+export const getCategoryById = cache(
+  async (id: string): Promise<QueryResult<CategoryWithParent[]>> =>
+    withDbError(async () => {
+      const data = await db.query.categories.findMany({
+        where: eq(categories.id, id),
+        with: {
+          parent: true,
+          children: true,
+        },
+      });
+      return data;
+    }, "خطا در گرفتن دسته‌بندی با شناسه"),
+);
 
-export async function getCategoryById(
-  id: string,
-): Promise<QueryResult<CategoryWithParent[]>> {
-  try {
-    const data = await db.query.categories.findMany({
-      where: eq(categories.id, id),
-      with: {
-        parent: true,
-        children: true,
-      },
-    });
+export const getAllProjectCategories = cache(
+  async (): Promise<QueryResult<CategoryWithParent[]>> =>
+    withDbError(async () => {
+      const data = await db.query.categories.findMany({
+        with: {
+          parent: true,
+          children: true,
+        },
+        orderBy: (categories, { desc }) => [desc(categories.createdAt)],
+      });
+      return data;
+    }, "خطا در گرفتن لیست دسته‌بندی‌های پروژه ها"),
+);
 
-    return { success: true, data };
-  } catch (error) {
-    console.error("Error in getCategoryById:", error);
-    return {
-      success: false,
-      error: "خطا در گرفتن دسته‌بندی با شناسه",
-    };
-  }
-}
+export const getAllProductCategories = cache(
+  async (): Promise<QueryResult<CategoryWithParent[]>> =>
+    withDbError(async () => {
+      const data = await db.query.productCategories.findMany({
+        with: {
+          parent: true,
+          children: true,
+        },
+        orderBy: (categories, { desc }) => [desc(categories.createdAt)],
+      });
+      return data;
+    }, "خطا در گرفتن لیست دسته‌بندی‌های محصولات"),
+);
 
-export async function getAllProjectCategories(): Promise<
-  QueryResult<CategoryWithParent[]>
-> {
-  try {
-    const data = await db.query.categories.findMany({
-      with: {
-        parent: true,
-        children: true,
-      },
-      orderBy: (categories, { desc }) => [desc(categories.createdAt)],
-    });
-
-    return { success: true, data };
-  } catch (error) {
-    console.error("Error in getAllCategories:", error);
-    return {
-      success: false,
-      error: "خطا در گرفتن لیست دسته‌بندی‌ها",
-    };
-  }
-}
-
-export async function getAllProductCategories(): Promise<
-  QueryResult<CategoryWithParent[]>
-> {
-  try {
-    const data = await db.query.productCategories.findMany({
-      with: {
-        parent: true,
-        children: true,
-      },
-      orderBy: (categories, { desc }) => [desc(categories.createdAt)],
-    });
-
-    return { success: true, data };
-  } catch (error) {
-    console.error("Error in getAllCategories:", error);
-    return {
-      success: false,
-      error: "خطا در گرفتن لیست دسته‌بندی‌ها",
-    };
-  }
-}
-
-export async function getCategoryChildren(
-  parentId: string,
-): Promise<QueryResult<CategoryWithParent[]>> {
-  try {
-    const data = await db.query.categories.findMany({
-      where: eq(categories.parentId, parentId),
-      with: {
-        parent: true,
-        children: true,
-      },
-    });
-
-    return { success: true, data };
-  } catch (error) {
-    console.error("Error in getCategoryChildren:", error);
-    return {
-      success: false,
-      error: "خطا در گرفتن زیر‌دسته‌ها",
-    };
-  }
-}
+export const getCategoryChildren = cache(
+  async (parentId: string): Promise<QueryResult<CategoryWithParent[]>> =>
+    withDbError(async () => {
+      const data = await db.query.categories.findMany({
+        where: eq(categories.parentId, parentId),
+        with: {
+          parent: true,
+          children: true,
+        },
+      });
+      return data;
+    }, "خطا در گرفتن زیر‌دسته‌ها"),
+);

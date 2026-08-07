@@ -6,6 +6,14 @@ import { eq, sql } from "drizzle-orm";
 import { cache } from "react";
 import { withDbError } from "../helpers/withDbError";
 
+function normalizeProjectRow(row: typeof projects.$inferSelect) {
+  return normalizeProject({
+    ...row,
+    images: row.images as string[],
+    videos: (row.videos as string[]) ?? [],
+  });
+}
+
 export const getAllProjects = cache(
   async ({
     page = 1,
@@ -69,7 +77,7 @@ export const getFilteredProjects = cache(
         offset,
       });
 
-      return (data as Partial<ProjectWithCategory>[]).map(normalizeProject);
+      return data.map(normalizeProjectRow);
     }, "خطا در گرفتن لیست پروژه‌ها"),
 );
 
@@ -125,11 +133,7 @@ export const getProjectBySlug = cache(
         throw new Error("Project not found");
       }
 
-      return normalizeProject({
-        ...project,
-        images: project.images as string[],
-        videos: (project.videos as string[]) ?? [],
-      });
+      return normalizeProjectRow(project);
     }, "خطا در دریافت پروژه"),
 );
 
@@ -148,11 +152,7 @@ export const getProjectBySeoSlug = cache(
         };
       }
 
-      const fixedData = {
-        ...data,
-        images: data.images as string[],
-        videos: data.videos as string[],
-      };
+      const fixedData = normalizeProjectRow(data);
 
       return {
         success: true,
