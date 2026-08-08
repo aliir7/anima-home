@@ -51,7 +51,7 @@ export const projectRedirectsRelations = relations(
 );
 
 // Project categories
-export const categoriesRelations = relations(categories, ({ many, one }) => ({
+export const categoryRelations = relations(categories, ({ many, one }) => ({
   projects: many(projects),
   parent: one(categories, {
     fields: [categories.parentId],
@@ -139,7 +139,7 @@ export const orderItemsRelations = relations(orderItems, ({ one }) => ({
     references: [products.id],
   }), // هر آیتم به یک محصول خاص اشاره می‌کند
 
-    variant: one(productVariants, {
+  variant: one(productVariants, {
     fields: [orderItems.variantId],
     references: [productVariants.id],
   }),
