@@ -45,7 +45,7 @@ function ItemCard({
             fill
             priority={priority}
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            quality={75}
+            unoptimized={true}
             className="rounded-lg object-cover"
           />
         </div>

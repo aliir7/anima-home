@@ -54,7 +54,7 @@ function ImageGallery({ images }: ImageGalleryProps) {
               width={500}
               height={500}
               priority={true}
-              quality={75}
+              unoptimized={true}
               className="h-48 w-full object-cover"
             />
           </div>

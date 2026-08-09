@@ -38,7 +38,7 @@ function ProductCard({ product, href, priority }: ProductCardProps) {
       >
         <Image
           fill
-          quality={75}
+          unoptimized={true}
           priority={priority}
           src={
             getStorageUrl(firstVariant.images?.[0]) ?? "/images/placeholder.svg"
