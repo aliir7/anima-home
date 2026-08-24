@@ -92,71 +92,114 @@ export async function signinWithCredentials(
   const validated = signinSchema.safeParse(formData);
 
   if (!validated.success) {
+    console.error("❌ Zod Validation Failed:", validated.error.issues);
     return {
       success: false,
-      error: {
-        type: "zod",
-        issues: validated.error.issues,
-      },
+      error: { type: "zod", issues: validated.error.issues },
     };
   }
 
   const { email, password } = validated.data;
 
+  if (!email || !password) {
+    return {
+      success: false,
+      error: { type: "custom", message: "ایمیل و رمز عبور الزامی هستند" },
+    };
+  }
+
   try {
-    await auth.api.signInEmail({
-      body: {
-        email,
-        password,
-      },
+    const result = await auth.api.signInEmail({
+      body: { email, password },
       headers: await headers(),
     });
 
-    // بعد از ورود موفق، merge سبد خرید توسط databaseHook در auth.ts انجام می‌شود
+    console.log("✅ Login successful for:", email);
+
     return {
       success: true,
       data: "با موفقیت وارد شدید",
     };
-  } catch (error) {
-    console.error("signinWithCredentials error:", error);
+  } catch (error: any) {
+    // 🔥 لاگ کامل برای دیباگ
+    console.error("❌ signinWithCredentials error:", {
+      message: error?.message,
+      code: error?.code,
+      body: error?.body,
+      status: error?.status,
+      fullError: JSON.stringify(error, null, 2),
+    });
 
     if (isAPIError(error)) {
-      const code = (error as any)?.body?.code ?? (error as any)?.code;
+      const errorCode = error.body?.code || error.code;
 
-      if (code === "EMAIL_NOT_VERIFIED") {
-        return {
-          success: false,
-          error: {
-            type: "custom",
-            message: "ابتدا ایمیل خود را تایید کنید.",
-          },
-        };
+      // مدیریت همه کدهای خطای احتمالی Better Auth
+      switch (errorCode) {
+        case "EMAIL_NOT_VERIFIED":
+          return {
+            success: false,
+            error: {
+              type: "custom",
+              message:
+                "ایمیل شما هنوز تأیید نشده است. لطفاً ابتدا ایمیل خود را تأیید کنید.",
+            },
+          };
+
+        case "INVALID_PASSWORD":
+        case "USER_NOT_FOUND":
+        case "CREDENTIALS_NOT_FOUND":
+          return {
+            success: false,
+            error: {
+              type: "custom",
+              message: "ایمیل یا رمز عبور صحیح نیست",
+            },
+          };
+
+        case "ACCOUNT_NOT_FOUND":
+          return {
+            success: false,
+            error: {
+              type: "custom",
+              message: "حساب کاربری با این ایمیل یافت نشد",
+            },
+          };
+
+        case "PASSWORD_COMPROMISED":
+          return {
+            success: false,
+            error: {
+              type: "custom",
+              message: "رمز عبور شما امن نیست. لطفاً آن را تغییر دهید.",
+            },
+          };
+
+        case "TOO_MANY_REQUESTS":
+          return {
+            success: false,
+            error: {
+              type: "custom",
+              message: "تعداد درخواست‌ها زیاد است. لطفاً چند دقیقه صبر کنید.",
+            },
+          };
+
+        default:
+          console.error("❓ Unknown Better Auth error code:", errorCode);
+          return {
+            success: false,
+            error: {
+              type: "custom",
+              message: `خطای ورود: ${errorCode || "نامشخص"}`,
+            },
+          };
       }
-
-      if (code === "INVALID_PASSWORD" || code === "USER_NOT_FOUND") {
-        return {
-          success: false,
-          error: {
-            type: "custom",
-            message: "ایمیل یا رمز عبور صحیح نیست.",
-          },
-        };
-      }
-
-      return {
-        success: false,
-        error: {
-          type: "custom",
-          message: "ورود انجام نشد. لطفاً دوباره تلاش کنید.",
-        },
-      };
     }
 
     return {
       success: false,
       error: {
         type: "custom",
-        message: "خطای ناشناخته رخ داده است.",
+        message: `خطای ناشناخته: ${error?.message || "نامشخص"}`,
       },
     };
   }
