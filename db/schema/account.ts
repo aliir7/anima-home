@@ -6,7 +6,6 @@ import {
   index,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
-
 import { users } from "./user";
 
 export const accounts = pgTable(
@@ -18,14 +17,12 @@ export const accounts = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
 
-    issuer: text("issuer").notNull(),
-
-    accountId: text("accountId").notNull(),
+    issuer: text("issuer"),
 
     providerId: text("providerId").notNull(),
+    accountId: text("accountId").notNull(),
 
     accessToken: text("accessToken"),
-
     refreshToken: text("refreshToken"),
 
     accessTokenExpiresAt: timestamp("accessTokenExpiresAt", {
@@ -37,9 +34,7 @@ export const accounts = pgTable(
     }),
 
     scope: text("scope"),
-
     idToken: text("idToken"),
-
     password: text("password"),
 
     createdAt: timestamp("createdAt", {
@@ -55,11 +50,10 @@ export const accounts = pgTable(
       .notNull(),
   },
   (account) => [
-    uniqueIndex("account_issuer_accountId_idx").on(
-      account.issuer,
+    uniqueIndex("account_providerId_accountId_idx").on(
+      account.providerId,
       account.accountId,
     ),
-
     index("account_userId_idx").on(account.userId),
   ],
 );

@@ -1,11 +1,21 @@
-import { betterAuth } from "better-auth";
+import { betterAuth, isProduction } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { nextCookies } from "better-auth/next-js";
+import { phoneNumber } from "better-auth/plugins";
+import { eq } from "drizzle-orm";
+import { cookies } from "next/headers";
+import bcrypt from "bcryptjs"; // ✅ اضافه شده برای پشتیبانی از کاربران قدیمی
 
 import { db } from "@/db";
 import * as schema from "@/db/schema";
-import { nextCookies } from "better-auth/next-js";
+import { carts } from "@/db/schema";
+import { SERVER_URL } from "@/lib/constants";
+import { sendMailAction } from "./actions/mail.actions";
+import { NEXT_PUBLIC_OTP_TEMPLATE_ID } from "./constants";
+import { sendFastSms } from "./sms";
 
 export const auth = betterAuth({
+  baseURL: isProduction ? process.env.BETTER_AUTH_URL : "http://localhost:3000",
   database: drizzleAdapter(db, {
     provider: "pg",
 
@@ -30,17 +40,8 @@ export const auth = betterAuth({
         defaultValue: "user",
         input: false,
       },
-
-      phone: {
-        type: "string",
-        required: false,
-      },
-
-      phoneNumberVerified: {
-        type: "boolean",
-        required: false,
-        defaultValue: false,
-      },
+      // phoneNumber / phoneNumberVerified are registered by the
+      // phoneNumber plugin below — no need to redeclare them here.
     },
   },
 
@@ -58,218 +59,134 @@ export const auth = betterAuth({
 
   emailAndPassword: {
     enabled: true,
+
+    // هم‌راستا با signupSchema (حداقل ۶ کاراکتر)
+    minPasswordLength: 6,
+    maxPasswordLength: 50,
+
+    // کاربر تا وقتی ایمیلش را تأیید نکند نمی‌تواند وارد شود
+    requireEmailVerification: true,
+    autoSignIn: false,
+
+    resetPasswordTokenExpiresIn: 60 * 30, // 30 دقیقه
+
+    // ✅✅✅ بخش حیاتی برای ورود کاربران قدیمی با bcryptjs ✅✅✅
+    // این بخش به Better Auth می‌گوید که برای هش و تایید پسوردها از bcryptjs استفاده کند
+    // به این ترتیب کاربران قدیمی که پسوردهایشان با bcrypt هش شده، بدون مشکل وارد می‌شوند
+    password: {
+      hash: async (password: string) => {
+        return bcrypt.hash(password, 10);
+      },
+      verify: async ({
+        password,
+        hash,
+      }: {
+        password: string;
+        hash: string;
+      }) => {
+        return bcrypt.compare(password, hash);
+      },
+    },
+
+    sendResetPassword: async ({ user, token }) => {
+      const resetLink = `${SERVER_URL}/reset-password/${token}`;
+      const subject = "بازیابی رمز عبور";
+      const html = `<p>درخواست بازیابی رمز عبور ثبت شده است.</p><p>برای بازیابی رمز عبور روی لینک زیر کلیک کنید:</p><a href="${resetLink}">${resetLink}</a><p>این لینک فقط تا ۳۰ دقیقه اعتبار دارد.</p><br /><p>اگر این درخواست از طرف شما نبوده، این پیام را نادیده بگیرید.</p>`;
+
+      void sendMailAction({ email: user.email, subject, html }).catch((error) =>
+        console.error("sendResetPassword email failed:", error),
+      );
+    },
   },
-  plugins: [nextCookies()],
+
+  emailVerification: {
+    expiresIn: 60 * 60 * 24, // 24 ساعت
+    autoSignInAfterVerification: true,
+
+    sendVerificationEmail: async ({ user, url }) => {
+      const subject = "تأیید ایمیل شما در انیما هوم";
+      const html = `
+        <div style="direction: rtl; font-family: sans-serif;">
+          <h2>سلام 👋</h2>
+          <p>برای فعال‌سازی حساب خود در <strong>Anima Home</strong>، روی دکمه زیر کلیک کنید:</p>
+          <a href="${url}"
+             style="display:inline-block;padding:10px 20px;background:#4a5a45;color:white;text-decoration:none;border-radius:8px;margin-top:20px;">
+             تأیید ایمیل
+          </a>
+          <p style="margin-top:30px;">اگر این درخواست از طرف شما نبوده، لطفاً این ایمیل را نادیده بگیرید.</p>
+        </div>
+      `;
+
+      void sendMailAction({ email: user.email, subject, html }).catch((error) =>
+        console.error("sendVerificationEmail failed:", error),
+      );
+    },
+  },
+
+  // معادل events.signIn قدیمی NextAuth: merge سبد خرید مهمان با حساب کاربر
+  databaseHooks: {
+    session: {
+      create: {
+        after: async (session) => {
+          try {
+            const sessionCartId = (await cookies()).get("sessionCartId")?.value;
+
+            if (!sessionCartId) return;
+
+            const guestCart = await db.query.carts.findFirst({
+              where: eq(carts.sessionCartId, sessionCartId),
+            });
+
+            if (!guestCart) return;
+
+            await db.delete(carts).where(eq(carts.userId, session.userId));
+
+            await db
+              .update(carts)
+              .set({ userId: session.userId, sessionCartId: null })
+              .where(eq(carts.id, guestCart.id));
+          } catch (error) {
+            console.error("Cart merge on sign-in failed:", error);
+          }
+        },
+      },
+    },
+  },
+
+  plugins: [
+    phoneNumber({
+      otpLength: 6,
+      expiresIn: 120,
+      allowedAttempts: 10,
+
+      sendOTP: async ({ phoneNumber, code }) => {
+        const currentTime = new Date().toLocaleTimeString("fa-IR", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+
+        const result = await sendFastSms({
+          mobile: phoneNumber,
+          templateId: Number(NEXT_PUBLIC_OTP_TEMPLATE_ID),
+          parameters: [
+            { name: "VERIFICATIONCODE", value: code },
+            { name: "TIME", value: currentTime },
+          ],
+        });
+
+        if (!result) {
+          throw new Error("Failed to send OTP SMS");
+        }
+      },
+
+      signUpOnVerification: {
+        getTempEmail: (phoneNumber) => `${phoneNumber}@phone.anima-home.ir`,
+      },
+    }),
+
+    nextCookies(),
+  ],
 });
 
-// /* eslint-disable @typescript-eslint/no-explicit-any */
-// import type { NextAuthConfig } from "next-auth";
-// import NextAuth from "next-auth";
-// import CredentialsProvider from "next-auth/providers/credentials";
-
-// import { db } from "@/db";
-// import { getUserByEmail } from "@/db/queries/getUserByEmail";
-// import {
-//   accounts,
-//   carts,
-//   sessions,
-//   users,
-//   verificationTokens,
-// } from "@/db/schema";
-// import { DrizzleAdapter } from "@auth/drizzle-adapter";
-// import bcrypt from "bcryptjs";
-// import { eq } from "drizzle-orm";
-// import { cookies } from "next/headers";
-// import { signinSchema } from "./validations/usersValidations";
-
-// export const authConfig = {
-//   trustHost: true,
-//   secret: process.env.NEXTAUTH_SECRET,
-
-//   adapter: DrizzleAdapter(db, {
-//     usersTable: users,
-//     accountsTable: accounts,
-//     sessionsTable: sessions,
-//     verificationTokensTable: verificationTokens,
-//   }) as any,
-
-//   session: {
-//     strategy: "jwt",
-//     maxAge: 30 * 24 * 60 * 60, // 30 days
-//   },
-
-//   pages: {
-//     signIn: "/sign-in",
-//     error: "/sign-in",
-//   },
-
-//   callbacks: {
-//     async jwt({ token, user }) {
-//       if (user) {
-//         token.sub = user.id;
-//         token.role = user.role;
-//         // موبایل را هم در توکن ذخیره می‌کنیم (اختیاری ولی کاربردی)
-//         token.phone = (user as any).phone;
-
-//         // 🟢 تغییر: چون ایمیل ممکن است نال باشد، از موبایل به عنوان نام پیش‌فرض استفاده می‌کنیم
-//         if (user.name === "NO_NAME") {
-//           token.name =
-//             user.name === "NO_NAME"
-//               ? (user as any).phone || user.email?.split("@")[0] || "کاربر جدید"
-//               : user.name;
-//         }
-//       }
-
-//       return token;
-//     },
-
-//     async session({ session, token, trigger, user }) {
-//       session.user.id = token.sub as string;
-//       session.user.role = token.role as string;
-//       session.user.name = token.name as string;
-//       // اضافه کردن موبایل به سشن
-//       (session.user as any).phone = token.phone as string;
-
-//       if (trigger === "update") {
-//         session.user.name = user.name as string;
-//       }
-
-//       return session;
-//     },
-//   },
-
-//   providers: [
-//     // ==========================================
-//     // 1️⃣ پروایدر قدیمی (ورود با ایمیل و رمز عبور)
-//     // ==========================================
-//     CredentialsProvider({
-//       id: "credentials", // شناسه صریح
-//       name: "credentials",
-//       async authorize(credentials) {
-//         const validatedData = signinSchema.safeParse(credentials);
-//         if (!validatedData.success) {
-//           return null;
-//         }
-
-//         const { email, password } = validatedData.data;
-
-//         // چون ایمیل ممکن است نال باشد، حتما باید ایمیل‌های معتبر بررسی شوند
-//         const user = await getUserByEmail(email ?? "");
-
-//         if (!user || !user.password) {
-//           console.error("AuthError:", "کاربری یافت نشد");
-//           return null;
-//         }
-
-//         const isValid = await bcrypt.compare(password as string, user.password);
-//         if (!isValid) {
-//           return null;
-//         }
-
-//         return {
-//           id: user.id,
-//           name: user.name,
-//           email: user.email,
-//           image: user.image,
-//           role: user.role,
-//         };
-//       },
-//     }),
-
-//     // ==========================================
-//     // 2️⃣ پروایدر جدید (ورود با شماره موبایل و OTP)
-//     // ==========================================
-//     CredentialsProvider({
-//       id: "otp", // 👈 شناسه اختصاصی برای فرم OTP
-//       name: "otp",
-//       credentials: {
-//         phone: { label: "شماره موبایل", type: "text" },
-//         code: { label: "کد تایید", type: "text" },
-//       },
-//       async authorize(credentials) {
-//         const phone = credentials?.phone as string;
-//         const code = credentials?.code as string;
-
-//         if (!phone || !code) {
-//           console.error("AuthError:", "شماره موبایل و کد الزامی است");
-//           return null;
-//         }
-
-//         // پیدا کردن کاربر با شماره موبایل
-//         const user = await db.query.users.findFirst({
-//           where: eq(users.phone, phone),
-//         });
-
-//         if (!user) {
-//           console.error("AuthError:", "کاربری با این شماره یافت نشد");
-//           return null;
-//         }
-
-//         // بررسی درستی کد OTP
-//         if (user.otp !== code) {
-//           console.error("AuthError:", "کد وارد شده اشتباه است");
-//           return null; // در کلاینت اکشن خطا می‌دهد
-//         }
-
-//         // بررسی انقضای کد OTP
-//         if (!user.otpExpiresAt || new Date() > user.otpExpiresAt) {
-//           console.error("AuthError:", "کد منقضی شده است");
-//           return null;
-//         }
-
-//         // 🟢 عملیات موفق!
-//         // به دلایل امنیتی حتماً کد مصرف شده را از دیتابیس پاک می‌کنیم
-//         await db
-//           .update(users)
-//           .set({
-//             otp: null,
-//             otpExpiresAt: null,
-//             phoneVerified: new Date(), // ثبت تاریخ تایید شماره
-//           })
-//           .where(eq(users.id, user.id));
-
-//         // برگرداندن کاربر به NextAuth برای ساخت سشن
-//         return {
-//           id: user.id,
-//           name: user.name,
-//           email: user.email,
-//           image: user.image,
-//           role: user.role,
-//           phone: user.phone,
-//         };
-//       },
-//     }),
-//   ],
-
-//   events: {
-//     async signIn({ user }) {
-//       const cookieStore = await cookies();
-//       const sessionCartId = cookieStore.get("sessionCartId")?.value;
-
-//       if (!sessionCartId) return;
-
-//       const sessionCart = await db.query.carts.findFirst({
-//         where: eq(carts.sessionCartId, sessionCartId),
-//       });
-
-//       if (!sessionCart) return;
-
-//       await db.delete(carts).where(eq(carts.userId, user.id));
-
-//       await db
-//         .update(carts)
-//         .set({
-//           userId: user.id,
-//           sessionCartId: null,
-//         })
-//         .where(eq(carts.id, sessionCart.id));
-//     },
-//   },
-// } satisfies NextAuthConfig;
-
-// export const {
-//   auth,
-//   handlers: { GET, POST },
-//   signIn,
-//   signOut,
-// } = NextAuth(authConfig);
+// تایپ سشن/یوزر
+export type Session = typeof auth.$Infer.Session;

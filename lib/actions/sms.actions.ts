@@ -1,103 +1,119 @@
 "use server";
 
-import { signIn } from "@/lib/auth"; // مسیر auth.ts خود را چک کنید
-import { sendFastSms } from "@/lib/sms";
-import { users } from "@/db/schema"; // تنظیمات جدول یوزر
-import { eq } from "drizzle-orm";
-import crypto from "crypto";
-import { generateRandomNumber } from "../utils/generateRandomNumber";
-import { db } from "@/db";
-import { Order, ShippingAddress } from "@/types";
-import { getOrderById } from "./order.actions";
+import { isAPIError } from "better-auth/api";
+import { headers } from "next/headers";
+
+import { ShippingAddress } from "@/types";
+import { auth } from "../auth";
 import {
   ADMIN_MOBILE_NUMBER,
-  NEXT_PUBLIC_OTP_TEMPLATE_ID,
   ORDER_SUCCESS_ADMIN_TEMPLATE_ID,
   ORDER_SUCCESS_CLIENT_TEMPLATE_ID,
 } from "../constants";
+import { sendFastSms } from "../sms";
+import { mobileSchema, otpSchema } from "../validations/smsValidations";
+import { getOrderById } from "./order.actions";
 
-// 1. اکشن ارسال کد تایید
+// 1. اکشن ارسال کد تایید (هم برای ثبت‌نام سریع با موبایل و هم ورود با موبایل)
 export async function sendOtpAction(mobile: string) {
+  const parsed = mobileSchema.safeParse({ mobile });
+
+  if (!parsed.success) {
+    return {
+      success: false,
+      message: "شماره موبایل معتبر نیست.",
+    };
+  }
+
+  const { mobile: phoneNumber } = parsed.data;
   try {
-    // تولید کد تصادفی 5 رقمی
-    const otpCode = generateRandomNumber();
-    const otpExpiresAt = new Date(Date.now() + 2 * 60 * 1000); // انقضا 2 دقیقه بعد
-
-    // پیدا کردن کاربر یا ایجاد کاربر موقت (اگر ثبت نام نکرده باشد)
-    const existingUser = await db.query.users.findFirst({
-      where: eq(users.phone, mobile),
+    await auth.api.sendPhoneNumberOTP({
+      body: {
+        phoneNumber: phoneNumber,
+      },
     });
 
-    if (existingUser) {
-      // آپدیت کد کاربر موجود
-      await db
-        .update(users)
-        .set({ otp: otpCode, otpExpiresAt })
-        .where(eq(users.id, existingUser.id));
-    } else {
-      // ایجاد کاربر جدید فقط با موبایل (ثبت نام سریع)
-      // در auth.ts باید هندل شود که فیلدهای email می‌توانند null باشند
-      await db.insert(users).values({
-        phone: mobile,
-        otp: otpCode,
-        otpExpiresAt,
-        role: "user",
-        // ایمیل را فعلا نال یا یک مقدار موقت می‌گذاریم اگر دیتابیس اجبار دارد
-      } as any);
-    }
-
-    // دریافت زمان جاری برای متغیر TIME در قالب پیامک
-    const currentTime = new Date().toLocaleTimeString("fa-IR", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-
-    // ارسال پیامک
-    const smsResult = await sendFastSms({
-      mobile,
-      templateId: Number(NEXT_PUBLIC_OTP_TEMPLATE_ID),
-      parameters: [
-        { name: "VERIFICATIONCODE", value: otpCode },
-        { name: "TIME", value: currentTime },
-      ],
-    });
-
-    if (!smsResult || smsResult.status !== 1) {
-      return {
-        success: false,
-        message: "خطا در ارسال پیامک. لطفاً مجدداً تلاش کنید.",
-      };
-    }
-
-    return { success: true, message: "کد تایید ارسال شد" };
+    return {
+      success: true,
+      message: "کد تایید ارسال شد.",
+    };
   } catch (error) {
-    console.error("OTP Error:", error);
-    return { success: false, message: "خطای سیستمی رخ داده است." };
+    console.error("OTP send error:", error);
+
+    return {
+      success: false,
+      message: "ارسال کد تایید انجام نشد.",
+    };
   }
 }
 
-// 2. اکشن لاگین با OTP
+// 2. اکشن تایید کد و ورود/ثبت‌نام
 export async function signinWithOtpAction(data: {
   mobile: string;
   code: string;
 }) {
+  const mobileResult = mobileSchema.safeParse({
+    mobile: data.mobile,
+  });
+
+  // ✅ اصلاح: اضافه کردن mobile به safeParse
+  const otpResult = otpSchema.safeParse({
+    mobile: data.mobile,
+    code: data.code,
+  });
+
+  if (!mobileResult.success) {
+    return {
+      success: false,
+      error: {
+        message: "شماره موبایل معتبر نیست.",
+      },
+    };
+  }
+
+  if (!otpResult.success) {
+    // 💡 پیشنهاد: برای دیباگ بهتر در محیط لوکال، خطای دقیق Zod را چاپ کنید
+    console.log("Zod OTP Validation Error:", otpResult.error.flatten());
+    return {
+      success: false,
+      error: {
+        message: "فرمت کد تایید معتبر نیست (باید ۶ رقم باشد).",
+      },
+    };
+  }
+
   try {
-    // فراخوانی متد signIn مربوط به NextAuth با پروایدر 'otp' که قبلا ساختیم
-    await signIn("otp", {
-      phone: data.mobile,
-      code: data.code,
-      redirect: false, // ریدایرکت دستی در کلاینت انجام می‌شود
+    // ✅ حالا چون mobile را به otpSchema دادیم، otpResult.data شامل mobile هم هست
+    // و متغیر phoneNumber دیگر undefined نخواهد بود!
+    const { mobile: phoneNumber, code } = otpResult.data;
+
+    await auth.api.verifyPhoneNumber({
+      body: {
+        phoneNumber,
+        code,
+      },
+      headers: await headers(),
     });
 
-    return { success: true };
+    return {
+      success: true,
+    };
   } catch (error) {
-    if ((error as any).type === "CredentialsSignin") {
+    console.error("OTP verification error:", error);
+    if (isAPIError(error)) {
       return {
         success: false,
-        error: { message: "کد وارد شده اشتباه یا منقضی شده است." },
+        error: {
+          message: "کد وارد شده اشتباه یا منقضی شده است.",
+        },
       };
     }
-    return { success: false, error: { message: "خطای ناشناخته رخ داد." } };
+    return {
+      success: false,
+      error: {
+        message: "خطای ناشناخته رخ داد.",
+      },
+    };
   }
 }
 

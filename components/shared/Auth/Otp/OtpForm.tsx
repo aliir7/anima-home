@@ -68,7 +68,7 @@ export default function OtpForm({
         type="button"
         onClick={onVerify}
         disabled={isPending}
-        className="h-12 w-full rounded-xl"
+        className="my-2 w-full rounded-full px-2 py-4.5"
       >
         {isPending ? "در حال بررسی..." : submitText}
       </Button>

@@ -23,7 +23,7 @@ export default function OtpMobileInput({
   return (
     <div className="animate-in fade-in slide-in-from-right-4 space-y-6 duration-300">
       <div className="space-y-2">
-        <Label htmlFor="mobile" className="text-right">
+        <Label htmlFor="mobile" className="ps-2 pb-2" dir="rtl">
           شماره موبایل
         </Label>
 
@@ -33,7 +33,7 @@ export default function OtpMobileInput({
           type="tel"
           disabled={isPending}
           placeholder="09xxxxxxxxx"
-          className="h-12 rounded-xl text-center tracking-[0.25em]"
+          className="rounded-full px-2 py-4 text-center tracking-[0.25em]"
           {...register("mobile")}
         />
 
@@ -46,7 +46,7 @@ export default function OtpMobileInput({
         type="button"
         onClick={onSubmit}
         disabled={isPending}
-        className="h-12 w-full rounded-xl"
+        className="my-2 w-full rounded-full px-2 py-4.5"
       >
         {isPending ? "در حال ارسال..." : "دریافت کد تایید"}
       </Button>

@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Metadata } from "next";
 import SignInForm from "./SignInForm";
 
-import { auth } from "@/lib/auth";
+import { getCurrentSession } from "@/lib/auth/authGuard";
 import { redirect } from "next/navigation";
 import logoImg from "@/public/images/logo/logo.png";
 
@@ -22,7 +22,7 @@ type SignInPageProps = {
 async function SignInPage({ searchParams }: SignInPageProps) {
   // get session for redirect user to home page
   const { callbackUrl = "/", verified } = await searchParams;
-  const session = await auth();
+  const session = await getCurrentSession();
 
   if (session) {
     redirect(callbackUrl);

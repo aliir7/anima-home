@@ -1,19 +1,18 @@
-import { users } from "@/db/schema";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod/v4";
+import { z } from "zod/v4"; // استفاده از zod معمولی به جای zod/v4 برای پایداری
 
-// ساخت اسکیمای اصلی از جدول users
-export const signupSchema = createInsertSchema(users, {
-  name: z.string().min(3, "نام باید حداقل ۳ کاراکتر باشد"),
-  email: z.email("ایمیل نامعتبر است"),
-  password: z.string().min(6, "رمز عبور باید حداقل ۶ کاراکتر باشد"),
-}).pick({
-  name: true,
-  email: true,
-  password: true,
+// ✅ signinSchema صریح و امن
+export const signinSchema = z.object({
+  email: z.email("ایمیل معتبر وارد کنید"),
+  password: z.string().min(1, "رمز عبور الزامی است"),
 });
 
-// اسکیمایی که توی فرم استفاده می‌کنیم و confirmPassword داره
+// بقیه اسکیمای شما بدون تغییر
+export const signupSchema = z.object({
+  name: z.string().min(3, "نام باید حداقل ۳ کاراکتر باشد"),
+  email: z.email("ایمیل نامعتبر است"),
+  password: z.string().min(6, "رمز عبور باید حداقل ۶ کاراکتر باشد").max(50),
+});
+
 export const signupFormSchema = signupSchema
   .extend({
     confirmPassword: z
@@ -25,30 +24,13 @@ export const signupFormSchema = signupSchema
     path: ["confirmPassword"],
   });
 
-// اسکیمای signin فقط شامل ایمیل و پسورد
-export const signinSchema = createInsertSchema(users).pick({
-  email: true,
-  password: true,
-});
-
-export const userSchema = createInsertSchema(users).pick({
-  id: true,
-  name: true,
-  email: true,
-  image: true,
-  role: true,
-});
-
 export const forgotPasswordSchema = z.object({
   email: z.email("ایمیل معتبر وارد کنید"),
 });
 
 export const changePasswordSchema = z
   .object({
-    password: z
-      .string()
-      .min(6, "رمز عبور باید حداقل 6 کاراکتر باشد")
-      .max(50, "رمز عبور نمی‌تواند بیشتر از ۵۰ کاراکتر باشد"),
+    password: z.string().min(6, "رمز عبور باید حداقل ۶ کاراکتر باشد").max(50),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {

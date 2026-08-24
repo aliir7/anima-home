@@ -31,17 +31,14 @@ export const users = pgTable("users", {
     .default("user")
     .notNull(),
 
-  phone: varchar("phone", { length: 20 }).unique(),
+  // Better Auth Phone Number plugin (canonical field name — do not rename)
+  phoneNumber: varchar("phoneNumber", { length: 20 }).unique(),
 
   // Better Auth Phone Number plugin
   phoneNumberVerified: boolean("phoneNumberVerified").default(false).notNull(),
 
   // Legacy/business data - keep for now
   phoneVerifiedAt: timestamp("phoneVerified", { mode: "date" }),
-
-  otp: varchar("otp", { length: 10 }),
-
-  otpExpiresAt: timestamp("otpExpiresAt", { mode: "date" }),
 
   address: json("address"),
 

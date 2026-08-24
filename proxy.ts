@@ -1,5 +1,4 @@
-// proxy.ts
-import { getToken } from "next-auth/jwt";
+import { getSessionCookie } from "better-auth/cookies";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { authRoutes, publicRoutes, adminRoutes } from "./lib/routes";
@@ -22,17 +21,15 @@ export async function proxy(req: NextRequest) {
     response = NextResponse.redirect(url, 301);
   }
 
-  // 2) Auth & Role Checks (فقط اگر تا الان ریدایرکتی تنظیم نشده باشد)
+  // 2) Optimistic Auth Check (فقط اگر تا الان ریدایرکتی تنظیم نشده باشد)
+  //    توجه: این فقط "وجود کوکی سشن" را چک می‌کند، نه اعتبار واقعی آن و نه نقش کاربر.
+  //    این چک صرفاً برای تجربه‌ی کاربری (ریدایرکت سریع، بدون Query دیتابیس در Edge) است.
+  //    گیت امنیتی واقعی (از جمله چک نقش ادمین) در لایه‌ی سرور انجام می‌شود:
+  //    - برای صفحات ادمین: requireAdmin() در app/admin/layout.tsx
+  //    - برای صفحات خصوصی دیگر: getCurrentSession() در همان page/action
   if (!response) {
-    const isDev = process.env.NODE_ENV === "development";
-    const token = await getToken({
-      req,
-      secret: process.env.NEXTAUTH_SECRET,
-      secureCookie: !isDev,
-    });
-
-    const isLoggedIn = !!token;
-    const isAdmin = token?.role === "admin";
+    const sessionCookie = getSessionCookie(req);
+    const isLoggedIn = !!sessionCookie;
 
     const matchesRoute = (pathname: string, routes: string[]) => {
       return routes.some(
@@ -44,12 +41,16 @@ export async function proxy(req: NextRequest) {
     const isAuthRoute = matchesRoute(pathname, authRoutes);
     const isAdminRoute = matchesRoute(pathname, adminRoutes);
 
-    if (isAdminRoute && !isAdmin) {
+    if (isAdminRoute && !isLoggedIn) {
+      // نقش ادمین را نمی‌توان اینجا چک کرد؛ کاربر واردنشده که مطمئناً ادمین نیست را رد می‌کنیم
+      // و بررسی واقعی نقش را به requireAdmin() در admin/layout.tsx می‌سپاریم.
       response = NextResponse.redirect(new URL("/", req.nextUrl));
     } else if (isAuthRoute && isLoggedIn) {
       response = NextResponse.redirect(new URL("/", req.nextUrl));
-    } else if (!isPublic && !isAuthRoute && !isLoggedIn) {
-      response = NextResponse.redirect(new URL("/sign-in", req.nextUrl));
+    } else if (!isPublic && !isAuthRoute && !isAdminRoute && !isLoggedIn) {
+      const signInUrl = new URL("/sign-in", req.nextUrl);
+      signInUrl.searchParams.set("callbackUrl", pathname);
+      response = NextResponse.redirect(signInUrl);
     } else {
       // اگر مشکلی نبود، اجازه عبور بده
       response = NextResponse.next();

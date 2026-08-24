@@ -10,7 +10,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import Link from "next/link";
-import { auth } from "@/lib/auth";
+import { getCurrentSession } from "@/lib/auth/authGuard";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
@@ -27,7 +27,7 @@ type SignUpPageProps = {
 async function SignUpPage({ searchParams }: SignUpPageProps) {
   // get session for redirect user to home page
   const { callbackUrl } = await searchParams;
-  const session = await auth();
+  const session = await getCurrentSession();
 
   if (session) {
     redirect(callbackUrl || "/");
