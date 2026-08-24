@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -6,19 +5,19 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import SignOutForm from "./SignOutForm";
-import { UserSchema } from "@/types";
 import { Separator } from "@/components/ui/separator";
-import { auth } from "@/lib/auth";
 import { menu } from "@/lib/constants";
+import { UserSchema } from "@/types";
+import Link from "next/link";
+import SignOutForm from "./SignOutForm";
 
 type UserDropdownProps = {
-  user: Pick<UserSchema, "name" | "email" | "image">;
+  user: Pick<UserSchema, "name" | "email" | "image" | "role">;
 };
 
-async function UserDropdown({ user }: UserDropdownProps) {
-  const session = await auth();
-  const admin = session?.user.role === "admin";
+function UserDropdown({ user }: UserDropdownProps) {
+  const admin = user.role === "admin";
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -29,6 +28,7 @@ async function UserDropdown({ user }: UserDropdownProps) {
               {user.name?.charAt(0).toUpperCase() || "U"}
             </AvatarFallback>
           </Avatar>
+
           <span className="hidden text-sm font-medium md:inline-block">
             {user.name}
           </span>
@@ -49,6 +49,7 @@ async function UserDropdown({ user }: UserDropdownProps) {
             <Link href="/my-account">پروفایل من</Link>
           )}
         </DropdownMenuItem>
+
         {!admin &&
           menu.map((item, index) => (
             <DropdownMenuItem

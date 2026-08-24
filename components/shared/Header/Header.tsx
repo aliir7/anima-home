@@ -1,5 +1,5 @@
 import { getCartItemsCount } from "@/lib/actions/cart.actions";
-import { auth } from "@/lib/auth";
+import { getCurrentSession } from "@/lib/auth/authGuard";
 import UserDropdown from "../Account/UserDropdown";
 import CartBtn from "./CartBtn";
 import Logo from "./Logo";
@@ -9,14 +9,14 @@ import NavBar from "./NavBar";
 import SignupBtn from "./SignupBtn";
 
 async function Header() {
-  const session = await auth();
+  const session = await getCurrentSession();
   const cartItemsNumber = await getCartItemsCount(session);
   return (
     <header className="bg-primary dark:bg-muted w-full border-b text-white shadow-md">
       <div className="wrapper flex-between">
         <div className="flex-start gap-2 md:gap-8">
           <div className="md:hidden">
-            <MobileNav />
+            <MobileNav session={session} />
           </div>
 
           <Logo />

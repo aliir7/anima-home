@@ -1,29 +1,53 @@
 import {
+  boolean,
+  json,
   pgTable,
-  uuid,
   text,
   timestamp,
-  json,
+  uuid,
   varchar,
-  boolean,
 } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
+
   name: text("name").default("NO_NAME"),
+
   email: text("email").unique(),
-  emailVerified: timestamp("emailVerified", { mode: "date" }),
-  otp: varchar("otp", { length: 10 }),
-  otpExpiresAt: timestamp("otpExpiresAt", { mode: "date" }),
-  phone: varchar("phone", { length: 20 }).unique(),
-  phoneVerified: timestamp("phoneVerified", { mode: "date" }), // 👈 فیلد جدید
+
+  // Better Auth
+  emailVerified: boolean("emailVerified").default(false).notNull(),
+
+  // Preserve the old verification timestamp
+  emailVerifiedAt: timestamp("emailVerifiedAt", {
+    mode: "date",
+  }),
+
   image: text("image"),
+
   password: text("password"),
+
   role: text("role", { enum: ["user", "admin"] })
     .default("user")
     .notNull(),
+
+  phone: varchar("phone", { length: 20 }).unique(),
+
+  // Better Auth Phone Number plugin
+  phoneNumberVerified: boolean("phoneNumberVerified").default(false).notNull(),
+
+  // Legacy/business data - keep for now
+  phoneVerifiedAt: timestamp("phoneVerified", { mode: "date" }),
+
+  otp: varchar("otp", { length: 10 }),
+
+  otpExpiresAt: timestamp("otpExpiresAt", { mode: "date" }),
+
   address: json("address"),
+
   paymentMethod: varchar("paymentMethod", { length: 128 }),
+
   createdAt: timestamp("createdAt", { mode: "date" }).defaultNow(),
+
   updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow(),
 });

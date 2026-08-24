@@ -1,8 +1,8 @@
 import {
-  ProjectWithCategory,
-  ProjectFormValues,
   Material,
   MaterialFormValues,
+  ProjectFormValues,
+  ProjectWithCategory,
 } from "@/types";
 
 export function normalizeProjectForForm(

@@ -1,7 +1,7 @@
+import { Material, QueryResult } from "@/types";
 import { desc, eq, sql } from "drizzle-orm";
 import { db } from "..";
 import { materials } from "../schema/materials";
-import { Material, QueryResult } from "@/types";
 
 export async function getAllMaterials({
   page,

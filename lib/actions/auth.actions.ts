@@ -1,26 +1,28 @@
 "use server";
 
 import { db } from "@/db";
-import { carts, users, verificationTokens } from "@/db/schema";
-import { eq } from "drizzle-orm";
-import bcrypt from "bcryptjs";
+import { users } from "@/db/schema";
 import {
   ActionResult,
   SigninValues,
   SignupFormValues,
   SignupInsert,
 } from "@/types";
+import bcrypt from "bcryptjs";
+import { eq } from "drizzle-orm";
 import {
   signinSchema,
   signupFormSchema,
 } from "../validations/usersValidations";
-import { signIn, signOut } from "../auth";
+
+import { headers } from "next/headers";
+
 import { getUserByEmail } from "@/db/queries/getUserByEmail";
-import { AuthError } from "next-auth";
-import generateToken from "../utils/generateToken";
+import { isAPIError } from "better-auth/api";
 import { addHours, addMinutes } from "date-fns";
+import { auth } from "../auth";
+import generateToken from "../utils/generateToken";
 import { sendMailAction } from "./mail.actions";
-import { getMyCart } from "./cart.actions";
 
 // register user action
 export async function signupAction(
@@ -136,6 +138,7 @@ export async function signupAction(
   }
 }
 
+// signIn user action
 export async function signinWithCredentials(
   formData: SigninValues,
 ): Promise<ActionResult<string>> {
@@ -154,53 +157,57 @@ export async function signinWithCredentials(
 
     const { email, password } = validated.data;
 
-    const user = await getUserByEmail(email!);
-
-    if (!user || !user.password) {
-      return {
-        success: false,
-        error: { type: "custom", message: "کاربری با این مشخصات وجود ندارد" },
-      };
-    }
-
-    // ✅ بررسی تأیید بودن ایمیل
-    if (!user.emailVerified) {
+    if (!email || !password) {
       return {
         success: false,
         error: {
           type: "custom",
-          message: "لطفاً ابتدا ایمیل خود را تأیید کنید.",
+          message: "ایمیل و رمز عبور الزامی هستند",
         },
       };
     }
 
-    await signIn("credentials", {
-      redirect: false,
-      email,
-      password,
+    await auth.api.signInEmail({
+      body: {
+        email,
+        password,
+      },
+      headers: await headers(),
     });
 
-    return { success: true, data: "با موفقیت وارد شدید" };
-  } catch (err) {
-    console.log(err);
-    if (err instanceof AuthError) {
+    return {
+      success: true,
+      data: "با موفقیت وارد شدید",
+    };
+  } catch (error) {
+    console.error(error);
+
+    if (isAPIError(error)) {
       return {
         success: false,
-        error: { type: "custom", message: "ایمیل یا رمز عبور صحیح نیست" },
+        error: {
+          type: "custom",
+          message: "ایمیل یا رمز عبور صحیح نیست",
+        },
       };
     }
+
     return {
       success: false,
-      error: { type: "custom", message: "خطای ناشناخته رخ داده است" },
+      error: {
+        type: "custom",
+        message: "خطای ناشناخته رخ داده است",
+      },
     };
   }
 }
 
 // signOut user action
 export async function userSignOut() {
-  await signOut();
+  await auth.api.signOut({
+    headers: await headers(),
+  });
 }
-
 // forgot password action
 export async function sendResetPasswordEmailAction(
   email: string,

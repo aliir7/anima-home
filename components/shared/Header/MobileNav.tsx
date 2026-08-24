@@ -1,8 +1,10 @@
-import { auth } from "@/lib/auth";
 import MobileNavClient from "./MobileNavClient";
 
-async function MobileNav() {
-  const session = await auth();
+type MobileNavProps = {
+  session: unknown;
+};
+
+async function MobileNav({ session }: MobileNavProps) {
   return <MobileNavClient user={session?.user} />;
 }
 

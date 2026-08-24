@@ -1,32 +1,65 @@
-import { integer, primaryKey, text, pgTable } from "drizzle-orm/pg-core";
-import { users } from "./user";
-import type { AdapterAccountType } from "next-auth/adapters";
+import {
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+  index,
+  uniqueIndex,
+} from "drizzle-orm/pg-core";
 
-import { uuid } from "drizzle-orm/pg-core";
+import { users } from "./user";
 
 export const accounts = pgTable(
   "account",
   {
+    id: text("id").primaryKey(),
+
     userId: uuid("userId")
       .notNull()
-      .references(() => users.id, { onDelete: "cascade" })
-      .unique(),
-    type: text("type").$type<AdapterAccountType>().notNull(),
-    provider: text("provider").notNull(),
-    providerAccountId: text("providerAccountId").notNull(),
-    refresh_token: text("refresh_token"),
-    access_token: text("access_token"),
-    expires_at: integer("expires_at"),
-    token_type: text("token_type"),
+      .references(() => users.id, { onDelete: "cascade" }),
+
+    issuer: text("issuer").notNull(),
+
+    accountId: text("accountId").notNull(),
+
+    providerId: text("providerId").notNull(),
+
+    accessToken: text("accessToken"),
+
+    refreshToken: text("refreshToken"),
+
+    accessTokenExpiresAt: timestamp("accessTokenExpiresAt", {
+      mode: "date",
+    }),
+
+    refreshTokenExpiresAt: timestamp("refreshTokenExpiresAt", {
+      mode: "date",
+    }),
+
     scope: text("scope"),
-    id_token: text("id_token"),
-    session_state: text("session_state"),
+
+    idToken: text("idToken"),
+
+    password: text("password"),
+
+    createdAt: timestamp("createdAt", {
+      mode: "date",
+    })
+      .defaultNow()
+      .notNull(),
+
+    updatedAt: timestamp("updatedAt", {
+      mode: "date",
+    })
+      .defaultNow()
+      .notNull(),
   },
   (account) => [
-    {
-      compoundKey: primaryKey({
-        columns: [account.provider, account.providerAccountId],
-      }),
-    },
+    uniqueIndex("account_issuer_accountId_idx").on(
+      account.issuer,
+      account.accountId,
+    ),
+
+    index("account_userId_idx").on(account.userId),
   ],
 );

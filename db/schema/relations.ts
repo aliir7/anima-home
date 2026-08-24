@@ -4,31 +4,15 @@ import { accounts } from "./account";
 import { authenticators } from "./authenticator";
 import { carts } from "./cart";
 import { categories } from "./categories";
+import { orders } from "./order";
+import { orderItems } from "./orderItems";
+import { productCategories } from "./productCategories";
 import { products } from "./products";
+import { productVariants } from "./productVariants";
+import { projectRedirects } from "./projectRedirects";
 import { projects } from "./projects";
 import { sessions } from "./sessions";
 import { users } from "./user";
-import { projectRedirects } from "./projectRedirects";
-import { productCategories } from "./productCategories";
-import { productVariants } from "./productVariants";
-import { orderItems } from "./orderItems";
-import { orders } from "./order";
-
-// accounts
-export const accountRelations = relations(accounts, ({ one }) => ({
-  user: one(users, {
-    fields: [accounts.userId],
-    references: [users.id],
-  }),
-}));
-
-// authenticators
-export const authenticatorRelations = relations(authenticators, ({ one }) => ({
-  user: one(users, {
-    fields: [authenticators.userId],
-    references: [users.id],
-  }),
-}));
 
 // projects
 export const projectsRelations = relations(projects, ({ one, many }) => ({
@@ -112,10 +96,12 @@ export const cartRelations = relations(carts, ({ one }) => ({
 
 // users
 export const userRelations = relations(users, ({ one, many }) => ({
-  account: one(accounts),
-  session: one(sessions),
-  authenticator: one(authenticators),
+  accounts: many(accounts),
+  sessions: many(sessions),
+  authenticators: many(authenticators),
+
   cart: one(carts),
+
   orders: many(orders),
 }));
 
@@ -144,6 +130,23 @@ export const orderItemsRelations = relations(orderItems, ({ one }) => ({
     references: [productVariants.id],
   }),
 }));
+
+// accounts
+export const accountRelations = relations(accounts, ({ one }) => ({
+  user: one(users, {
+    fields: [accounts.userId],
+    references: [users.id],
+  }),
+}));
+
+// authenticators
+export const authenticatorRelations = relations(authenticators, ({ one }) => ({
+  user: one(users, {
+    fields: [authenticators.userId],
+    references: [users.id],
+  }),
+}));
+
 // sessions
 export const sessionRelations = relations(sessions, ({ one }) => ({
   user: one(users, {

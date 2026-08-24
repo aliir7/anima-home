@@ -9,7 +9,7 @@ export { orders } from "./order";
 export { orderItems } from "./orderItems";
 export { sessions } from "./sessions";
 export { users } from "./user";
-export { verificationTokens } from "./verificationToken";
+export { verifications } from "./verification";
 export { projects } from "./projects";
 export { categories } from "./categories";
 export { projectRedirects } from "./projectRedirects";
