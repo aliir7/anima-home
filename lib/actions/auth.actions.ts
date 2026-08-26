@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 
 import type { ActionResult, SigninValues, SignupFormValues } from "@/types";
 import { auth } from "../auth";
+import { checkRateLimit, rateLimitMessage } from "../rate-limit";
 import {
   changePasswordSchema,
   forgotPasswordSchema,
@@ -48,7 +49,6 @@ function getAuthErrorMessage(code?: string): string {
     case "EMAIL_NOT_VERIFIED":
       return "ایمیل شما هنوز تأیید نشده است. لطفاً ابتدا ایمیل خود را تأیید کنید.";
 
-    // ✅ اضافه شد: INVALID_EMAIL_OR_PASSWORD
     case "INVALID_EMAIL_OR_PASSWORD":
     case "INVALID_PASSWORD":
     case "USER_NOT_FOUND":
@@ -66,13 +66,13 @@ function getAuthErrorMessage(code?: string): string {
       return "خطا در ایجاد نشست. لطفاً دوباره تلاش کنید.";
 
     default:
-      // 🆕 لاگ کدهای ناشناخته برای شناسایی سریع‌تر
       if (code) {
         console.warn(`[Unhandled Auth Error Code]: ${code}`);
       }
       return "ورود انجام نشد. لطفاً دوباره تلاش کنید.";
   }
 }
+
 // ------------------------------------------------------------------
 // Sign up
 // ------------------------------------------------------------------
@@ -93,6 +93,21 @@ export async function signupAction(
   }
 
   const { name, email, password } = validated.data;
+
+  // 🔒 Rate limit: جلوگیری از ثبت‌نام‌های انبوه/اسپم
+  const rateLimit = await checkRateLimit("signup", {
+    windowMs: 10 * 60 * 1000,
+    max: 5,
+  });
+  if (!rateLimit.allowed) {
+    return {
+      success: false,
+      error: {
+        type: "custom",
+        message: rateLimitMessage(rateLimit.retryAfterSeconds),
+      },
+    };
+  }
 
   try {
     await auth.api.signUpEmail({
@@ -154,6 +169,28 @@ export async function signinWithCredentials(
 
   const { email, password } = validated.data;
 
+  if (!email || !password) {
+    return {
+      success: false,
+      error: { type: "custom", message: "ایمیل و رمز عبور الزامی هستند" },
+    };
+  }
+
+  // 🔒 Rate limit: محافظت در برابر brute-force روی پسورد
+  const rateLimit = await checkRateLimit("signin", {
+    windowMs: 60 * 1000,
+    max: 5,
+  });
+  if (!rateLimit.allowed) {
+    return {
+      success: false,
+      error: {
+        type: "custom",
+        message: rateLimitMessage(rateLimit.retryAfterSeconds),
+      },
+    };
+  }
+
   try {
     // ۲. تلاش برای ورود
     await auth.api.signInEmail({
@@ -182,86 +219,6 @@ export async function signinWithCredentials(
     };
   }
 }
-
-// export async function signinWithCredentials(
-//   formData: SigninValues,
-// ): Promise<ActionResult<string>> {
-//   const validated = signinSchema.safeParse(formData);
-
-//   if (!validated.success) {
-//     return {
-//       success: false,
-//       error: {
-//         type: "zod",
-//         issues: validated.error.issues,
-//       },
-//     };
-//   }
-
-//   const { email, password } = validated.data;
-
-//   try {
-//     await auth.api.signInEmail({
-//       body: {
-//         email,
-//         password,
-//       },
-//       headers: await headers(),
-//     });
-
-//     return {
-//       success: true,
-//       data: "با موفقیت وارد شدید.",
-//     };
-//   } catch (error) {
-//     console.error("signinWithCredentials error:", error);
-
-//     const errorCode = getAuthErrorCode(error);
-
-//     switch (errorCode) {
-//       case "EMAIL_NOT_VERIFIED":
-//         return {
-//           success: false,
-//           error: {
-//             type: "custom",
-//             message:
-//               "ایمیل شما هنوز تأیید نشده است. لطفاً ابتدا ایمیل خود را تأیید کنید.",
-//           },
-//         };
-
-//       case "INVALID_PASSWORD":
-//       case "USER_NOT_FOUND":
-//       case "CREDENTIALS_NOT_FOUND":
-//       case "ACCOUNT_NOT_FOUND":
-//         return {
-//           success: false,
-//           error: {
-//             type: "custom",
-//             message: "ایمیل یا رمز عبور صحیح نیست.",
-//           },
-//         };
-
-//       case "TOO_MANY_REQUESTS":
-//         return {
-//           success: false,
-//           error: {
-//             type: "custom",
-//             message:
-//               "تعداد درخواست‌ها زیاد است. لطفاً کمی بعد دوباره تلاش کنید.",
-//           },
-//         };
-
-//       default:
-//         return {
-//           success: false,
-//           error: {
-//             type: "custom",
-//             message: "ورود انجام نشد. لطفاً دوباره تلاش کنید.",
-//           },
-//         };
-//     }
-//   }
-// }
 
 // ------------------------------------------------------------------
 // Sign out
@@ -296,8 +253,23 @@ export async function sendResetPasswordEmailAction(
     };
   }
 
+  // 🔒 Rate limit بر اساس ایمیل مقصد — از اسپم‌کردن inbox یک نفر جلوگیری می‌کند
+  const rateLimit = await checkRateLimit(
+    "reset-password-email",
+    { windowMs: 15 * 60 * 1000, max: 3 },
+    validated.data.email,
+  );
+  if (!rateLimit.allowed) {
+    // حتی برای rate limit هم پیام موفقیت عمومی برمی‌گردانیم — هم به
+    // دلایل امنیتی (User Enumeration) و هم برای UX ساده‌تر
+    return {
+      success: true,
+      data: "در صورت وجود حساب کاربری، لینک بازیابی رمز عبور ارسال شد.",
+    };
+  }
+
   try {
-    await auth.api.forgetPassword({
+    await auth.api.requestPasswordReset({
       body: {
         email: validated.data.email,
         redirectTo: "/reset-password",
@@ -336,6 +308,21 @@ export async function changePasswordAction(
       error: {
         type: "zod",
         issues: validated.error.issues,
+      },
+    };
+  }
+
+  // 🔒 Rate limit سبک روی تغییر پسورد
+  const rateLimit = await checkRateLimit("change-password", {
+    windowMs: 10 * 60 * 1000,
+    max: 10,
+  });
+  if (!rateLimit.allowed) {
+    return {
+      success: false,
+      error: {
+        type: "custom",
+        message: rateLimitMessage(rateLimit.retryAfterSeconds),
       },
     };
   }

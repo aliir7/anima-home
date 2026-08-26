@@ -13,9 +13,11 @@ import {
 import { sendFastSms } from "../sms";
 import { mobileSchema, otpSchema } from "../validations/smsValidations";
 import { getOrderById } from "./order.actions";
+import { checkRateLimit, rateLimitMessage } from "../rate-limit";
 
 // 1. اکشن ارسال کد تایید (هم برای ثبت‌نام سریع با موبایل و هم ورود با موبایل)
 export async function sendOtpAction(mobile: string) {
+  // 1. Validate mobile number
   const parsed = mobileSchema.safeParse({ mobile });
 
   if (!parsed.success) {
@@ -26,10 +28,42 @@ export async function sendOtpAction(mobile: string) {
   }
 
   const { mobile: phoneNumber } = parsed.data;
+
+  // 2. Rate limit per phone
+  const phoneLimit = await checkRateLimit(
+    "send-otp-phone",
+    {
+      windowMs: 10 * 60 * 1000,
+      max: 3,
+    },
+    phoneNumber,
+  );
+
+  if (!phoneLimit.allowed) {
+    return {
+      success: false,
+      message: rateLimitMessage(phoneLimit.retryAfterSeconds),
+    };
+  }
+
+  // 3. Rate limit per IP
+  const ipLimit = await checkRateLimit("send-otp-ip", {
+    windowMs: 60 * 60 * 1000,
+    max: 15,
+  });
+
+  if (!ipLimit.allowed) {
+    return {
+      success: false,
+      message: rateLimitMessage(ipLimit.retryAfterSeconds),
+    };
+  }
+
+  // 4. Better Auth → generate/store/send OTP
   try {
     await auth.api.sendPhoneNumberOTP({
       body: {
-        phoneNumber: phoneNumber,
+        phoneNumber,
       },
     });
 
@@ -52,14 +86,9 @@ export async function signinWithOtpAction(data: {
   mobile: string;
   code: string;
 }) {
+  // 1. Validate mobile
   const mobileResult = mobileSchema.safeParse({
     mobile: data.mobile,
-  });
-
-  // ✅ اصلاح: اضافه کردن mobile به safeParse
-  const otpResult = otpSchema.safeParse({
-    mobile: data.mobile,
-    code: data.code,
   });
 
   if (!mobileResult.success) {
@@ -71,22 +100,44 @@ export async function signinWithOtpAction(data: {
     };
   }
 
+  // 2. Validate OTP
+  const otpResult = otpSchema.safeParse({
+    mobile: data.mobile,
+    code: data.code,
+  });
+
   if (!otpResult.success) {
-    // 💡 پیشنهاد: برای دیباگ بهتر در محیط لوکال، خطای دقیق Zod را چاپ کنید
-    console.log("Zod OTP Validation Error:", otpResult.error.flatten());
     return {
       success: false,
       error: {
-        message: "فرمت کد تایید معتبر نیست (باید ۶ رقم باشد).",
+        message: "فرمت کد تایید معتبر نیست.",
       },
     };
   }
 
-  try {
-    // ✅ حالا چون mobile را به otpSchema دادیم، otpResult.data شامل mobile هم هست
-    // و متغیر phoneNumber دیگر undefined نخواهد بود!
-    const { mobile: phoneNumber, code } = otpResult.data;
+  const { mobile: phoneNumber, code } = otpResult.data;
 
+  // 3. Rate limit OTP verification per phone
+  const verifyLimit = await checkRateLimit(
+    "verify-otp",
+    {
+      windowMs: 5 * 60 * 1000,
+      max: 5,
+    },
+    phoneNumber,
+  );
+
+  if (!verifyLimit.allowed) {
+    return {
+      success: false,
+      error: {
+        message: rateLimitMessage(verifyLimit.retryAfterSeconds),
+      },
+    };
+  }
+
+  // 4. Better Auth → verify OTP
+  try {
     await auth.api.verifyPhoneNumber({
       body: {
         phoneNumber,
@@ -100,6 +151,7 @@ export async function signinWithOtpAction(data: {
     };
   } catch (error) {
     console.error("OTP verification error:", error);
+
     if (isAPIError(error)) {
       return {
         success: false,
@@ -108,6 +160,7 @@ export async function signinWithOtpAction(data: {
         },
       };
     }
+
     return {
       success: false,
       error: {

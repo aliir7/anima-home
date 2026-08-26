@@ -1,10 +1,11 @@
+import bcrypt from "bcryptjs";
 import { betterAuth, isProduction } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { verifyPassword } from "better-auth/crypto";
 import { nextCookies } from "better-auth/next-js";
 import { phoneNumber } from "better-auth/plugins";
 import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
-import bcrypt from "bcryptjs"; // ✅ اضافه شده برای پشتیبانی از کاربران قدیمی
 
 import { db } from "@/db";
 import * as schema from "@/db/schema";
@@ -70,13 +71,16 @@ export const auth = betterAuth({
 
     resetPasswordTokenExpiresIn: 60 * 30, // 30 دقیقه
 
-    // ✅✅✅ بخش حیاتی برای ورود کاربران قدیمی با bcryptjs ✅✅✅
-    // این بخش به Better Auth می‌گوید که برای هش و تایید پسوردها از bcryptjs استفاده کند
-    // به این ترتیب کاربران قدیمی که پسوردهایشان با bcrypt هش شده، بدون مشکل وارد می‌شوند
+    // ✅ پشتیبانی از ۳ کاربر قدیمی که پسوردشان با bcryptjs هش شده بود
+    //
+    // نکته‌ی مهم: فقط verify را override می‌کنیم، نه hash را. یعنی از
+    // این به بعد، هر پسورد جدید (ثبت‌نام تازه، تغییر پسورد، بازیابی
+    // پسورد) با همان الگوریتم قوی‌تر پیش‌فرض خودِ Better Auth (scrypt)
+    // هش می‌شود — نه bcrypt. verify فقط برای تشخیص و پذیرفتن هش‌های
+    // قدیمی bcrypt (که همیشه با "$2" شروع می‌شوند) لازم است؛ برای بقیه
+    // (هش‌های native خودِ Better Auth)، مستقیم از تابع verifyPassword
+    // خودِ کتابخانه استفاده می‌کنیم.
     password: {
-      hash: async (password: string) => {
-        return bcrypt.hash(password, 10);
-      },
       verify: async ({
         password,
         hash,
@@ -84,7 +88,12 @@ export const auth = betterAuth({
         password: string;
         hash: string;
       }) => {
-        return bcrypt.compare(password, hash);
+        if (hash.startsWith("$2")) {
+          // هش قدیمی bcrypt (کاربران قبل از مهاجرت به Better Auth)
+          return bcrypt.compare(password, hash);
+        }
+        // هش native خودِ Better Auth (scrypt)
+        return verifyPassword({ password, hash });
       },
     },
 
@@ -157,7 +166,7 @@ export const auth = betterAuth({
     phoneNumber({
       otpLength: 6,
       expiresIn: 120,
-      allowedAttempts: 10,
+      allowedAttempts: 5,
 
       sendOTP: async ({ phoneNumber, code }) => {
         const currentTime = new Date().toLocaleTimeString("fa-IR", {
