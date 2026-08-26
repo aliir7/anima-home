@@ -1,9 +1,15 @@
+import { getCurrentSession } from "@/lib/auth/authGuard";
+import { deleteStorageFiles } from "@/lib/services/storage.service";
 import { NextRequest, NextResponse } from "next/server";
-import { s3 } from "@/lib/s3";
-import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 
 export async function POST(req: NextRequest) {
   try {
+    // 🔒 چک دسترسی ادمین
+    const session = await getCurrentSession();
+    if (!session?.user || session.user.role !== "admin") {
+      return NextResponse.json({ error: "دسترسی غیرمجاز" }, { status: 403 });
+    }
+
     const { keys }: { keys: string[] } = await req.json();
 
     if (!keys || keys.length === 0) {
@@ -13,22 +19,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const results = await Promise.all(
-      keys.map(async (key) => {
-        const command = new DeleteObjectCommand({
-          Bucket: process.env.ARVAN_BUCKET_NAME!,
-          Key: key,
-        });
-
-        await s3.send(command);
-
-        return key;
-      }),
-    );
+    const results = await deleteStorageFiles(keys);
 
     return NextResponse.json({ success: true, deleted: results });
   } catch (error) {
     console.error("❌ خطا در API حذف فایل:", error);
-    return NextResponse.json({ error: "خطا در حذف فایل‌ها" }, { status: 500 });
+    const message =
+      error instanceof Error ? error.message : "خطا در حذف فایل‌ها";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

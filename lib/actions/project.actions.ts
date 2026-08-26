@@ -15,12 +15,20 @@ import { eq } from "drizzle-orm";
 
 import { revalidatePath } from "next/cache";
 import { generateUniqueSlug } from "../utils/generateSlug";
+import { requireAdmin } from "../auth/authGuard";
+import {
+  deleteStorageFiles,
+  extractStorageKey,
+} from "../services/storage.service";
 
 // action for create project
 export async function createProject(
   data: InsertProjectValues,
 ): Promise<ActionResult<unknown>> {
   try {
+    // 🔒 این عملیات فقط برای ادمین مجاز است
+    await requireAdmin();
+
     // validation data
     const validated = insertProjectSchema.safeParse(data);
     if (!validated.success) {
@@ -92,6 +100,9 @@ export async function updateProject(
   values: UpdateProjectValues,
 ): Promise<ActionResult<string>> {
   try {
+    // 🔒 این عملیات فقط برای ادمین مجاز است
+    await requireAdmin();
+
     // اعتبارسنجی داده‌ها
     const validated = updateProjectSchema.safeParse(values);
     if (!validated.success) {
@@ -170,6 +181,9 @@ export async function updateProject(
 //delete project action
 export async function deleteProject(id: string): Promise<ActionResult<string>> {
   try {
+    // 🔒 این عملیات فقط برای ادمین مجاز است
+    await requireAdmin();
+
     const [project] = await db
       .select()
       .from(projects)
@@ -189,31 +203,15 @@ export async function deleteProject(id: string): Promise<ActionResult<string>> {
       ? project.videos
       : [];
 
-    // فقط فایل‌هایی که روی باکت ذخیره شدن حذف می‌کنیم
-    const BUCKET_URL = "https://anima-home.storage.c2.liara.space/";
-
-    const extractKey = (url: string) => url.replace(BUCKET_URL, "");
-
-    // فقط لینک‌هایی که با آدرس باکت شروع میشن
+    // فقط فایل‌هایی که واقعاً روی باکت ما ذخیره شدن حذف می‌کنیم — مستقیم
+    // از سرویس داخلی، بدون fetch به endpoint خودمان
     const fileKeys = [...images, ...videos]
-      .filter((url) => url.startsWith(BUCKET_URL))
-      .map(extractKey);
+      .filter((url): url is string => typeof url === "string")
+      .map(extractStorageKey)
+      .filter((key): key is string => key !== null);
 
     if (fileKeys.length > 0) {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/storage/delete`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ keys: fileKeys }),
-        },
-      );
-
-      const result = await res.json();
-
-      if (!res.ok) {
-        throw new Error(result.error || "خطا در حذف فایل‌ها");
-      }
+      await deleteStorageFiles(fileKeys);
     }
 
     await db.delete(projects).where(eq(projects.id, id));

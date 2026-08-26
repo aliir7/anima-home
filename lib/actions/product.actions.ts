@@ -25,6 +25,11 @@ import { revalidatePath } from "next/cache";
 import { insertCategorySchema } from "../validations/categoryValidations";
 import { randomUUID } from "crypto";
 import { calculateProductPrice } from "../utils/calculateProductPrice";
+import { requireAdmin } from "../auth/authGuard";
+import {
+  deleteStorageFiles,
+  extractStorageKey,
+} from "../services/storage.service";
 
 // =================================================================
 // CREATE PRODUCT CATEGORY ACTION
@@ -34,6 +39,9 @@ export async function createProductCategory(
   data: InsertCategoryValues,
 ): Promise<ActionResult<unknown>> {
   try {
+    // 🔒 این عملیات فقط برای ادمین مجاز است
+    await requireAdmin();
+
     const validation = insertCategorySchema.safeParse(data);
     if (!validation.success) {
       return {
@@ -134,6 +142,9 @@ export async function createProductAction(
   data: createProductValues,
 ): Promise<ActionResult<unknown>> {
   try {
+    // 🔒 این عملیات فقط برای ادمین مجاز است
+    await requireAdmin();
+
     // get data & validation
     const validation = createProductSchema.safeParse(data);
 
@@ -263,6 +274,9 @@ export async function updateProductAction(
   data: updateProductValues,
 ): Promise<ActionResult<unknown>> {
   try {
+    // 🔒 این عملیات فقط برای ادمین مجاز است
+    await requireAdmin();
+
     const validation = updateProductSchema.safeParse(data);
     if (!validation.success) {
       return {
@@ -399,6 +413,9 @@ export async function deleteProductAction(
   productId: string,
 ): Promise<ActionResult<unknown>> {
   try {
+    // 🔒 این عملیات فقط برای ادمین مجاز است
+    await requireAdmin();
+
     if (!productId) {
       return {
         success: false,
@@ -420,33 +437,23 @@ export async function deleteProductAction(
       Array.isArray(variant.images) ? variant.images : [],
     );
 
-    // 3. حذف فایل‌ها از فضای ابری (Storage)
-    const BUCKET_URL = "https://anima-home.storage.c2.liara.space/";
-    const extractKey = (url: string) => url.replace(BUCKET_URL, "");
-
+    // 3. حذف فایل‌ها از فضای ابری (Storage) — مستقیم از سرویس داخلی،
+    // بدون fetch به endpoint خودمان (چون کوکی سشن را همراه نمی‌آورد)
     const fileKeys = allImageUrls
-      .filter(
-        (url): url is string =>
-          typeof url === "string" && url.startsWith(BUCKET_URL),
-      )
-      .map(extractKey);
+      .filter((url): url is string => typeof url === "string")
+      .map(extractStorageKey)
+      .filter((key): key is string => key !== null);
 
     if (fileKeys.length > 0) {
-      const res = await fetch(
-        // اطمینان حاصل کنید که این متغیر محیطی در سرور شما تعریف شده است
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/storage/delete`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ keys: fileKeys }),
-        },
-      );
-
-      // اگر حذف فایل‌ها با خطا مواجه شد، عملیات را متوقف می‌کنیم تا رکورد دیتابیس باقی بماند
-      if (!res.ok) {
-        const result = await res.json();
-        console.error("File Deletion Error:", result);
-        throw new Error(result.error || "خطا در حذف فایل‌ها از فضای ابری");
+      try {
+        await deleteStorageFiles(fileKeys);
+      } catch (storageErr) {
+        console.error("File Deletion Error:", storageErr);
+        throw new Error(
+          storageErr instanceof Error
+            ? storageErr.message
+            : "خطا در حذف فایل‌ها از فضای ابری",
+        );
       }
     }
 

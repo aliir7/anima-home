@@ -8,14 +8,22 @@ import {
   UpdateMaterialValues,
 } from "@/types";
 import { eq } from "drizzle-orm";
-import { insertMaterialSchema } from "../validations/materialsValidations";
 import { revalidatePath } from "next/cache";
+import { requireAdmin } from "../auth/authGuard";
+import {
+  deleteStorageFiles,
+  extractStorageKey,
+} from "../services/storage.service";
+import { insertMaterialSchema } from "../validations/materialsValidations";
 
 // create new material action
 export async function createMaterial(
   formData: MaterialFormValues,
 ): Promise<ActionResult<unknown>> {
   try {
+    // 🔒 این عملیات فقط برای ادمین مجاز است
+    await requireAdmin();
+
     // validation data
     const validated = insertMaterialSchema.safeParse(formData);
     if (!validated.success) {
@@ -70,6 +78,9 @@ export async function deleteMaterial(
   id: string,
 ): Promise<ActionResult<string>> {
   try {
+    // 🔒 این عملیات فقط برای ادمین مجاز است
+    await requireAdmin();
+
     const [material] = await db
       .select()
       .from(materials)
@@ -82,32 +93,14 @@ export async function deleteMaterial(
       };
     }
 
-    // delete files from bucket
-    const image: string = material.image ?? "";
-    const pdfUrl: string = material.pdfUrl ?? "";
-    const BUCKET_URL = process.env.LIARA_ENDPOINT_PUBLIC_URL;
-
-    const extractKey = (url: string) => url.replace(BUCKET_URL!, "");
-
-    const fileKeys = [image, pdfUrl]
-      .filter((url) => url.startsWith(BUCKET_URL!))
-      .map(extractKey);
+    // delete files from bucket — مستقیم از سرویس داخلی
+    const fileKeys = [material.image, material.pdfUrl]
+      .filter((url): url is string => typeof url === "string")
+      .map(extractStorageKey)
+      .filter((key): key is string => key !== null);
 
     if (fileKeys.length > 0) {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/storage/delete`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ keys: fileKeys }),
-        },
-      );
-
-      const result = await res.json();
-
-      if (!res.ok) {
-        throw new Error(result.error || "خطا در حذف فایل‌ها");
-      }
+      await deleteStorageFiles(fileKeys);
     }
 
     // delete material from db
@@ -130,6 +123,9 @@ export async function updateMaterial(
   id: string,
 ): Promise<ActionResult<string>> {
   try {
+    // 🔒 این عملیات فقط برای ادمین مجاز است
+    await requireAdmin();
+
     // validation data
     const validated = insertMaterialSchema.safeParse(formData);
     if (!validated.success) {
