@@ -28,7 +28,16 @@ async function Header() {
         <div className="hidden items-center justify-end gap-4 md:flex">
           <ModeToggle />
           <CartBtn cartItemsNumber={cartItemsNumber} />
-          {session?.user ? <UserDropdown user={session.user} /> : <SignupBtn />}
+          {session?.user ? (
+            <UserDropdown
+              user={{
+                ...session.user,
+                role: session.user.role as "admin" | "user",
+              }}
+            />
+          ) : (
+            <SignupBtn />
+          )}
         </div>
       </div>
     </header>

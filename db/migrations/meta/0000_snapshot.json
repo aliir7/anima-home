@@ -1,5 +1,5 @@
 {
-  "id": "c7f173ea-5f9f-4c43-bc34-e69a3c0dde4c",
+  "id": "42e2244b-5c33-4854-99a6-1c603dff7e3e",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -24,16 +24,16 @@
           "name": "issuer",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
-        "accountId": {
-          "name": "accountId",
+        "providerId": {
+          "name": "providerId",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "providerId": {
-          "name": "providerId",
+        "accountId": {
+          "name": "accountId",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -96,11 +96,11 @@
         }
       },
       "indexes": {
-        "account_issuer_accountId_idx": {
-          "name": "account_issuer_accountId_idx",
+        "account_providerId_accountId_idx": {
+          "name": "account_providerId_accountId_idx",
           "columns": [
             {
-              "expression": "issuer",
+              "expression": "providerId",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -1419,7 +1419,23 @@
           "default": "now()"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "verification_identifier_idx": {
+          "name": "verification_identifier_idx",
+          "columns": [
+            {
+              "expression": "identifier",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},

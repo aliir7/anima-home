@@ -1,20 +1,82 @@
 "use server";
 
-import { headers } from "next/headers";
 import { isAPIError } from "better-auth/api";
+import { headers } from "next/headers";
 
+import type { ActionResult, SigninValues, SignupFormValues } from "@/types";
 import { auth } from "../auth";
 import {
+  changePasswordSchema,
+  forgotPasswordSchema,
   signinSchema,
   signupFormSchema,
-  forgotPasswordSchema,
-  changePasswordSchema,
 } from "../validations/usersValidations";
-import type { ActionResult, SigninValues, SignupFormValues } from "@/types";
 
 // ------------------------------------------------------------------
-// 1. ثبت‌نام با ایمیل و پسورد
+// Helpers
 // ------------------------------------------------------------------
+
+function getAuthErrorCode(error: unknown): string | undefined {
+  if (!isAPIError(error)) return undefined;
+
+  if (typeof error.body === "object" && error.body !== null) {
+    return (error.body as Record<string, unknown>).code as string | undefined;
+  }
+
+  if (typeof error.body === "string") {
+    try {
+      const parsed = JSON.parse(error.body);
+      return parsed?.code;
+    } catch {
+      return undefined;
+    }
+  }
+
+  return undefined;
+}
+
+/**
+ * تبدیل کد خطا به پیام مناسب برای کاربر
+ */
+function getAuthErrorMessage(code?: string): string {
+  // 🆕 برای debugging کدهای ناشناخته
+  if (code && process.env.NODE_ENV === "development") {
+    console.log(`[Auth Error Code]: ${code}`);
+  }
+
+  switch (code) {
+    case "EMAIL_NOT_VERIFIED":
+      return "ایمیل شما هنوز تأیید نشده است. لطفاً ابتدا ایمیل خود را تأیید کنید.";
+
+    // ✅ اضافه شد: INVALID_EMAIL_OR_PASSWORD
+    case "INVALID_EMAIL_OR_PASSWORD":
+    case "INVALID_PASSWORD":
+    case "USER_NOT_FOUND":
+    case "CREDENTIALS_NOT_FOUND":
+    case "ACCOUNT_NOT_FOUND":
+      return "ایمیل یا رمز عبور صحیح نیست.";
+
+    case "TOO_MANY_REQUESTS":
+      return "تعداد درخواست‌ها زیاد است. لطفاً کمی بعد دوباره تلاش کنید.";
+
+    case "EMAIL_NOT_ALLOWED":
+      return "ورود با این ایمیل مجاز نیست.";
+
+    case "FAILED_TO_CREATE_SESSION":
+      return "خطا در ایجاد نشست. لطفاً دوباره تلاش کنید.";
+
+    default:
+      // 🆕 لاگ کدهای ناشناخته برای شناسایی سریع‌تر
+      if (code) {
+        console.warn(`[Unhandled Auth Error Code]: ${code}`);
+      }
+      return "ورود انجام نشد. لطفاً دوباره تلاش کنید.";
+  }
+}
+// ------------------------------------------------------------------
+// Sign up
+// ------------------------------------------------------------------
+
 export async function signupAction(
   formData: SignupFormValues,
 ): Promise<ActionResult<{ email: string }>> {
@@ -33,8 +95,6 @@ export async function signupAction(
   const { name, email, password } = validated.data;
 
   try {
-    // Better Auth خودش کاربر را می‌سازد، پسورد را هش می‌کند
-    // و ایمیل تایید را از طریق sendVerificationEmail hook ارسال می‌کند
     await auth.api.signUpEmail({
       body: {
         name,
@@ -51,24 +111,14 @@ export async function signupAction(
   } catch (error) {
     console.error("signupAction error:", error);
 
-    if (isAPIError(error)) {
-      const code = (error as any)?.body?.code ?? (error as any)?.code;
+    const errorCode = getAuthErrorCode(error);
 
-      if (code === "USER_ALREADY_EXISTS") {
-        return {
-          success: false,
-          error: {
-            type: "custom",
-            message: "کاربری با این ایمیل از قبل وجود دارد.",
-          },
-        };
-      }
-
+    if (errorCode === "USER_ALREADY_EXISTS") {
       return {
         success: false,
         error: {
           type: "custom",
-          message: "ثبت‌نام انجام نشد. لطفاً دوباره تلاش کنید.",
+          message: "کاربری با این ایمیل از قبل وجود دارد.",
         },
       };
     }
@@ -77,138 +127,147 @@ export async function signupAction(
       success: false,
       error: {
         type: "custom",
-        message: "خطای ناشناخته‌ای در ثبت‌نام رخ داد.",
+        message: "ثبت‌نام انجام نشد. لطفاً دوباره تلاش کنید.",
       },
     };
   }
 }
 
 // ------------------------------------------------------------------
-// 2. ورود با ایمیل و پسورد
+// Sign in with email/password
 // ------------------------------------------------------------------
 export async function signinWithCredentials(
   formData: SigninValues,
 ): Promise<ActionResult<string>> {
+  // ۱. اعتبارسنجی داده‌ها
   const validated = signinSchema.safeParse(formData);
 
   if (!validated.success) {
-    console.error("❌ Zod Validation Failed:", validated.error.issues);
     return {
       success: false,
-      error: { type: "zod", issues: validated.error.issues },
+      error: {
+        type: "zod",
+        issues: validated.error.issues,
+      },
     };
   }
 
   const { email, password } = validated.data;
 
-  if (!email || !password) {
-    return {
-      success: false,
-      error: { type: "custom", message: "ایمیل و رمز عبور الزامی هستند" },
-    };
-  }
-
   try {
-    const result = await auth.api.signInEmail({
+    // ۲. تلاش برای ورود
+    await auth.api.signInEmail({
       body: { email, password },
       headers: await headers(),
     });
 
-    console.log("✅ Login successful for:", email);
-
+    // ۳. بازگشت پاسخ موفقیت‌آمیز (با قابلیت ریدایرکت)
     return {
       success: true,
-      data: "با موفقیت وارد شدید",
+      message: "با موفقیت وارد شدید.",
     };
-  } catch (error: any) {
-    // 🔥 لاگ کامل برای دیباگ
-    console.error("❌ signinWithCredentials error:", {
-      message: error?.message,
-      code: error?.code,
-      body: error?.body,
-      status: error?.status,
-      fullError: JSON.stringify(error, null, 2),
-    });
+  } catch (error) {
+    console.error("signinWithCredentials error:", error);
 
-    if (isAPIError(error)) {
-      const errorCode = error.body?.code || error.code;
-
-      // مدیریت همه کدهای خطای احتمالی Better Auth
-      switch (errorCode) {
-        case "EMAIL_NOT_VERIFIED":
-          return {
-            success: false,
-            error: {
-              type: "custom",
-              message:
-                "ایمیل شما هنوز تأیید نشده است. لطفاً ابتدا ایمیل خود را تأیید کنید.",
-            },
-          };
-
-        case "INVALID_PASSWORD":
-        case "USER_NOT_FOUND":
-        case "CREDENTIALS_NOT_FOUND":
-          return {
-            success: false,
-            error: {
-              type: "custom",
-              message: "ایمیل یا رمز عبور صحیح نیست",
-            },
-          };
-
-        case "ACCOUNT_NOT_FOUND":
-          return {
-            success: false,
-            error: {
-              type: "custom",
-              message: "حساب کاربری با این ایمیل یافت نشد",
-            },
-          };
-
-        case "PASSWORD_COMPROMISED":
-          return {
-            success: false,
-            error: {
-              type: "custom",
-              message: "رمز عبور شما امن نیست. لطفاً آن را تغییر دهید.",
-            },
-          };
-
-        case "TOO_MANY_REQUESTS":
-          return {
-            success: false,
-            error: {
-              type: "custom",
-              message: "تعداد درخواست‌ها زیاد است. لطفاً چند دقیقه صبر کنید.",
-            },
-          };
-
-        default:
-          console.error("❓ Unknown Better Auth error code:", errorCode);
-          return {
-            success: false,
-            error: {
-              type: "custom",
-              message: `خطای ورود: ${errorCode || "نامشخص"}`,
-            },
-          };
-      }
-    }
+    // ۴. مدیریت خطا و بازگشت پیام سفارشی
+    const errorCode = getAuthErrorCode(error);
+    const errorMessage = getAuthErrorMessage(errorCode);
 
     return {
       success: false,
       error: {
         type: "custom",
-        message: `خطای ناشناخته: ${error?.message || "نامشخص"}`,
+        message: errorMessage,
       },
     };
   }
 }
 
+// export async function signinWithCredentials(
+//   formData: SigninValues,
+// ): Promise<ActionResult<string>> {
+//   const validated = signinSchema.safeParse(formData);
+
+//   if (!validated.success) {
+//     return {
+//       success: false,
+//       error: {
+//         type: "zod",
+//         issues: validated.error.issues,
+//       },
+//     };
+//   }
+
+//   const { email, password } = validated.data;
+
+//   try {
+//     await auth.api.signInEmail({
+//       body: {
+//         email,
+//         password,
+//       },
+//       headers: await headers(),
+//     });
+
+//     return {
+//       success: true,
+//       data: "با موفقیت وارد شدید.",
+//     };
+//   } catch (error) {
+//     console.error("signinWithCredentials error:", error);
+
+//     const errorCode = getAuthErrorCode(error);
+
+//     switch (errorCode) {
+//       case "EMAIL_NOT_VERIFIED":
+//         return {
+//           success: false,
+//           error: {
+//             type: "custom",
+//             message:
+//               "ایمیل شما هنوز تأیید نشده است. لطفاً ابتدا ایمیل خود را تأیید کنید.",
+//           },
+//         };
+
+//       case "INVALID_PASSWORD":
+//       case "USER_NOT_FOUND":
+//       case "CREDENTIALS_NOT_FOUND":
+//       case "ACCOUNT_NOT_FOUND":
+//         return {
+//           success: false,
+//           error: {
+//             type: "custom",
+//             message: "ایمیل یا رمز عبور صحیح نیست.",
+//           },
+//         };
+
+//       case "TOO_MANY_REQUESTS":
+//         return {
+//           success: false,
+//           error: {
+//             type: "custom",
+//             message:
+//               "تعداد درخواست‌ها زیاد است. لطفاً کمی بعد دوباره تلاش کنید.",
+//           },
+//         };
+
+//       default:
+//         return {
+//           success: false,
+//           error: {
+//             type: "custom",
+//             message: "ورود انجام نشد. لطفاً دوباره تلاش کنید.",
+//           },
+//         };
+//     }
+//   }
+// }
+
 // ------------------------------------------------------------------
-// 3. خروج
+// Sign out
 // ------------------------------------------------------------------
-export async function userSignOut() {
+
+export async function userSignOut(): Promise<void> {
   try {
     await auth.api.signOut({
       headers: await headers(),
@@ -219,8 +278,9 @@ export async function userSignOut() {
 }
 
 // ------------------------------------------------------------------
-// 4. ارسال ایمیل فراموشی رمز عبور
+// Forgot password
 // ------------------------------------------------------------------
+
 export async function sendResetPasswordEmailAction(
   email: string,
 ): Promise<ActionResult<string>> {
@@ -245,12 +305,11 @@ export async function sendResetPasswordEmailAction(
       headers: await headers(),
     });
   } catch (error) {
-    // از نظر امنیتی حتی در صورت خطا هم پیام موفقیت می‌دهیم
-    // تا مهاجمان نتوانند ایمیل‌های موجود را شناسایی کنند
+    // عمداً پیام موفقیت برمی‌گردانیم تا وجود/عدم وجود ایمیل
+    // از طریق پاسخ endpoint قابل تشخیص نباشد.
     console.error("sendResetPasswordEmailAction error:", error);
   }
 
-  // همیشه پیام موفقیت برمی‌گردانیم (به دلایل امنیتی)
   return {
     success: true,
     data: "در صورت وجود حساب کاربری، لینک بازیابی رمز عبور ارسال شد.",
@@ -258,10 +317,11 @@ export async function sendResetPasswordEmailAction(
 }
 
 // ------------------------------------------------------------------
-// 5. تغییر رمز عبور با توکن
+// Reset password
 // ------------------------------------------------------------------
+
 export async function changePasswordAction(
-  email: string, // برای سازگاری با فرم قدیمی نگه داشته شده ولی استفاده نمی‌شود
+  _email: string,
   token: string,
   newPassword: string,
 ): Promise<ActionResult<string>> {
@@ -291,7 +351,7 @@ export async function changePasswordAction(
 
     return {
       success: true,
-      data: "رمزعبور با موفقیت تغییر کرد",
+      data: "رمز عبور با موفقیت تغییر کرد.",
     };
   } catch (error) {
     console.error("changePasswordAction error:", error);
@@ -310,7 +370,7 @@ export async function changePasswordAction(
       success: false,
       error: {
         type: "custom",
-        message: "خطایی در تغییر رمزعبور رخ داد.",
+        message: "خطایی در تغییر رمز عبور رخ داد.",
       },
     };
   }

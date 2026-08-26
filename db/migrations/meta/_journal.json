@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1787595915437,
-      "tag": "0000_uneven_earthquake",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1787605655767,
-      "tag": "0001_last_otto_octavius",
+      "when": 1787737596684,
+      "tag": "0000_giant_swarm",
       "breakpoints": true
     }
   ]

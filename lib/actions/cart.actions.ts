@@ -4,10 +4,10 @@ import { db } from "@/db";
 import { carts, products } from "@/db/schema";
 import { ActionResult, CartItem } from "@/types";
 import { and, eq, isNull } from "drizzle-orm";
-import { Session } from "next-auth";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
-import { auth } from "../auth";
+import type { Session } from "../auth";
+import { getCurrentSession } from "../auth/authGuard";
 import { calculateCartPrice } from "../utils/calculateCartPrice";
 import { formatError } from "../utils/formatError";
 import {
@@ -25,15 +25,6 @@ import { findProductWithVariants } from "./product.actions";
  */
 async function getSessionCartId() {
   return (await cookies()).get("sessionCartId")?.value;
-}
-
-/**
- * Session کاربر جاری را برمی‌گرداند.
- *
- * فقط همین Helper باید auth() را صدا بزند.
- */
-async function getCurrentSession() {
-  return auth();
 }
 
 /**
