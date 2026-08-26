@@ -1,19 +1,5 @@
 "use server";
 
-import {
-  ActionResult,
-  CartItem,
-  Order,
-  OrderList,
-  OrdersPaginatedData,
-} from "@/types";
-import { auth } from "../auth";
-import { getMyCart } from "./cart.actions";
-import { getUserById } from "./user.actions";
-import {
-  insertOrderSchema,
-  shippingAddressSchema,
-} from "../validations/orderValidations";
 import { db } from "@/db";
 import {
   carts,
@@ -23,16 +9,30 @@ import {
   productVariants,
   users,
 } from "@/db/schema";
-import { count, desc, eq, sql, sum, ilike, or, and, gte } from "drizzle-orm";
-import { formatError } from "../utils/formatError";
+import {
+  ActionResult,
+  CartItem,
+  Order,
+  OrderList,
+  OrdersPaginatedData,
+} from "@/types";
+import { and, count, desc, eq, gte, ilike, sql, sum } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { createPayment } from "./payment.actions";
 import { PAYMENT_METHOD } from "../constants";
+import { formatError } from "../utils/formatError";
 import { generateRandomNumber } from "../utils/generateRandomNumber";
+import {
+  insertOrderSchema,
+  shippingAddressSchema,
+} from "../validations/orderValidations";
+import { getMyCart } from "./cart.actions";
+import { createPayment } from "./payment.actions";
 import {
   sendOrderSuccessSmsToAdmin,
   sendOrderSuccessSmsToClient,
 } from "./sms.actions";
+import { getUserById } from "./user.actions";
+import { getCurrentSession } from "../auth/authGuard";
 
 // =================================================================
 // 1. CREATE ORDER (ایجاد سفارش اولیه)
@@ -40,7 +40,7 @@ import {
 
 export async function createOrder(): Promise<ActionResult<string>> {
   try {
-    const session = await auth();
+    const session = await getCurrentSession();
     if (!session?.user?.id) throw new Error("لطفا ابتدا وارد حساب کاربری شوید");
 
     const userId = session.user.id;
@@ -192,7 +192,7 @@ export async function createOrderAndHandlePayment(): Promise<
     }
 
     // ۳. دریافت اطلاعات کاربر برای تشخیص روش پرداخت
-    const session = await auth();
+    const session = await getCurrentSession();
     if (!session?.user?.id) {
       return {
         success: false,
@@ -359,7 +359,7 @@ export async function getMyOrders({
   page?: number;
 }): Promise<{ data: Order[]; totalPages: number }> {
   // 👈 تایپ خروجی به صورت صریح تعریف شد
-  const session = await auth();
+  const session = await getCurrentSession();
   if (!session) throw new Error("عدم دسترسی");
 
   // دریافت دیتای خام از دیتابیس همراه با آیتم‌ها و مشخصات کاربر

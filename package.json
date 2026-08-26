@@ -17,7 +17,6 @@
     "deps:update": "npx npm-check-updates -u && npm install"
   },
   "dependencies": {
-    "@auth/drizzle-adapter": "^1.11.3",
     "@aws-sdk/client-s3": "^3.1106.0",
     "@aws-sdk/s3-request-presigner": "^3.1106.0",
     "@hookform/resolvers": "^5.7.1",
@@ -49,7 +48,6 @@
     "lucide-react": "^1.30.0",
     "mime": "^4.1.0",
     "next": "^16.3.0",
-    "next-auth": "^5.0.0-beta.31",
     "next-themes": "^0.4.6",
     "nodemailer": "^9.0.5",
     "pg": "^8.22.0",

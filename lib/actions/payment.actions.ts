@@ -3,7 +3,7 @@
 import { db } from "@/db";
 import { orders } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { PAYMENT_CALLBACK_URL, ZIBAL_MERCHANT } from "../constants";
+import { PAYMENT_CALLBACK_URL } from "../constants";
 import { formatError } from "../utils/formatError";
 import { updateOrderToPaid } from "./order.actions";
 
