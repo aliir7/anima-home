@@ -4,8 +4,9 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import Row from "@/components/ui/Row";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { getOrderById } from "@/lib/actions/order.actions";
+import { getOrderById } from "@/lib/services/order.service";
 import { verifyPayment } from "@/lib/actions/payment.actions";
+import { getCurrentSession } from "@/lib/auth/authGuard";
 import formatPrice from "@/lib/utils/formatPrice";
 import { CheckCircle2, CreditCard } from "lucide-react";
 import Link from "next/link";
@@ -42,6 +43,16 @@ export default async function OrderResultPage({
   // ۲. دریافت اطلاعات سفارش از دیتابیس
   const order = await getOrderById(orderId);
   if (!order) notFound();
+
+  // 🔒 orderId مستقیم از URL می‌آید و کاملاً در اختیار کاربر است. اگر این
+  // سفارش متعلق به یک کاربر ثبت‌نام‌شده باشد، فقط خودِ همان کاربر اجازه‌ی
+  // دیدنش را دارد (سفارش‌های مهمان که userId ندارند از این چک مستثنا هستند).
+  if (order.userId) {
+    const session = await getCurrentSession();
+    if (!session?.user?.id || session.user.id !== order.userId) {
+      notFound();
+    }
+  }
 
   // ============================================================
   // سناریوی الف: روش پرداخت کارت به کارت (Card to Card)

@@ -1,8 +1,8 @@
 import ProductForm from "@/components/shared/Admin/Products/ProductForm";
-import { getProductById } from "@/lib/actions/product.actions";
 import { getAllProductCategories } from "@/db/queries/categoriesQueries";
-import { notFound } from "next/navigation";
+import { getProductById } from "@/lib/actions/product.actions";
 import { requireAdmin } from "@/lib/auth/authGuard";
+import { notFound } from "next/navigation";
 
 export default async function AdminProductUpdatePage({
   params,
@@ -11,7 +11,7 @@ export default async function AdminProductUpdatePage({
 }) {
   const { id } = await params;
 
-  requireAdmin();
+  await requireAdmin();
   // ۱. دریافت محصول (دقت کنید خروجی ActionResult است)
   const productRes = await getProductById(id);
 

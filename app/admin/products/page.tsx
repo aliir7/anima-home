@@ -17,7 +17,7 @@ type AdminProductsPageProps = {
 };
 
 async function AdminProductsPage({ searchParams }: AdminProductsPageProps) {
-  requireAdmin();
+  await requireAdmin();
   const page = (await searchParams)?.page ?? 1;
   const currentPage = Number(page);
   const projectsId = (await searchParams).id ?? "";

@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/table";
 import { getMyCart } from "@/lib/actions/cart.actions";
 import { getUserById } from "@/lib/actions/user.actions";
-import { auth } from "@/lib/auth";
+import { getCurrentSession } from "@/lib/auth/authGuard";
 import formatPrice from "@/lib/utils/formatPrice";
 import { CartItem, ShippingAddress } from "@/types";
 import { Metadata } from "next";
@@ -27,12 +27,12 @@ export const metadata: Metadata = {
 
 async function PlaceOrderPage() {
   const cart = await getMyCart();
-  const session = await auth();
+  const session = await getCurrentSession();
   const userId = session?.user?.id;
 
   if (!userId) throw new Error("User not found");
 
-  const user = await getUserById(userId);
+  const user = await getUserById();
 
   if (!cart || (cart.items as CartItem[]).length === 0) redirect("/shop/cart");
   if (!user.address) redirect("/shop/checkout/shipping-address");

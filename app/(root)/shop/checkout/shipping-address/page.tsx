@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { getUserById } from "@/lib/actions/user.actions";
-import { auth } from "@/lib/auth";
+import { getCurrentSession } from "@/lib/auth/authGuard";
 import { redirect } from "next/navigation";
 import CheckoutSteps from "@/components/shared/Shop/Checkout/CheckoutSteps";
 import { ShippingAddress } from "@/types";
@@ -11,14 +11,14 @@ export const metadata: Metadata = {
 };
 
 async function CheckoutPage() {
-  const session = await auth();
+  const session = await getCurrentSession();
   const userId = session?.user?.id;
 
   if (!userId) {
     redirect("/sign-in");
   }
 
-  const user = await getUserById(userId);
+  const user = await getUserById();
 
   return (
     <section className="wrapper">

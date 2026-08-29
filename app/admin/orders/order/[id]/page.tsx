@@ -6,7 +6,7 @@ export default async function AdminDetailsOrder({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  requireAdmin();
+  await requireAdmin();
 
   return <div></div>;
 }

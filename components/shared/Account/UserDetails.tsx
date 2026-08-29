@@ -1,16 +1,16 @@
 // components/shared/Account/UserDetails.tsx
 import { getUserById } from "@/lib/actions/user.actions";
-import { auth } from "@/lib/auth";
+import { getCurrentSession } from "@/lib/auth/authGuard";
 import { redirect } from "next/navigation";
 
 async function UserDetails() {
-  const session = await auth();
+  const session = await getCurrentSession();
 
   if (!session?.user?.id) {
     redirect("/sign-in");
   }
 
-  const user = await getUserById(session.user.id);
+  const user = await getUserById();
 
   if (!user) {
     redirect("/");
@@ -49,7 +49,7 @@ async function UserDetails() {
             dir="ltr"
             className="font-medium text-neutral-900 dark:text-neutral-100"
           >
-            {user.phone ?? "ثبت نشده"}
+            {user.phoneNumber ?? "ثبت نشده"}
           </span>
         </div>
 
@@ -57,10 +57,10 @@ async function UserDetails() {
           <span>وضعیت موبایل</span>
           <span
             className={
-              user.phoneVerified ? "text-green-600" : "text-yellow-600"
+              user.phoneNumberVerified ? "text-green-600" : "text-yellow-600"
             }
           >
-            {user.phoneVerified ? "تأیید شده" : "تأیید نشده"}
+            {user.phoneNumberVerified ? "تأیید شده" : "تأیید نشده"}
           </span>
         </div>
 
