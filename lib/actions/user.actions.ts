@@ -12,16 +12,31 @@ import { sendGmailAction, sendMailAction } from "./mail.actions";
 import { db } from "@/db";
 import { eq } from "drizzle-orm";
 import { users } from "@/db/schema";
-import { auth } from "../auth";
+import { getCurrentSession } from "../auth/authGuard";
 import {
   paymentMethodSchema,
   shippingAddressSchema,
 } from "../validations/orderValidations";
 import { formatError } from "../utils/formatError";
+import { checkRateLimit, rateLimitMessage } from "../rate-limit";
 
 export async function submitContactForm(
   data: ContactFormValues,
 ): Promise<ActionResult<string>> {
+  const rateLimit = await checkRateLimit("contact-form", {
+    windowMs: 60 * 60 * 1000,
+    max: 5,
+  });
+  if (!rateLimit.allowed) {
+    return {
+      success: false,
+      error: {
+        type: "custom",
+        message: rateLimitMessage(rateLimit.retryAfterSeconds),
+      },
+    };
+  }
+
   try {
     const validated = contactFormSchema.safeParse(data);
 
@@ -90,9 +105,14 @@ export async function submitContactForm(
   }
 }
 
-export async function getUserById(userId: string) {
+export async function getUserById() {
+  const session = await getCurrentSession();
+  if (!session?.user?.id) {
+    throw new Error("لطفا ابتدا وارد حساب کاربری شوید");
+  }
+
   const user = await db.query.users.findFirst({
-    where: eq(users.id, userId),
+    where: eq(users.id, session.user.id),
   });
 
   if (!user) {
@@ -110,7 +130,7 @@ export async function updateUserAddress(
   data: ShippingAddress,
 ): Promise<ActionResult<string>> {
   try {
-    const session = await auth();
+    const session = await getCurrentSession();
     const userId = session?.user?.id;
 
     // find user by id
@@ -169,7 +189,7 @@ export async function updateUserPaymentMethod(
   data: PaymentMethodFormValues,
 ): Promise<ActionResult<string>> {
   try {
-    const session = await auth();
+    const session = await getCurrentSession();
     const userId = session?.user?.id;
 
     // find user by id

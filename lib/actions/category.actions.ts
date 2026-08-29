@@ -9,12 +9,16 @@ import { revalidatePath } from "next/cache";
 import { ActionResult, Category, InsertCategoryValues } from "@/types";
 import { insertCategorySchema } from "../validations/categoryValidations";
 import { generateUniqueSlug } from "../utils/generateSlug";
+import { requireAdmin } from "../auth/authGuard";
 
 // Action for create category
 export async function createCategoryAction(
   data: InsertCategoryValues,
 ): Promise<ActionResult<Category>> {
   try {
+    // 🔒 این عملیات فقط برای ادمین مجاز است
+    await requireAdmin();
+
     const validated = insertCategorySchema.safeParse(data);
     if (!validated.success) {
       return {
@@ -117,6 +121,9 @@ export async function updateCategoryAction(
   data: InsertCategoryValues & { id: string },
 ): Promise<ActionResult<string>> {
   try {
+    // 🔒 این عملیات فقط برای ادمین مجاز است
+    await requireAdmin();
+
     const validated = insertCategorySchema.safeParse(data);
 
     if (!validated.success) {
@@ -186,6 +193,9 @@ export async function deleteCategoryAction(
   id: string,
 ): Promise<ActionResult<string>> {
   try {
+    // 🔒 این عملیات فقط برای ادمین مجاز است
+    await requireAdmin();
+
     // check for category exist or not
     const [existing] = await db
       .select()
