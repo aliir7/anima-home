@@ -1,14 +1,5 @@
 "use server";
 
-import { db } from "@/db";
-import {
-  carts,
-  orderItems,
-  orders,
-  products,
-  productVariants,
-  users,
-} from "@/db/schema";
 import {
   ActionResult,
   CartItem,
@@ -16,23 +7,26 @@ import {
   OrderList,
   OrdersPaginatedData,
 } from "@/types";
-import { and, count, desc, eq, gte, ilike, sql, sum } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
-import { PAYMENT_METHOD } from "../constants";
-import { formatError } from "../utils/formatError";
-import { generateRandomNumber } from "../utils/generateRandomNumber";
+import { getCurrentSession, requireAdmin } from "../auth/authGuard";
+import { getMyCart } from "./cart.actions";
+import { getUserById } from "./user.actions";
+import { updateOrderToPaid } from "../services/order.service";
 import {
   insertOrderSchema,
   shippingAddressSchema,
 } from "../validations/orderValidations";
-import { getMyCart } from "./cart.actions";
+import { db } from "@/db";
+import { carts, orderItems, orders, products, users } from "@/db/schema";
+import { count, desc, eq, sql, sum, ilike, and } from "drizzle-orm";
+import { formatError } from "../utils/formatError";
+import { revalidatePath } from "next/cache";
 import { createPayment } from "./payment.actions";
+import { PAYMENT_METHOD } from "../constants";
+import { generateRandomNumber } from "../utils/generateRandomNumber";
 import {
   sendOrderSuccessSmsToAdmin,
   sendOrderSuccessSmsToClient,
 } from "./sms.actions";
-import { getUserById } from "./user.actions";
-import { getCurrentSession } from "../auth/authGuard";
 
 // =================================================================
 // 1. CREATE ORDER (ایجاد سفارش اولیه)
@@ -59,7 +53,7 @@ export async function createOrder(): Promise<ActionResult<string>> {
       };
     }
 
-    const user = await getUserById(userId);
+    const user = await getUserById();
     if (!user.address) {
       return {
         success: false,
@@ -202,7 +196,7 @@ export async function createOrderAndHandlePayment(): Promise<
     }
 
     // گرفتن تازه‌ترین وضعیت کاربر از دیتابیس
-    const user = await getUserById(session.user.id);
+    const user = await getUserById();
 
     // ۴. هدایت بر اساس روش پرداخت
 
@@ -268,85 +262,19 @@ export async function createOrderAndHandlePayment(): Promise<
 // =================================================================
 // 2. GET ORDER BY ID (دریافت اطلاعات سفارش)
 // =================================================================
-export async function getOrderById(orderId: string) {
-  const order = await db.query.orders.findFirst({
-    where: eq(orders.id, orderId),
-    with: {
-      items: true,
-
-      user: {
-        columns: { name: true, email: true },
-      },
-    },
-  });
-
-  return order;
-}
+// این تابع هم به lib/services/order.service.ts منتقل شد — هیچ‌کدام از
+// مصرف‌کننده‌های واقعی‌اش (صفحات Server Component و پیامک‌های سیستمی)
+// نیازی نداشتند که این یک Server Action مستقل و مستقیماً قابل‌فراخوانی
+// از کلاینت باشد؛ در حالی که چون بود، هرکسی می‌توانست با هر orderId
+// دلخواه، جزئیات کامل سفارش (آدرس، اقلام، نام/ایمیل خریدار) هر کاربری
+// را بگیرد.
 
 // =================================================================
 // 5. UPDATE ORDER TO PAID (تکمیل سفارش و کسر موجودی)
 // =================================================================
-export async function updateOrderToPaid({
-  orderId,
-  paymentResult,
-}: {
-  orderId: string;
-  paymentResult?: any;
-}) {
-  const order = await db.query.orders.findFirst({
-    where: eq(orders.id, orderId),
-    with: { items: true },
-  });
-
-  if (!order) throw new Error("سفارش پیدا نشد");
-  if (order.isPaid) throw new Error("این سفارش قبلا پرداخت شده است");
-
-  await db.transaction(async (tx) => {
-    // 1. کسر موجودی محصولات
-    for (const item of order.items) {
-      if (item.variantId) {
-        // آپدیت موجودی به شرطی که موجودی فعلی از تعداد درخواستی بیشتر یا مساوی باشد
-        const updatedVariant = await tx
-          .update(productVariants)
-          .set({
-            stock: sql`${productVariants.stock} - ${item.qty}`,
-          })
-          .where(
-            and(
-              eq(productVariants.id, item.variantId),
-              gte(productVariants.stock, item.qty), // بررسی اینکه موجودی کافی است
-            ),
-          )
-          .returning({ id: productVariants.id }); // خروجی گرفتن برای بررسی موفقیت‌آمیز بودن
-
-        // اگر آپدیت انجام نشود (یعنی رکورد با آن آیدی پیدا نشد یا موجودی کافی نبود)، آرایه خالی برمی‌گردد
-        if (updatedVariant.length === 0) {
-          throw new Error(
-            `موجودی برای محصول "${item.name || "نامشخص"}" کافی نیست.`,
-          );
-          // پرتاب این ارور باعث می‌شود کل Transaction متوقف (Rollback) شود و هیچ پولی تایید نشود.
-        }
-      } else {
-        console.warn(
-          `Item ${item.name} has no variantId and products table has no stock column.`,
-        );
-      }
-    }
-    // 2. آپدیت وضعیت سفارش
-    await tx
-      .update(orders)
-      .set({
-        isPaid: true,
-        paidAt: new Date(),
-        paymentResult: paymentResult,
-      })
-      .where(eq(orders.id, orderId));
-  });
-
-  // ارسال پیامک به کاربر و ادمین برای ثبت سفارش
-  sendOrderSuccessSmsToClient(orderId);
-  sendOrderSuccessSmsToAdmin(orderId);
-}
+// این تابع به lib/services/order.service.ts منتقل شد تا دیگر یک Server
+// Action مستقل و مستقیماً قابل‌فراخوانی از کلاینت نباشد — پایین‌تر با
+// import مصرف می‌شود.
 
 // =================================================================
 // 6. GET MY ORDERS (سفارش‌های کاربر)
@@ -417,6 +345,9 @@ export async function getAllOrders({
   query?: string;
 }): Promise<ActionResult<OrdersPaginatedData>> {
   try {
+    // 🔒 این عملیات فقط برای ادمین مجاز است
+    await requireAdmin();
+
     const searchCondition = query
       ? ilike(orders.refNumber, `%${query}%`)
       : undefined;
@@ -476,6 +407,9 @@ export async function getAllOrders({
 // 8. GET ORDER SUMMARY (آمار داشبورد ادمین)
 // =================================================================
 export async function getOrderSummary() {
+  // 🔒 این عملیات فقط برای ادمین مجاز است
+  await requireAdmin();
+
   // 1. تعداد سفارشات
   const ordersCount = await db.select({ count: count() }).from(orders);
 
@@ -531,6 +465,9 @@ export async function getOrderSummary() {
 // =================================================================
 export async function deleteOrder(id: string) {
   try {
+    // 🔒 این عملیات فقط برای ادمین مجاز است
+    await requireAdmin();
+
     await db.delete(orders).where(eq(orders.id, id));
     revalidatePath("/admin/orders");
     return { success: true, message: "سفارش حذف شد" };
@@ -544,6 +481,9 @@ export async function deleteOrder(id: string) {
 // =================================================================
 export async function deliverOrder(orderId: string) {
   try {
+    // 🔒 این عملیات فقط برای ادمین مجاز است
+    await requireAdmin();
+
     const order = await db.query.orders.findFirst({
       where: eq(orders.id, orderId),
     });
@@ -566,6 +506,9 @@ export async function deliverOrder(orderId: string) {
 // =================================================================
 export async function updateOrderToPaidCOD(orderId: string) {
   try {
+    // 🔒 فقط ادمین می‌تواند دریافت وجه نقدی/درب منزل را تایید کند
+    await requireAdmin();
+
     await updateOrderToPaid({ orderId });
     revalidatePath(`my-account/orders/order/${orderId}`);
     revalidatePath(`admin/orders/order/${orderId}`);
