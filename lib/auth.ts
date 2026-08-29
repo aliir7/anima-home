@@ -15,8 +15,14 @@ import { sendMailAction } from "./actions/mail.actions";
 import { NEXT_PUBLIC_OTP_TEMPLATE_ID } from "./constants";
 import { sendFastSms } from "./sms";
 
+const trustedOrigins =
+  process.env.NODE_ENV === "production"
+    ? ["https://anima-home.ir"]
+    : ["http://localhost:3000"];
+
 export const auth = betterAuth({
   baseURL: isProduction ? process.env.BETTER_AUTH_URL : "http://localhost:3000",
+  trustedOrigins: trustedOrigins,
   database: drizzleAdapter(db, {
     provider: "pg",
 
