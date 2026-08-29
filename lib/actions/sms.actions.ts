@@ -12,8 +12,8 @@ import {
 } from "../constants";
 import { sendFastSms } from "../sms";
 import { mobileSchema, otpSchema } from "../validations/smsValidations";
-import { getOrderById } from "./order.actions";
 import { checkRateLimit, rateLimitMessage } from "../rate-limit";
+import { getOrderById } from "../services/order.service";
 
 // 1. اکشن ارسال کد تایید (هم برای ثبت‌نام سریع با موبایل و هم ورود با موبایل)
 export async function sendOtpAction(mobile: string) {
