@@ -2,19 +2,30 @@
 
 import { db } from "@/db";
 import { orders } from "@/db/schema";
-import { eq } from "drizzle-orm";
-import { PAYMENT_CALLBACK_URL } from "../constants";
+import { and, eq } from "drizzle-orm";
+import { PAYMENT_CALLBACK_URL, ZIBAL_MERCHANT } from "../constants";
 import { formatError } from "../utils/formatError";
-import { updateOrderToPaid } from "./order.actions";
+import { updateOrderToPaid } from "../services/order.service";
+import { getCurrentSession } from "../auth/authGuard";
 
 export async function createPayment(orderId: string) {
   try {
+    const session = await getCurrentSession();
+    if (!session?.user?.id) {
+      throw new Error("لطفا ابتدا وارد حساب کاربری شوید");
+    }
+
+    // ✅ ownership بخشی از خودِ کوئری است — سفارش کس دیگری اصلاً پیدا نمی‌شود
     const order = await db.query.orders.findFirst({
-      where: eq(orders.id, orderId),
+      where: and(eq(orders.id, orderId), eq(orders.userId, session.user.id)),
     });
 
     if (!order) {
       throw new Error("سفارش یافت نشد");
+    }
+
+    if (order.isPaid) {
+      throw new Error("این سفارش قبلاً پرداخت شده است");
     }
 
     // convert price to rial
@@ -68,6 +79,41 @@ export async function createPayment(orderId: string) {
 // =================================================================
 export async function verifyPayment(trackId: string, orderId: string) {
   try {
+    const session = await getCurrentSession();
+    if (!session?.user?.id) {
+      return { success: false, message: "لطفا ابتدا وارد حساب کاربری شوید" };
+    }
+
+    // ✅ ownership بخشی از خودِ کوئری است
+    const order = await db.query.orders.findFirst({
+      where: and(eq(orders.id, orderId), eq(orders.userId, session.user.id)),
+    });
+
+    if (!order) {
+      return { success: false, message: "سفارش یافت نشد" };
+    }
+
+    // 🔒 حیاتی‌ترین چک این تابع: trackId ارسالی باید دقیقاً همان trackId ای
+    // باشد که createPayment برای همین سفارش ساخته و ذخیره کرده بود. بدون
+    // این چک، هر کاربری می‌توانست با یک trackId واقعیِ متعلق به سفارش
+    // ارزان خودش، سفارش گران‌قیمت شخص دیگری را «پرداخت‌شده» جا بزند —
+    // چون زیبال هر trackId معتبر و واقعاً پرداخت‌شده‌ای را با result:100
+    // تایید می‌کند، فارغ از اینکه اصلاً برای کدام سفارش صادر شده بود.
+    const storedTrackId = (order.paymentResult as { trackId?: string } | null)
+      ?.trackId;
+
+    if (!storedTrackId || String(storedTrackId) !== String(trackId)) {
+      console.error("Payment trackId mismatch:", {
+        orderId,
+        trackId,
+        storedTrackId,
+      });
+      return {
+        success: false,
+        message: "اطلاعات پرداخت با این سفارش مطابقت ندارد.",
+      };
+    }
+
     // ارسال درخواست تایید به API زیبال
     const response = await fetch("https://gateway.zibal.ir/v1/verify", {
       method: "POST",
@@ -88,6 +134,21 @@ export async function verifyPayment(trackId: string, orderId: string) {
     // کد 201: پرداخت قبلاً تایید شده است (جلوگیری از دوبار تایید شدن)
 
     if (data.result === 100) {
+      // 🔒 چک دفاعی مبلغ: مبلغ تایید‌شده توسط زیبال باید دقیقاً با مبلغ
+      // واقعی سفارش در دیتابیس ما برابر باشد
+      const expectedAmount = Number(order.totalPrice) * 10;
+      if (Number(data.amount) !== expectedAmount) {
+        console.error("Payment amount mismatch:", {
+          orderId,
+          expectedAmount,
+          receivedAmount: data.amount,
+        });
+        return {
+          success: false,
+          message: "مبلغ تایید‌شده با مبلغ سفارش مطابقت ندارد.",
+        };
+      }
+
       // فراخوانی اکشن آپدیت وضعیت سفارش به "پرداخت شده"
       await updateOrderToPaid({
         orderId,
