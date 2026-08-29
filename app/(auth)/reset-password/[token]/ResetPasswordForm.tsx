@@ -1,22 +1,21 @@
 "use client";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { changePasswordSchema } from "@/lib/validations/usersValidations";
-import { showSuccessToast, showErrorToast } from "@/lib/utils/showToastMessage";
 import { changePasswordAction } from "@/lib/actions/auth.actions";
+import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
+import { changePasswordSchema } from "@/lib/validations/usersValidations";
 import { ChangePasswordValues } from "@/types";
+import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 
 type ResetPasswordProps = {
-  email: string;
   token: string;
 };
 
-function ResetPasswordForm({ email, token }: ResetPasswordProps) {
+function ResetPasswordForm({ token }: ResetPasswordProps) {
   const {
     register,
     handleSubmit,
@@ -26,7 +25,9 @@ function ResetPasswordForm({ email, token }: ResetPasswordProps) {
   });
   const [success, setSuccess] = useState(false);
   const onSubmit = async (data: ChangePasswordValues) => {
-    const result = await changePasswordAction(email, token, data.password);
+    // پارامتر اول (ایمیل) توسط changePasswordAction استفاده نمی‌شود —
+    // فقط برای سازگاری با امضای قبلی تابع نگه داشته شده
+    const result = await changePasswordAction("", token, data.password);
     if (result.success) {
       showSuccessToast("رمز عبور با موفقیت تغییر کرد", "bottom-right");
       setSuccess(true);

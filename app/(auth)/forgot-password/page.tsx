@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { auth } from "@/lib/auth";
+import { getCurrentSession } from "@/lib/auth/authGuard";
 import { redirect } from "next/navigation";
 import ForgotPasswordForm from "./ForgotPasswordForm";
 
@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 async function ForgotPasswordPage() {
-  const session = await auth();
+  const session = await getCurrentSession();
 
   // if user logged in redirect to homepage
   if (session) {
