@@ -22,7 +22,7 @@ import SignOutForm from "../Account/SignOutForm";
 import { services } from "@/lib/constants";
 
 type MobileNavClientProps = {
-  user?: { name?: string; image?: string; role?: string };
+  user?: { name?: string | null; image?: string | null; role?: string | null };
 };
 
 function MobileNavClient({ user }: MobileNavClientProps) {

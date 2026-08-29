@@ -23,7 +23,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { Session } from "next-auth";
+import type { Session } from "@/lib/auth";
 import { AdminNavItems } from "./shared/Admin/AdminNavItems";
 import { AdminSidebarHeader } from "./shared/Admin/AdminSidebarHeader";
 

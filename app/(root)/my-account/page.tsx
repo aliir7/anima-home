@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+import { getCurrentSession } from "@/lib/auth/authGuard";
 import { redirect } from "next/navigation";
 import SidebarMenu from "@/components/shared/Account/SidebarMenu";
 import UserDetails from "@/components/shared/Account/UserDetails";
@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 async function MyAccountPage() {
-  const session = await auth();
+  const session = await getCurrentSession();
   if (!session?.user) {
     redirect("/");
   }

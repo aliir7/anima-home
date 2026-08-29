@@ -1,7 +1,7 @@
 import ProductDetailsClient from "@/components/shared/Shop/Product/ProductDetailsClient";
 import { getProductBySlug } from "@/db/queries/productQueries";
 import { getMyCart } from "@/lib/actions/cart.actions";
-import { auth } from "@/lib/auth";
+import { getCurrentSession } from "@/lib/auth/authGuard";
 import { Cart } from "@/types";
 import { notFound } from "next/navigation";
 
@@ -16,7 +16,7 @@ export default async function ProductDetailsPage({
     notFound();
   }
   const product = productResult.data;
-  const session = await auth();
+  const session = await getCurrentSession();
   const userId = session?.user?.id;
   const cart = (await getMyCart()) as Cart;
 

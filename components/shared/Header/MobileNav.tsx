@@ -1,7 +1,8 @@
+import type { Session } from "@/lib/auth";
 import MobileNavClient from "./MobileNavClient";
 
 type MobileNavProps = {
-  session: unknown;
+  session: Session | null;
 };
 
 async function MobileNav({ session }: MobileNavProps) {
