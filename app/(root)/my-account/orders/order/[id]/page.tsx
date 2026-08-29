@@ -2,8 +2,8 @@ import RetryPaymentButton from "@/components/shared/Shop/Order/RetryPaymentButto
 import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { getOrderById } from "@/lib/actions/order.actions";
-import { auth } from "@/lib/auth";
+import { getOrderById } from "@/lib/services/order.service";
+import { getCurrentSession } from "@/lib/auth/authGuard";
 import formatPrice from "@/lib/utils/formatPrice";
 import { CalendarDays, MapPin, Phone, Receipt, User } from "lucide-react";
 import { Metadata } from "next";
@@ -24,7 +24,7 @@ export default async function UserOrderDetailsPage({
   const { id } = await params;
 
   // ۲. بررسی احراز هویت
-  const session = await auth();
+  const session = await getCurrentSession();
   if (!session?.user) {
     redirect("/sign-in");
   }
@@ -43,8 +43,8 @@ export default async function UserOrderDetailsPage({
     order.paymentMethod === "ONLINE" || order.paymentMethod === "درگاه پرداخت";
   const shippingAddress = order.shippingAddress as ShippingAddress | null;
 
-  if (order.items.length===0) {
-    return <p className="wrapper space-y-8 py-12">هنوز سفارشی ثبت نکردید</p>
+  if (order.items.length === 0) {
+    return <p className="wrapper space-y-8 py-12">هنوز سفارشی ثبت نکردید</p>;
   }
 
   return (

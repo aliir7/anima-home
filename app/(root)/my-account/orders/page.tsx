@@ -1,7 +1,7 @@
 import UserOrdersList from "@/components/shared/Account/UserOrdersList";
 import PaginationControls from "@/components/shared/Pagination/PaginationControls";
 import { getMyOrders } from "@/lib/actions/order.actions";
-import { auth } from "@/lib/auth";
+import { getCurrentSession } from "@/lib/auth/authGuard";
 import { Order } from "@/types";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
@@ -18,7 +18,7 @@ async function UserOrdersPage({
 }: {
   searchParams: Promise<{ page?: string }>;
 }) {
-  const session = await auth();
+  const session = await getCurrentSession();
   if (!session?.user) {
     redirect("/");
   }
