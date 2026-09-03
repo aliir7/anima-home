@@ -43,9 +43,9 @@ export default async function UserOrderDetailsPage({
     order.paymentMethod === "ONLINE" || order.paymentMethod === "درگاه پرداخت";
   const shippingAddress = order.shippingAddress as ShippingAddress | null;
 
-  if (order.items.length === 0) {
-    return <p className="wrapper space-y-8 py-12">هنوز سفارشی ثبت نکردید</p>;
-  }
+  // if (order.items.length === 0) {
+  //   return <p className="wrapper space-y-8 py-12">هنوز سفارشی ثبت نکردید</p>;
+  // }
 
   return (
     <div className="wrapper space-y-8 py-12">

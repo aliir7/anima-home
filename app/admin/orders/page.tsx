@@ -116,7 +116,9 @@ export default async function AdminOrdersPage({
                 <TableCell className="w-40">
                   <div className="flex justify-center gap-2">
                     <Button asChild variant="outline" size="sm">
-                      <Link href={`/order/${order.id}`}>جزئیات</Link>
+                      <Link href={`/admin/orders/order/${order.id}`}>
+                        جزئیات
+                      </Link>
                     </Button>
 
                     <DeleteDialog id={order.id} action={deleteOrder} />

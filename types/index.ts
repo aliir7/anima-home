@@ -153,6 +153,22 @@ export type OrdersPaginatedData = {
   totalPages: number;
 };
 
+// USER LIST (admin panel)
+export type UsersListItem = {
+  id: string;
+  name: string | null;
+  email: string | null;
+  phoneNumber: string | null;
+  role: "user" | "admin";
+  emailVerified: boolean;
+  createdAt: Date | null;
+};
+
+export type UsersPaginatedData = {
+  usersList: UsersListItem[];
+  totalPages: number;
+};
+
 // PAYMENT TYPES
 export type PaymentMethod =
   (typeof PAYMENT_METHOD)[keyof typeof PAYMENT_METHOD];

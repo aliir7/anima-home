@@ -494,7 +494,9 @@ export async function deliverOrder(orderId: string) {
       .set({ isDelivered: true, deliveredAt: new Date() })
       .where(eq(orders.id, orderId));
 
-    revalidatePath(`/order/${orderId}`);
+    revalidatePath(`/my-account/orders/order/${orderId}`);
+    revalidatePath(`/admin/orders/order/${orderId}`);
+    revalidatePath("/admin/orders");
     return { success: true, message: "وضعیت سفارش به تحویل شده تغییر یافت" };
   } catch (error) {
     return { success: false, message: formatError(error) };
@@ -510,8 +512,9 @@ export async function updateOrderToPaidCOD(orderId: string) {
     await requireAdmin();
 
     await updateOrderToPaid({ orderId });
-    revalidatePath(`my-account/orders/order/${orderId}`);
-    revalidatePath(`admin/orders/order/${orderId}`);
+    revalidatePath(`/my-account/orders/order/${orderId}`);
+    revalidatePath(`/admin/orders/order/${orderId}`);
+    revalidatePath("/admin/orders");
     return { success: true, message: "سفارش پرداخت در محل تایید شد" };
   } catch (error) {
     return { success: false, message: formatError(error) };

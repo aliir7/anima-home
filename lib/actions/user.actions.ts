@@ -6,19 +6,21 @@ import {
   PaymentMethod,
   PaymentMethodFormValues,
   ShippingAddress,
+  UsersPaginatedData,
 } from "@/types";
 import { contactFormSchema } from "../validations/usersValidations";
 import { sendGmailAction, sendMailAction } from "./mail.actions";
 import { db } from "@/db";
-import { eq } from "drizzle-orm";
+import { count, desc, eq, ilike, or } from "drizzle-orm";
 import { users } from "@/db/schema";
-import { getCurrentSession } from "../auth/authGuard";
+import { getCurrentSession, requireAdmin } from "../auth/authGuard";
 import {
   paymentMethodSchema,
   shippingAddressSchema,
 } from "../validations/orderValidations";
 import { formatError } from "../utils/formatError";
 import { checkRateLimit, rateLimitMessage } from "../rate-limit";
+import { revalidatePath } from "next/cache";
 
 export async function submitContactForm(
   data: ContactFormValues,
@@ -236,6 +238,133 @@ export async function updateUserPaymentMethod(
         type: "custom",
         message: formatError(err),
       },
+    };
+  }
+}
+
+// =================================================================
+//  ADMIN: GET ALL USERS (لیست کاربران برای پنل ادمین)
+// =================================================================
+
+export async function getAllUsers({
+  limit = 10,
+  page = 1,
+  query,
+}: {
+  limit?: number;
+  page?: number;
+  query?: string;
+}): Promise<ActionResult<UsersPaginatedData>> {
+  try {
+    // 🔒 این عملیات فقط برای ادمین مجاز است
+    await requireAdmin();
+
+    const searchCondition = query
+      ? or(
+          ilike(users.name, `%${query}%`),
+          ilike(users.email, `%${query}%`),
+          ilike(users.phoneNumber, `%${query}%`),
+        )
+      : undefined;
+
+    const rawUsers = await db.query.users.findMany({
+      where: searchCondition,
+      orderBy: [desc(users.createdAt)],
+      limit,
+      offset: (page - 1) * limit,
+      columns: {
+        id: true,
+        name: true,
+        email: true,
+        phoneNumber: true,
+        role: true,
+        emailVerified: true,
+        createdAt: true,
+      },
+    });
+
+    const [countResult] = await db
+      .select({ count: count() })
+      .from(users)
+      .where(searchCondition);
+
+    return {
+      success: true,
+      data: {
+        usersList: rawUsers,
+        totalPages: Math.ceil(countResult.count / limit),
+      },
+    };
+  } catch (error) {
+    console.error("Fetch Users Error:", error);
+    return {
+      success: false,
+      error: {
+        type: "custom",
+        message: "خطا در برقراری ارتباط با دیتابیس و دریافت کاربران",
+      },
+    };
+  }
+}
+
+// =================================================================
+//  ADMIN: UPDATE USER ROLE (تغییر نقش کاربر توسط ادمین)
+// =================================================================
+
+export async function updateUserRole(
+  userId: string,
+  newRole: "user" | "admin",
+): Promise<ActionResult<string>> {
+  try {
+    // 🔒 این عملیات فقط برای ادمین مجاز است
+    const session = await requireAdmin();
+
+    if (newRole !== "user" && newRole !== "admin") {
+      return {
+        success: false,
+        error: { type: "custom", message: "نقش نامعتبر است" },
+      };
+    }
+
+    // 🔒 جلوگیری از تغییر نقش خودِ ادمین — تا یک ادمین به‌طور تصادفی
+    // خودش را از دسترسی مدیریت محروم نکند (مخصوصاً اگر تنها ادمین سیستم باشد)
+    if (session.user.id === userId) {
+      return {
+        success: false,
+        error: {
+          type: "custom",
+          message: "نمی‌توانید نقش خودتان را تغییر دهید",
+        },
+      };
+    }
+
+    const targetUser = await db.query.users.findFirst({
+      where: eq(users.id, userId),
+      columns: { id: true },
+    });
+
+    if (!targetUser) {
+      return {
+        success: false,
+        error: { type: "custom", message: "کاربر یافت نشد" },
+      };
+    }
+
+    await db.update(users).set({ role: newRole }).where(eq(users.id, userId));
+
+    revalidatePath("/admin/users");
+
+    return {
+      success: true,
+      data:
+        newRole === "admin"
+          ? "کاربر به ادمین ارتقا یافت"
+          : "دسترسی ادمین از کاربر گرفته شد",
+    };
+  } catch (err) {
+    return {
+      success: false,
+      error: { type: "custom", message: formatError(err) },
     };
   }
 }

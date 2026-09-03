@@ -1,10 +1,9 @@
 import { getCurrentSession } from "@/lib/auth/authGuard";
 import { redirect } from "next/navigation";
 import SidebarMenu from "@/components/shared/Account/SidebarMenu";
-import UserDetails from "@/components/shared/Account/UserDetails";
-import OrderList from "@/components/shared/Account/OrderList";
 import LogoutSection from "@/components/shared/Account/LogoutSection";
-import { Metadata } from "next/";
+import UserDetails from "@/components/shared/Account/UserDetails";
+import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "حساب کاربری",
@@ -26,6 +25,7 @@ async function MyAccountPage() {
 
       <main className="h-fit w-full space-y-8 md:w-3/4">
         <UserDetails />
+        <LogoutSection />
       </main>
     </div>
   );
