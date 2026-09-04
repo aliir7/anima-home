@@ -15,3 +15,5 @@ export { categories } from "./categories";
 export { projectRedirects } from "./projectRedirects";
 export { materials } from "./materials";
 export { reviews } from "./reviews";
+export { coupons, couponTypeEnum } from "./coupons";
+export { couponUsages } from "./couponUsages";

@@ -23,8 +23,13 @@ export default function CartClientWrapper({
   }
 
   // ۳. محاسبه تمام قیمت‌ها بر اساس لیست آیتم‌های آپدیت شده در همان لحظه
-  // (استفاده از همان تابعی که خودتان نوشتید)
-  const prices = calculateCartPrice(optimisticCart);
+  // (استفاده از همان تابعی که خودتان نوشتید) — کد تخفیف فعلی سبد هم لحاظ
+  // می‌شود تا در حین افزودن/حذف آیتم، تخفیف هم به‌درستی به‌روز بماند
+  const appliedCoupon =
+    initialCart.couponType && initialCart.couponValue != null
+      ? { type: initialCart.couponType, value: initialCart.couponValue }
+      : null;
+  const prices = calculateCartPrice(optimisticCart, appliedCoupon);
 
   // ۴. ساختن آبجکت سبد خرید برای پاس دادن به CartSummary
   const optimisticCartObject: Cart = {
@@ -32,6 +37,7 @@ export default function CartClientWrapper({
     items: optimisticCart, // لیست جدید
     itemsPrice: prices.itemsPrice, // قیمت محاسبه شده جدید
     taxPrice: prices.taxPrice, // مالیات محاسبه شده جدید
+    discountAmount: prices.discountAmount, // تخفیف محاسبه‌شده جدید
     totalPrice: prices.totalPrice, // قیمت کل جدید
     // shippingPrice: initialCart.shippingPrice || 0, // هزینه ارسال
   };

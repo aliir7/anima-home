@@ -10,6 +10,8 @@ import { productCategories } from "./productCategories";
 import { products } from "./products";
 import { productVariants } from "./productVariants";
 import { reviews } from "./reviews";
+import { coupons } from "./coupons";
+import { couponUsages } from "./couponUsages";
 import { projectRedirects } from "./projectRedirects";
 import { projects } from "./projects";
 import { sessions } from "./sessions";
@@ -167,5 +169,26 @@ export const sessionRelations = relations(sessions, ({ one }) => ({
   user: one(users, {
     fields: [sessions.userId],
     references: [users.id],
+  }),
+}));
+
+// coupons
+export const couponsRelations = relations(coupons, ({ many }) => ({
+  usages: many(couponUsages),
+}));
+
+// coupon usages
+export const couponUsagesRelations = relations(couponUsages, ({ one }) => ({
+  coupon: one(coupons, {
+    fields: [couponUsages.couponId],
+    references: [coupons.id],
+  }),
+  user: one(users, {
+    fields: [couponUsages.userId],
+    references: [users.id],
+  }),
+  order: one(orders, {
+    fields: [couponUsages.orderId],
+    references: [orders.id],
   }),
 }));

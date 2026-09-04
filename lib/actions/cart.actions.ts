@@ -1,14 +1,17 @@
 "use server";
 
 import { db } from "@/db";
-import { carts, products } from "@/db/schema";
+import { carts, products, coupons } from "@/db/schema";
 import { ActionResult, CartItem } from "@/types";
 import { and, eq, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import type { Session } from "../auth";
 import { getCurrentSession } from "../auth/authGuard";
-import { calculateCartPrice } from "../utils/calculateCartPrice";
+import {
+  calculateCartPrice,
+  AppliedCoupon,
+} from "../utils/calculateCartPrice";
 import { formatError } from "../utils/formatError";
 import {
   cartItemSchema,
@@ -31,24 +34,63 @@ async function getSessionCartId() {
  * به‌روزرسانی سبد خرید
  *
  * مسئولیت‌ها:
- * 1- محاسبه مجدد قیمت‌ها
- * 2- ذخیره در دیتابیس
- * 3- Revalidate صفحات فروشگاه
+ * 1- محاسبه مجدد قیمت‌ها (با در نظر گرفتن کد تخفیف فعلی، اگر باشد)
+ * 2- اگر کوپن فعلی دیگر واجد شرایط نبود (مثلاً حداقل مبلغ سفارش)، خودکار حذفش می‌کند
+ * 3- ذخیره در دیتابیس
+ * 4- Revalidate صفحات فروشگاه
  */
 async function updateCart(
-  cartId: string,
+  cart: NonNullable<Awaited<ReturnType<typeof getMyCart>>>,
   items: CartItem[],
   paths: string[] = [],
 ) {
+  let coupon: AppliedCoupon = null;
+  let couponCode = cart.couponCode ?? null;
+  let couponType = cart.couponType ?? null;
+  let couponValue = cart.couponValue ?? null;
+
+  if (couponCode && couponType && couponValue != null) {
+    const newItemsPrice = items.reduce(
+      (acc, item) => acc + Number(item.price) * item.qty,
+      0,
+    );
+
+    // چک سبک اینکه آیا کوپن هنوز فعال است و حداقل مبلغ سفارش را دارد
+    const couponRow = await db.query.coupons.findFirst({
+      where: eq(coupons.code, couponCode),
+      columns: { minOrderAmount: true, isActive: true },
+    });
+
+    const stillQualifies =
+      !!couponRow?.isActive &&
+      (couponRow.minOrderAmount == null ||
+        newItemsPrice >= couponRow.minOrderAmount);
+
+    if (stillQualifies) {
+      coupon = { type: couponType, value: couponValue };
+    } else {
+      // دیگر واجد شرایط نیست — کوپن را خودکار از سبد حذف می‌کنیم
+      couponCode = null;
+      couponType = null;
+      couponValue = null;
+    }
+  }
+
+  const prices = calculateCartPrice(items, coupon);
+
   await db
     .update(carts)
     .set({
       items,
-      ...calculateCartPrice(items),
+      ...prices,
+      couponCode,
+      couponType,
+      couponValue,
     })
-    .where(eq(carts.id, cartId));
+    .where(eq(carts.id, cart.id));
 
   revalidatePath("/shop/products");
+  revalidatePath("/shop/cart");
 
   for (const path of paths) {
     revalidatePath(path);
@@ -188,7 +230,7 @@ export async function addItemToCart(
     /*                               7. Save Cart                                 */
     /* -------------------------------------------------------------------------- */
 
-    await updateCart(cart.id, items);
+    await updateCart(cart, items);
 
     return {
       success: true,
@@ -282,7 +324,7 @@ export async function removeItemFromCart(
     /*                              5. Save Changes                               */
     /* -------------------------------------------------------------------------- */
 
-    await updateCart(cart.id, updatedItems, [
+    await updateCart(cart, updatedItems, [
       `/shop/products/${product.seoSlug}`,
     ]);
 

@@ -14,6 +14,7 @@ import {
   Settings,
   ShoppingBag,
   Users,
+  Ticket,
 } from "lucide-react";
 
 export const isProduction = process.env.NODE_ENV === "production";
@@ -126,6 +127,7 @@ export const adminRoutes = [
   { label: "محصولات", href: "/admin/products", icon: Boxes },
   { label: "سفارش‌ها", href: "/admin/orders", icon: Package },
   { label: "کاربران", href: "/admin/users", icon: Users },
+  { label: "کدهای تخفیف", href: "/admin/coupons", icon: Ticket },
   { label: "دسته‌بندی‌ها", href: "/admin/categories", icon: Layers3 },
   { label: "تنظیمات", href: "/admin/settings", icon: Settings },
 ];

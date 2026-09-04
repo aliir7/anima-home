@@ -195,6 +195,17 @@ async function PlaceOrderPage() {
                 </span>
               </div>
 
+              {!!cart.discountAmount && cart.discountAmount > 0 && (
+                <div className="flex items-center justify-between gap-2 px-1 text-sm text-green-600">
+                  <span className="shrink-0">
+                    تخفیف ({cart.couponCode})
+                  </span>
+                  <span className="text-left font-medium">
+                    −{formatPrice(cart.discountAmount)}
+                  </span>
+                </div>
+              )}
+
               <div className="flex items-center justify-between gap-2 px-1 text-sm">
                 <span className="text-muted-foreground shrink-0">
                   هزینه ارسال

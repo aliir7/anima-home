@@ -126,7 +126,13 @@ export type ProductSpec = {
 export type ContactFormValues = z.infer<typeof contactFormSchema>;
 
 // cart types
-export type Cart = z.infer<typeof insertCartSchema>;
+export type Cart = z.infer<typeof insertCartSchema> & {
+  id: string;
+  discountAmount?: number;
+  couponCode?: string | null;
+  couponType?: "percent" | "fixed" | null;
+  couponValue?: number | null;
+};
 export type CartItem = z.infer<typeof cartItemSchema>;
 
 // ORDER TYPES

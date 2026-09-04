@@ -11,12 +11,21 @@ import { getCurrentSession, requireAdmin } from "../auth/authGuard";
 import { getMyCart } from "./cart.actions";
 import { getUserById } from "./user.actions";
 import { updateOrderToPaid } from "../services/order.service";
+import { validateCouponForUser } from "../services/coupon.service";
 import {
   insertOrderSchema,
   shippingAddressSchema,
 } from "../validations/orderValidations";
 import { db } from "@/db";
-import { carts, orderItems, orders, products, users } from "@/db/schema";
+import {
+  carts,
+  coupons,
+  couponUsages,
+  orderItems,
+  orders,
+  products,
+  users,
+} from "@/db/schema";
 import { count, desc, eq, sql, sum, ilike, and } from "drizzle-orm";
 import { formatError } from "../utils/formatError";
 import { revalidatePath } from "next/cache";
@@ -85,6 +94,27 @@ export async function createOrder(): Promise<ActionResult<string>> {
     // generate refNumber
     const refNumber = generateRandomNumber("Anima");
 
+    // 🔒 اگر روی سبد کد تخفیف اعمال شده، همینجا دوباره از صفر اعتبارسنجی‌اش
+    // می‌کنیم — چیزی می‌تواند بین لحظه‌ی اعمال کوپن روی سبد و لحظه‌ی ثبت
+    // نهایی سفارش تغییر کرده باشد (مثلاً ظرفیت کد تمام شده باشد)
+    let appliedCoupon: typeof coupons.$inferSelect | null = null;
+    if (cart.couponCode) {
+      const couponCheck = await validateCouponForUser(
+        cart.couponCode,
+        userId,
+        cart.itemsPrice,
+      );
+      if (!couponCheck.valid) {
+        return {
+          success: false,
+          message: couponCheck.message,
+          error: { type: "custom", message: couponCheck.message },
+          redirectTo: "/shop/cart",
+        };
+      }
+      appliedCoupon = couponCheck.coupon;
+    }
+
     const orderData = insertOrderSchema.parse({
       userId: userId, // اصلاح شد
       refNumber,
@@ -93,6 +123,8 @@ export async function createOrder(): Promise<ActionResult<string>> {
       itemsPrice: cart.itemsPrice,
       taxPrice: cart.taxPrice,
       totalPrice: cart.totalPrice,
+      couponCode: appliedCoupon?.code ?? null,
+      discountAmount: cart.discountAmount ?? 0,
     });
 
     // اجرای تراکنش دیتابیس (Transaction)
@@ -117,6 +149,21 @@ export async function createOrder(): Promise<ActionResult<string>> {
 
       await tx.insert(orderItems).values(orderItemsData);
 
+      // 2.5 ثبت استفاده از کد تخفیف (اگر بوده) — برای اعمال محدودیت
+      // "هر کاربر حداکثر N بار" در دفعات بعدی + افزایش شمارنده‌ی کلی
+      if (appliedCoupon) {
+        await tx.insert(couponUsages).values({
+          couponId: appliedCoupon.id,
+          userId,
+          orderId: newOrder.id,
+        });
+
+        await tx
+          .update(coupons)
+          .set({ usedCount: appliedCoupon.usedCount + 1 })
+          .where(eq(coupons.id, appliedCoupon.id));
+      }
+
       // 3. خالی کردن سبد خرید
       await tx
         .update(carts)
@@ -125,6 +172,10 @@ export async function createOrder(): Promise<ActionResult<string>> {
           totalPrice: 0, // به صورت استرینگ ذخیره شود بهتر است (بستگی به نوع فیلد decimal در دیتابیس دارد)
           itemsPrice: 0,
           taxPrice: 0,
+          discountAmount: 0,
+          couponCode: null,
+          couponType: null,
+          couponValue: null,
         })
         .where(eq(carts.id, cart.id));
 

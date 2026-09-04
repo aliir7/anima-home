@@ -34,6 +34,7 @@ export const adminRoutes = [
   "/admin/products",
   "/admin/orders",
   "/admin/users",
+  "/admin/coupons",
   "/admin/categories",
   "/admin/settings",
 ];

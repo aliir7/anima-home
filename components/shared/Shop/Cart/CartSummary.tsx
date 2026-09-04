@@ -5,6 +5,7 @@ import formatPrice from "@/lib/utils/formatPrice";
 import { Cart } from "@/types";
 import { Truck } from "lucide-react";
 import Link from "next/link";
+import CouponForm from "./CouponForm";
 
 type CartSummaryProps = {
   cart: Cart;
@@ -29,6 +30,13 @@ function CartSummary({ cart }: CartSummaryProps) {
             <span>{formatPrice(cart.taxPrice)}</span>
           </div>
 
+          {!!cart.discountAmount && cart.discountAmount > 0 && (
+            <div className="flex justify-between text-green-600">
+              <span>تخفیف ({cart.couponCode})</span>
+              <span>−{formatPrice(cart.discountAmount)}</span>
+            </div>
+          )}
+
           <div className="text-muted-foreground mt-4 mb-6 flex justify-between text-xs">
             <span className="flex items-center gap-1">
               <Truck className="h-4 w-4" />
@@ -37,6 +45,8 @@ function CartSummary({ cart }: CartSummaryProps) {
             <span>به عهده مشتری (تیپاکس)</span>
           </div>
         </div>
+
+        <CouponForm appliedCode={cart.couponCode} />
 
         <Separator />
 

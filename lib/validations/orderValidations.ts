@@ -46,6 +46,8 @@ export const insertOrderSchema = z.object({
       message: "روش پرداخت انتخاب شده معتبر نیست",
     }),
   shippingAddress: shippingAddressSchema,
+  couponCode: z.string().optional().nullable(),
+  discountAmount: z.number().int().nonnegative().optional(),
 });
 
 // ==========================================

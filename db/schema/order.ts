@@ -19,6 +19,11 @@ export const orders = pgTable("orders", {
   itemsPrice: integer("items_price").notNull(),
   taxPrice: integer("tax_price").notNull(),
   totalPrice: integer("total_price").notNull(),
+
+  // کد تخفیفی که هنگام ثبت این سفارش اعمال شده بود (اگر بوده)
+  couponCode: text("coupon_code"),
+  discountAmount: integer("discount_amount").default(0).notNull(),
+
   isPaid: boolean("is_paid").default(false),
   isDelivered: boolean("is_ِdelivered").default(false),
   paidAt: timestamp("paid_at", { mode: "date", precision: 6 }),
