@@ -9,6 +9,7 @@ import { orderItems } from "./orderItems";
 import { productCategories } from "./productCategories";
 import { products } from "./products";
 import { productVariants } from "./productVariants";
+import { reviews } from "./reviews";
 import { projectRedirects } from "./projectRedirects";
 import { projects } from "./projects";
 import { sessions } from "./sessions";
@@ -73,6 +74,7 @@ export const productRelations = relations(products, ({ one, many }) => ({
 
   variants: many(productVariants),
   orderItems: many(orderItems),
+  reviews: many(reviews),
 }));
 
 // products variants relations
@@ -103,6 +105,19 @@ export const userRelations = relations(users, ({ one, many }) => ({
   cart: one(carts),
 
   orders: many(orders),
+  reviews: many(reviews),
+}));
+
+// reviews relations
+export const reviewsRelations = relations(reviews, ({ one }) => ({
+  product: one(products, {
+    fields: [reviews.productId],
+    references: [products.id],
+  }),
+  user: one(users, {
+    fields: [reviews.userId],
+    references: [users.id],
+  }),
 }));
 
 // orders relations

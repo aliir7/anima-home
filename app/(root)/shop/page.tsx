@@ -22,6 +22,7 @@ type ProductsPageProps = {
     category?: string;
     page?: string;
     sort?: string;
+    query?: string;
   }>;
 };
 
@@ -33,6 +34,7 @@ export default async function ProductsPage({
   const currentPage = Number(page);
 
   const categoryId = (await searchParams).category ?? "";
+  const query = (await searchParams).query ?? "";
 
   // 2. واکشی همزمان داده‌های مورد نیاز
   const [categoriesRes, productsRes, totalProductsCount] = await Promise.all([
@@ -41,8 +43,9 @@ export default async function ProductsPage({
       page: currentPage,
       pageSize: PAGE_SIZE,
       categoryId: categoryId, // فیلتر را به کوئری اصلی پاس می‌دهیم
+      query: query,
     }),
-    getProductsCount(categoryId), // تعداد کل را هم با فیلتر حساب می‌کنیم
+    getProductsCount(categoryId, query), // تعداد کل را هم با فیلتر حساب می‌کنیم
   ]);
 
   // 3. محاسبه تعداد کل صفحات برای Pagination

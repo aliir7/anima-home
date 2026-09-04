@@ -11,6 +11,7 @@ export function useDataFilters() {
 
   const currentCategory = searchParams.get("category");
   const currentSort = searchParams.get("sort");
+  const currentQuery = searchParams.get("query");
   const currentPage = Number(searchParams.get("page") ?? 1);
 
   const createQueryString = useCallback(
@@ -40,6 +41,7 @@ export function useDataFilters() {
   return {
     currentCategory,
     currentSort,
+    currentQuery,
     currentPage,
     setFilter,
   };

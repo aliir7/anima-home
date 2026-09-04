@@ -2,23 +2,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { format } from "date-fns-jalali";
-import {
-  CalendarDays,
-  Mail,
-  MapPin,
-  Phone,
-  Receipt,
-  User,
-} from "lucide-react";
+import { CalendarDays, Mail, MapPin, Phone, Receipt, User } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import OrderStatusActions from "@/components/shared/Admin/Orders/OrderStatusActions";
 
@@ -27,6 +15,7 @@ import { requireAdmin } from "@/lib/auth/authGuard";
 import { PAYMENT_METHOD, PAYMENT_METHOD_LABEL } from "@/lib/constants";
 import formatPrice from "@/lib/utils/formatPrice";
 import { ShippingAddress } from "@/types";
+import { getSafeImageSrc, getStorageUrl } from "@/lib/utils/urlUtils";
 
 export default async function AdminDetailsOrder({
   params,
@@ -162,7 +151,7 @@ export default async function AdminDetailsOrder({
                   >
                     <div className="bg-muted relative h-16 w-16 shrink-0 overflow-hidden rounded-md border">
                       <Image
-                        src={item.image || "/placeholder.jpg"}
+                        src={getStorageUrl(item.image) || "/placeholder.jpg"}
                         alt={item.name}
                         fill
                         className="object-cover"
@@ -229,17 +218,13 @@ export default async function AdminDetailsOrder({
                 </div>
                 {order.isPaid && order.paidAt && (
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">
-                      تاریخ پرداخت:
-                    </span>
+                    <span className="text-muted-foreground">تاریخ پرداخت:</span>
                     <span>{format(order.paidAt, "yyyy/MM/dd HH:mm")}</span>
                   </div>
                 )}
                 {order.isDelivered && order.deliveredAt && (
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">
-                      تاریخ تحویل:
-                    </span>
+                    <span className="text-muted-foreground">تاریخ تحویل:</span>
                     <span>{format(order.deliveredAt, "yyyy/MM/dd HH:mm")}</span>
                   </div>
                 )}

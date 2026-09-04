@@ -68,7 +68,14 @@ function ProductCard({ product, href, priority }: ProductCardProps) {
           </Link>
         </CardTitle>
 
-        <Rating rate={4} size={14} />
+        <div className="flex items-center gap-1.5">
+          <Rating rate={Number(product.rating)} size={14} />
+          {product.numReviews > 0 && (
+            <span className="text-muted-foreground text-xs">
+              ({product.numReviews})
+            </span>
+          )}
+        </div>
 
         <CardDescription className="text-muted-foreground line-clamp-1 h-5 text-xs">
           {firstVariant.title}

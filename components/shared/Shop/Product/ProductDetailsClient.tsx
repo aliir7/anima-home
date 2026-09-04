@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { ShoppingCart, Star } from "lucide-react";
 
-import { Cart, ProductWithRelations } from "@/types";
+import { Cart, ProductWithRelations, ReviewWithUser } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -20,12 +20,21 @@ type ProductDetailsProps = {
   product: ProductWithRelations;
   userId?: string | null;
   cart?: Cart | undefined;
+  initialReviews: ReviewWithUser[];
+  initialHasMore: boolean;
+  eligibility: {
+    canReview: boolean;
+    reason?: "NOT_LOGGED_IN" | "NOT_PURCHASED" | "ALREADY_REVIEWED";
+  };
 };
 
 export default function ProductDetailsClient({
   product,
   userId,
   cart,
+  initialReviews,
+  initialHasMore,
+  eligibility,
 }: ProductDetailsProps) {
   const firstVariant = product.variants?.[0];
   if (!firstVariant) return null;
@@ -172,7 +181,12 @@ export default function ProductDetailsClient({
       </div>
 
       {/* ✅ REVIEWS */}
-      <ProductReviewsSection product={product} />
+      <ProductReviewsSection
+        product={product}
+        initialReviews={initialReviews}
+        initialHasMore={initialHasMore}
+        eligibility={eligibility}
+      />
     </div>
   );
 }

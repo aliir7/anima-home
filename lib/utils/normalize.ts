@@ -49,3 +49,18 @@ export function normalizeMaterialForForm(
     pdfUrl: material.image ?? "",
   };
 }
+
+import type { ProductWithRelations } from "@/types";
+
+export function normalizeProduct(
+  product: ProductWithRelations,
+): ProductWithRelations {
+  return {
+    ...product,
+    variants: product.variants.map((variant) => ({
+      ...variant,
+      specs: (variant.specs ?? {}) as Record<string, string>,
+      images: (variant.images ?? []) as string[],
+    })),
+  };
+}

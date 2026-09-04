@@ -6,7 +6,7 @@ import { eq, sql } from "drizzle-orm";
 import { cache } from "react";
 import { withDbError } from "../helpers/withDbError";
 
-function normalizeProjectRow(row: typeof projects.$inferSelect) {
+export function normalizeProjectRow(row: typeof projects.$inferSelect) {
   return normalizeProject({
     ...row,
     images: row.images as string[],

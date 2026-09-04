@@ -1,15 +1,24 @@
-import { ActionResult, ProductWithRelations, QueryResult } from "@/types";
+import {
+  ActionResult,
+  ProductWithRelations,
+  ProjectWithCategory,
+  QueryResult,
+} from "@/types";
 import { db } from "..";
-import { asc, desc, eq, sql } from "drizzle-orm";
-import { products, productVariants } from "../schema";
+import { asc, desc, eq, and, ilike, sql } from "drizzle-orm";
+import { products, productVariants, projects } from "../schema";
 import { formatError } from "@/lib/utils/formatError";
 import { PAGE_SIZE } from "@/lib/constants";
+import { normalizeProject } from "@/lib/utils/normalize";
+import { cache } from "react";
+import { normalizeProjectRow } from "./projectQueries";
 
 type GetAllProductsParams = {
   page?: number;
   pageSize?: number;
   categoryId?: string;
   sort?: string;
+  query?: string;
 };
 
 export async function getAllProducts({
@@ -17,9 +26,16 @@ export async function getAllProducts({
   pageSize = PAGE_SIZE,
   categoryId,
   sort,
+  query,
 }: GetAllProductsParams): Promise<ActionResult<ProductWithRelations[]>> {
   try {
     const offset = (page - 1) * pageSize;
+
+    // ترکیب فیلتر دسته‌بندی و جستجو با هم (هر دو با AND، هرکدام اختیاری)
+    const whereClause = and(
+      categoryId ? eq(products.categoryId, categoryId) : undefined,
+      query ? ilike(products.title, `%${query}%`) : undefined,
+    );
 
     // --- ساخت منطق مرتب‌سازی با SQL Subquery ---
     let orderBySql;
@@ -51,7 +67,7 @@ export async function getAllProducts({
     // -------------------------------------
 
     const data = await db.query.products.findMany({
-      where: categoryId ? eq(products.categoryId, categoryId) : undefined,
+      where: whereClause,
 
       with: {
         variants: true,
@@ -92,11 +108,15 @@ export async function getAllProducts({
  * @description تعداد کل محصولات را (با قابلیت فیلتر بر اساس دسته‌بندی) برمی‌گرداند.
  * این تابع برای محاسبه تعداد کل صفحات (Pagination) ضروری است.
  */
-export async function getProductsCount(categoryId?: string): Promise<number> {
+export async function getProductsCount(
+  categoryId?: string,
+  query?: string,
+): Promise<number> {
   try {
-    const whereClause = categoryId
-      ? eq(products.categoryId, categoryId)
-      : undefined;
+    const whereClause = and(
+      categoryId ? eq(products.categoryId, categoryId) : undefined,
+      query ? ilike(products.title, `%${query}%`) : undefined,
+    );
 
     const result = await db
       .select({ count: sql<number>`COUNT(*)` })
@@ -163,3 +183,52 @@ export async function getProductBySlug(
     };
   }
 }
+
+export const getProductBySeoSlug = cache(
+  async (seoSlug: string): Promise<QueryResult<ProductWithRelations>> => {
+    try {
+      const product = await db.query.products.findFirst({
+        where: eq(products.seoSlug, seoSlug),
+
+        with: {
+          variants: true,
+
+          category: {
+            with: {
+              parent: true,
+            },
+          },
+        },
+      });
+
+      if (!product) {
+        return {
+          success: false,
+          error: "محصولی با این اسلاگ یافت نشد",
+        };
+      }
+
+      const normalizedProduct: ProductWithRelations = {
+        ...product,
+
+        variants: product.variants.map((variant) => ({
+          ...variant,
+          specs: (variant.specs ?? {}) as Record<string, string>,
+          images: (variant.images ?? []) as string[],
+        })),
+      };
+
+      return {
+        success: true,
+        data: normalizedProduct,
+      };
+    } catch (error) {
+      console.error("Error in getProductBySeoSlug:", error);
+
+      return {
+        success: false,
+        error: "خطا در دریافت محصول",
+      };
+    }
+  },
+);

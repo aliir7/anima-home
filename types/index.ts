@@ -169,6 +169,15 @@ export type UsersPaginatedData = {
   totalPages: number;
 };
 
+// REVIEWS
+export type ReviewWithUser = {
+  id: string;
+  rating: number;
+  comment: string | null;
+  createdAt: Date;
+  user: { name: string | null };
+};
+
 // PAYMENT TYPES
 export type PaymentMethod =
   (typeof PAYMENT_METHOD)[keyof typeof PAYMENT_METHOD];
