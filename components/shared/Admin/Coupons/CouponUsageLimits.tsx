@@ -69,6 +69,7 @@ function CouponUsageLimits({
             onChange={(date) =>
               setValue("expiresAt", date, { shouldDirty: true })
             }
+            compact
             disabled={isSubmitting}
             placeholder="تاریخ انقضا را انتخاب کنید"
           />

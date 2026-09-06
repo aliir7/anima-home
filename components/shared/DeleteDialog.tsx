@@ -54,10 +54,10 @@ function DeleteDialog({ id, action }: DeleteDialogProps) {
       </AlertDialogTrigger>
       <AlertDialogContent className="max-w-sm dark:text-white">
         <AlertDialogHeader>
-          <AlertDialogTitle className="mr-4 text-right">
+          <AlertDialogTitle className="mb-4 text-right">
             آیا از حذف سفارش مطمئن هستید؟
           </AlertDialogTitle>
-          <AlertDialogDescription>
+          <AlertDialogDescription className="hidden">
             This action cannot be undone
           </AlertDialogDescription>
           <AlertDialogFooter className="flex justify-end gap-2">

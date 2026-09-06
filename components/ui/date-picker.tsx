@@ -19,6 +19,7 @@ export interface DatePickerProps {
   disabled?: boolean;
   placeholder?: string;
   className?: string;
+  compact?: boolean;
 }
 
 export function DatePicker({
@@ -27,10 +28,10 @@ export function DatePicker({
   disabled = false,
   placeholder = "تاریخ را انتخاب کنید",
   className,
+  compact = false,
 }: DatePickerProps) {
   const [open, setOpen] = React.useState(false);
 
-  // فرمت نمایش تاریخ به شمسی: ۱۴۰۵/۰۶/۲۰
   const displayValue = value ? formatJalali(value, "yyyy/MM/dd") : "";
 
   const handleSelect = (date: Date | undefined) => {
@@ -51,31 +52,43 @@ export function DatePicker({
           variant="outline"
           disabled={disabled}
           className={cn(
-            "h-10 w-full justify-between rounded-md px-3 font-normal",
+            "w-full justify-between rounded-md font-normal",
             "hover:bg-background",
             !value && "text-muted-foreground",
+            compact ? "h-9 px-2.5 text-xs" : "h-10 px-3 text-sm",
             className,
           )}
         >
-          <span dir="rtl" className="flex-1 text-right text-sm font-medium">
+          <span dir="rtl" className="flex-1 text-right font-medium">
             {displayValue || placeholder}
           </span>
-          <CalendarDays className="size-4 shrink-0 opacity-60" />
+          <CalendarDays
+            className={cn(
+              "shrink-0 opacity-60",
+              compact ? "size-3.5" : "size-4",
+            )}
+          />
         </Button>
       </PopoverTrigger>
 
       <PopoverContent align="end" className="w-auto p-0" dir="rtl">
-        <div className="p-3">
+        <div className={cn(compact ? "p-2" : "p-3")}>
           <Calendar
             mode="single"
             selected={value ?? undefined}
             onSelect={handleSelect}
             defaultMonth={value ?? undefined}
-            className="rounded-lg border"
+            showOutsideDays={false} // ✅ روزهای خارج از ماه نمایش داده نمی‌شوند
+            className={cn(
+              "rounded-lg border",
+              compact && "[--cell-size:--spacing(7)]",
+            )}
           />
 
           {value && (
-            <div className="mt-2 border-t pt-3">
+            <div
+              className={cn("border-t", compact ? "mt-1.5 pt-2" : "mt-2 pt-3")}
+            >
               <Button
                 type="button"
                 variant="ghost"
