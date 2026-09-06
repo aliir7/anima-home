@@ -8,9 +8,37 @@ import { FaInstagram, FaTelegram, FaWhatsapp, FaYoutube } from "react-icons/fa";
 
 type SocialLinksProps = {
   isFooter?: boolean;
+  settings?: {
+    instagramUrl?: string | null;
+    telegramUrl?: string | null;
+    whatsappUrl?: string | null;
+    youtubeUrl?: string | null;
+    aparatUrl?: string | null;
+    bleUrl?: string | null;
+  };
 };
 
-function SocialLinks({ isFooter = true }: SocialLinksProps) {
+// مقادیر پیش‌فرض — اگر props.settings پاس داده نشود (یا فیلدی خالی
+// باشد)، همان لینک‌های قبلی که hardcode بودند به کار می‌روند
+const DEFAULTS = {
+  instagramUrl: "https://www.instagram.com/anima.home.ir",
+  telegramUrl: "https://telegram.me/AnimaHomeDecor",
+  whatsappUrl: "https://wa.me/989129277302",
+  youtubeUrl: "https://www.youtube.com/@Anima-HomeOfficial",
+  aparatUrl: "https://www.aparat.com/animahome.ir/",
+  bleUrl: "https://ble.ir/AnimaHome",
+};
+
+function SocialLinks({ isFooter = true, settings }: SocialLinksProps) {
+  const links = {
+    instagramUrl: settings?.instagramUrl || DEFAULTS.instagramUrl,
+    telegramUrl: settings?.telegramUrl || DEFAULTS.telegramUrl,
+    whatsappUrl: settings?.whatsappUrl || DEFAULTS.whatsappUrl,
+    youtubeUrl: settings?.youtubeUrl || DEFAULTS.youtubeUrl,
+    aparatUrl: settings?.aparatUrl || DEFAULTS.aparatUrl,
+    bleUrl: settings?.bleUrl || DEFAULTS.bleUrl,
+  };
+
   return (
     <div>
       <h4 className="text-md text-foreground mb-4 font-semibold">
@@ -18,8 +46,9 @@ function SocialLinks({ isFooter = true }: SocialLinksProps) {
       </h4>
       <div className="flex gap-4">
         <Link
-          href="https://www.instagram.com/anima.home.ir?igsh=YTB4eHhmdG82bnpn"
+          href={links.instagramUrl}
           aria-label="Instagram"
+          target="_blank"
           className={`hover:text-primary active:text-primary opacity-70 transition duration-300 hover:opacity-100 ${
             !isFooter ? "dark:text-muted-foreground" : ""
           }`}
@@ -27,7 +56,7 @@ function SocialLinks({ isFooter = true }: SocialLinksProps) {
           <FaInstagram className="h-5 w-5" />
         </Link>
         <Link
-          href="https://telegram.me/AnimaHomeDecor"
+          href={links.telegramUrl}
           aria-label="Telegram"
           target="_blank"
           className={`hover:text-primary active:text-primary opacity-70 transition duration-300 hover:opacity-100 ${
@@ -38,7 +67,7 @@ function SocialLinks({ isFooter = true }: SocialLinksProps) {
         </Link>
         <Link
           target="_blank"
-          href="https://wa.me/989129277302"
+          href={links.whatsappUrl}
           aria-label="Whatsapp"
           className={`hover:text-primary active:text-primary opacity-70 transition duration-300 hover:opacity-100 ${
             !isFooter ? "dark:text-muted-foreground" : ""
@@ -48,7 +77,7 @@ function SocialLinks({ isFooter = true }: SocialLinksProps) {
         </Link>
         <Link
           target="_blank"
-          href="https://www.youtube.com/@Anima-HomeOfficial"
+          href={links.youtubeUrl}
           aria-label="Youtube"
           className={`hover:text-primary active:text-primary opacity-70 transition duration-300 hover:opacity-100 ${
             !isFooter ? "dark:text-muted-foreground" : ""
@@ -58,7 +87,7 @@ function SocialLinks({ isFooter = true }: SocialLinksProps) {
         </Link>
         <Link
           target="_blank"
-          href="https://www.aparat.com/animahome.ir/"
+          href={links.aparatUrl}
           aria-label="Aparat"
           className="hover:text-primary active:text-primary opacity-70 transition duration-300 hover:opacity-100 dark:hidden"
         >
@@ -74,7 +103,7 @@ function SocialLinks({ isFooter = true }: SocialLinksProps) {
         </Link>
         <Link
           target="_blank"
-          href="https://www.aparat.com/animahome.ir/"
+          href={links.aparatUrl}
           aria-label="Aparat"
           className="hover:text-primary active:text-primary hidden opacity-70 transition duration-300 hover:opacity-100 dark:block"
         >
@@ -92,7 +121,7 @@ function SocialLinks({ isFooter = true }: SocialLinksProps) {
         {/* ble logo */}
         <Link
           target="_blank"
-          href="https://ble.ir/AnimaHome"
+          href={links.bleUrl}
           aria-label="ble-link"
           className="hover:text-primary active:text-primary opacity-70 transition duration-300 hover:opacity-100 dark:hidden"
         >
@@ -111,7 +140,7 @@ function SocialLinks({ isFooter = true }: SocialLinksProps) {
         </Link>
         <Link
           target="_blank"
-          href="https://ble.ir/AnimaHome"
+          href={links.bleUrl}
           aria-label="ble-link"
           className="hover:text-primary active:text-primary hidden opacity-70 transition duration-300 hover:opacity-100 dark:block"
         >

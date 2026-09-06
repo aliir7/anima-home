@@ -1,6 +1,7 @@
 import ContactForm from "@/components/shared/Account/ContactForm";
 import BreadcrumbSection from "@/components/shared/BreadcrumbSection";
 import SocialLinks from "@/components/shared/Footer/SocialLinks";
+import { getSiteSettings } from "@/lib/actions/settings.actions";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { Metadata } from "next";
 
@@ -11,7 +12,9 @@ export const metadata: Metadata = {
 
 export const revalidate = 86400;
 
-function ContactPage() {
+async function ContactPage() {
+  const settings = await getSiteSettings();
+
   return (
     <section className="wrapper rtl space-y-12 px-4 py-16">
       <BreadcrumbSection
@@ -55,10 +58,10 @@ function ContactPage() {
               <div>
                 <p className="text-sm font-semibold">ایمیل</p>
                 <a
-                  href="mailto:info@anima-home.ir"
+                  href={`mailto:${settings.email}`}
                   className="text-muted-foreground hover:text-primary text-sm transition-colors"
                 >
-                  info@anima-home.ir
+                  {settings.email}
                 </a>
               </div>
             </div>
@@ -71,19 +74,23 @@ function ContactPage() {
               <div className="space-y-1 text-sm">
                 <p className="font-semibold">شماره تماس</p>
 
-                <a
-                  href="tel:09128184930"
-                  className="text-muted-foreground hover:text-primary block transition-colors"
-                >
-                  09128184930
-                </a>
+                {settings.phonePrimary && (
+                  <a
+                    href={`tel:${settings.phonePrimary}`}
+                    className="text-muted-foreground hover:text-primary block transition-colors"
+                  >
+                    {settings.phonePrimary}
+                  </a>
+                )}
 
-                <a
-                  href="tel:09129277302"
-                  className="text-muted-foreground hover:text-primary block transition-colors"
-                >
-                  09129277302
-                </a>
+                {settings.phoneSecondary && (
+                  <a
+                    href={`tel:${settings.phoneSecondary}`}
+                    className="text-muted-foreground hover:text-primary block transition-colors"
+                  >
+                    {settings.phoneSecondary}
+                  </a>
+                )}
               </div>
             </div>
 
@@ -96,16 +103,15 @@ function ContactPage() {
                 <p className="text-sm font-semibold">آدرس</p>
 
                 <address className="text-muted-foreground text-sm leading-7 not-italic">
-                  تهران، شهرک صنعتی چهاردانگه،
-                  <br />
-                  خیابان بیست و چهارم
+                  {settings.address ??
+                    "تهران، شهرک صنعتی چهاردانگه، خیابان بیست و چهارم"}
                 </address>
               </div>
             </div>
           </div>
 
           <div className="border-t pt-6">
-            <SocialLinks isFooter={false} />
+            <SocialLinks isFooter={false} settings={settings} />
           </div>
         </aside>
 

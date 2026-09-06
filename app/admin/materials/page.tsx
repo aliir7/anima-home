@@ -15,16 +15,16 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 type AdminMaterialsPageProps = {
-  searchParams: Promise<{ id?: string; page?: string }>;
+  searchParams: Promise<{ query?: string; page?: string }>;
 };
 
 async function AdminMaterialsPage({ searchParams }: AdminMaterialsPageProps) {
   const page = (await searchParams)?.page ?? 1;
   const currentPage = Number(page);
-  const materialsId = (await searchParams).id ?? "";
+  const query = (await searchParams).query ?? "";
   const [materialsResult, totalCount] = await Promise.all([
-    getAllMaterials({ page: currentPage, pageSize: PAGE_SIZE }),
-    getMaterialsCount(materialsId),
+    getAllMaterials({ page: currentPage, pageSize: PAGE_SIZE, query }),
+    getMaterialsCount(query),
   ]);
   const materials: Material[] = materialsResult.success
     ? materialsResult.data

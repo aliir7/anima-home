@@ -5,15 +5,10 @@ import {
   SidebarInset,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbPage,
-} from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import type { Metadata } from "next";
 import AdminSearch from "@/components/shared/Admin/AdminSearch";
+import AdminBreadcrumb from "@/components/shared/Admin/AdminBreadcrumb";
 
 export const metadata: Metadata = {
   title: {
@@ -42,13 +37,7 @@ export default async function AdminLayout({
           <SidebarTrigger className="dark:text-neutral-50" />
           <Separator orientation="vertical" className="h-4" />
 
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbPage>داشبورد</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
+          <AdminBreadcrumb />
           <AdminSearch />
         </header>
 

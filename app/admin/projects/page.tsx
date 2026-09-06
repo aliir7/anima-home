@@ -13,17 +13,17 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 type AdminProjectsPageProps = {
-  searchParams: Promise<{ id?: string; page?: string }>;
+  searchParams: Promise<{ query?: string; page?: string }>;
 };
 
 async function AdminProjectsPage({ searchParams }: AdminProjectsPageProps) {
   const page = (await searchParams)?.page ?? 1;
   const currentPage = Number(page);
-  const projectsId = (await searchParams).id ?? "";
+  const query = (await searchParams).query ?? "";
   const [categoriesResult, projectsResult, totalCount] = await Promise.all([
     getAllProjectCategories(),
-    getAllProjects({ page: currentPage, pageSize: PAGE_SIZE }),
-    getProjectsCount(projectsId),
+    getAllProjects({ page: currentPage, pageSize: PAGE_SIZE, query }),
+    getProjectsCount(undefined, query),
   ]);
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 

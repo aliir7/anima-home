@@ -13,6 +13,7 @@ import { BadgeDollarSign, CreditCard, Users, Barcode } from "lucide-react";
 import { format } from "date-fns-jalali";
 import AdminChart from "@/components/shared/Admin/AdminChart";
 import Link from "next/link";
+import formatPrice from "@/lib/utils/formatPrice";
 
 export const metadata: Metadata = {
   title: "داشبورد",
@@ -20,8 +21,6 @@ export const metadata: Metadata = {
 
 export default async function AdminDashboardPage() {
   const summary = await getOrderSummary();
-
-  const totalSales = summary.salesData.map((sales) => sales.totalSales);
 
   return (
     <div className="space-y-2">
@@ -34,7 +33,9 @@ export default async function AdminDashboardPage() {
             <BadgeDollarSign />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalSales}</div>
+            <div className="text-2xl font-bold">
+              {formatPrice(Number(summary.ordersPrice))}
+            </div>
           </CardContent>
         </Card>
 
@@ -109,9 +110,9 @@ export default async function AdminDashboardPage() {
                     <TableCell>
                       {format(order.createdAt, "yyyy/MM/dd")}
                     </TableCell>
-                    <TableCell>{order.totalPrice}</TableCell>
+                    <TableCell>{formatPrice(order.totalPrice)}</TableCell>
                     <TableCell>
-                      <Link href={`/order/${order.id}`}>
+                      <Link href={`/admin/orders/order/${order.id}`}>
                         <span className="px-2">جزئیات</span>
                       </Link>
                     </TableCell>

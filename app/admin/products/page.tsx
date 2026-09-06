@@ -13,18 +13,19 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 type AdminProductsPageProps = {
-  searchParams: Promise<{ id?: string; page?: string }>;
+  searchParams: Promise<{ query?: string; page?: string }>;
 };
 
 async function AdminProductsPage({ searchParams }: AdminProductsPageProps) {
   await requireAdmin();
-  const page = (await searchParams)?.page ?? 1;
-  const currentPage = Number(page);
-  const projectsId = (await searchParams).id ?? "";
+  const resolvedParams = await searchParams;
+  const currentPage = Number(resolvedParams.page ?? 1);
+  const query = resolvedParams.query ?? "";
+
   const [categoriesResult, productsResult, totalCount] = await Promise.all([
     getAllProductCategories(),
-    getAllProducts({ page: currentPage, pageSize: PAGE_SIZE }),
-    getProductsCount(projectsId),
+    getAllProducts({ page: currentPage, pageSize: PAGE_SIZE, query }),
+    getProductsCount(undefined, query),
   ]);
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 

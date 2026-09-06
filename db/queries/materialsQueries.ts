@@ -1,18 +1,21 @@
 import { Material, QueryResult } from "@/types";
-import { desc, eq, sql } from "drizzle-orm";
+import { desc, eq, ilike, sql } from "drizzle-orm";
 import { db } from "..";
 import { materials } from "../schema/materials";
 
 export async function getAllMaterials({
   page,
   pageSize,
+  query,
 }: {
   page?: number;
   pageSize?: number;
+  query?: string;
 }): Promise<QueryResult<Material[]>> {
   try {
     const offset = ((page ?? 1) - 1) * (pageSize ?? 6);
     const data = await db.query.materials.findMany({
+      where: query ? ilike(materials.title, `%${query}%`) : undefined,
       orderBy: (projects, { desc }) => [desc(projects.createdAt)],
       limit: pageSize ?? 6,
       offset,
@@ -49,9 +52,9 @@ export async function getMaterialById(
 }
 
 // count
-export async function getMaterialsCount(id?: string): Promise<number> {
+export async function getMaterialsCount(query?: string): Promise<number> {
   try {
-    const whereClause = id ? eq(materials.id, id) : undefined;
+    const whereClause = query ? ilike(materials.title, `%${query}%`) : undefined;
 
     const result = await db
       .select({ count: sql<number>`COUNT(*)` })

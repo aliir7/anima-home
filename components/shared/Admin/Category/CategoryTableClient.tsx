@@ -1,6 +1,8 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableHeader,
@@ -17,7 +19,7 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 
-import { Plus, MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { Plus, MoreVertical, Pencil, Trash2, Search } from "lucide-react";
 
 type BaseCategory = {
   id: string;
@@ -42,13 +44,33 @@ function CategoryTableClient<T extends BaseCategory>({
   onDelete,
   renderModals,
 }: Props<T>) {
+  // این لیست معمولاً کوچک است (چند ده دسته‌بندی)، پس فیلتر آنی سمت
+  // کلاینت — بدون رفت‌وبرگشت به سرور — ساده‌ترین و سریع‌ترین راه‌حل است
+  const [search, setSearch] = useState("");
+
+  const filteredCategories = useMemo(() => {
+    if (!search.trim()) return categories;
+    const q = search.trim().toLowerCase();
+    return categories.filter((cat) => cat.name.toLowerCase().includes(q));
+  }, [categories, search]);
+
   return (
     <>
-      {/* Create Button */}
-      <div className="mb-6 flex justify-start">
+      {/* Create Button + Search */}
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <Button onClick={onCreate} className="rounded-full px-4 py-2">
           <Plus className="h-4 w-4" /> دسته‌بندی جدید
         </Button>
+
+        <div className="relative w-full max-w-55">
+          <Search className="text-muted-foreground pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2" />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="جستجوی دسته‌بندی..."
+            className="rounded-full pr-9"
+          />
+        </div>
       </div>
 
       {/* Table */}
@@ -64,8 +86,8 @@ function CategoryTableClient<T extends BaseCategory>({
           </TableHeader>
 
           <TableBody>
-            {categories.length > 0 ? (
-              categories.map((cat) => (
+            {filteredCategories.length > 0 ? (
+              filteredCategories.map((cat) => (
                 <TableRow key={cat.id}>
                   <TableCell className="text-right">{cat.name}</TableCell>
 
@@ -109,7 +131,9 @@ function CategoryTableClient<T extends BaseCategory>({
             ) : (
               <TableRow>
                 <TableCell colSpan={4} className="py-6 text-center">
-                  هیچ دسته‌بندی‌ای یافت نشد.
+                  {search
+                    ? `دسته‌بندی‌ای برای «${search}» یافت نشد.`
+                    : "هیچ دسته‌بندی‌ای یافت نشد."}
                 </TableCell>
               </TableRow>
             )}

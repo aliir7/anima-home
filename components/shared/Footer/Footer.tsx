@@ -1,9 +1,12 @@
 import { HeartIcon, Mail, Phone } from "lucide-react";
 import Link from "next/link";
 import SocialLinks from "./SocialLinks";
+import { getSiteSettings } from "@/lib/actions/settings.actions";
 // import ZibalTrust from "./ZibalTrust";
 
-export default function Footer() {
+export default async function Footer() {
+  const settings = await getSiteSettings();
+
   return (
     <footer className="bg-muted text-muted-foreground border-border mt-16 border-t py-8">
       <div className="container mx-auto grid grid-cols-1 gap-8 px-4 sm:grid-cols-2 md:grid-cols-4">
@@ -75,18 +78,18 @@ export default function Footer() {
           </h4>
           <ul className="space-y-2 text-sm">
             <li className="flex items-center gap-2">
-              <Phone className="h-4 w-4" /> 09128184930
+              <Phone className="h-4 w-4" /> {settings.phonePrimary}
               <br />
-              09129277302
+              {settings.phoneSecondary}
             </li>
             <li className="flex items-center gap-2">
-              <Mail className="h-4 w-4 cursor-pointer" /> info@anima-home.ir
+              <Mail className="h-4 w-4 cursor-pointer" /> {settings.email}
             </li>
           </ul>
         </div>
 
         {/* شبکه‌های اجتماعی */}
-        <SocialLinks />
+        <SocialLinks settings={settings} />
       </div>
 
       {/* کپی‌رایت */}

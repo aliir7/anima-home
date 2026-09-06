@@ -4,14 +4,23 @@ import { Input } from "@/components/ui/input";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
+// فقط همین صفحات واقعاً از پارامتر query پشتیبانی می‌کنند (سمت سرور
+// getAllOrders/getAllUsers/getAllProducts/getAllCoupons همگی این پارامتر
+// را می‌خوانند). صفحات دیگر (متریال، پروژه‌ها، دسته‌بندی‌ها، ابزارها،
+// تنظیمات، داشبورد) فعلاً جستجو ندارند — به‌جای نمایش یک باکس جستجوی
+// گمراه‌کننده که یا هیچ کاری نمی‌کند یا به صفحه‌ی اشتباهی می‌رود، روی
+// آن صفحات اصلاً چیزی رندر نمی‌کنیم.
+const SEARCHABLE_ADMIN_ROUTES = [
+  "/admin/orders",
+  "/admin/users",
+  "/admin/products",
+  "/admin/coupons",
+  "/admin/materials",
+  "/admin/projects",
+];
+
 function AdminSearch() {
   const pathname = usePathname();
-  const formActionUrl = pathname.includes("/admin/orders")
-    ? "/admin/orders"
-    : pathname.includes("/admin/users")
-      ? "/admin/users"
-      : "/admin/products";
-
   const searchParams = useSearchParams();
   const [queryValue, setQueryValue] = useState(searchParams.get("query") || "");
 
@@ -19,8 +28,13 @@ function AdminSearch() {
     setQueryValue(searchParams.get("query") || "");
   }, [searchParams]);
 
+  // فقط دقیقاً همان صفحات لیست (نه صفحات جزئیات/ساخت زیرمجموعه‌شان)
+  const isSearchable = SEARCHABLE_ADMIN_ROUTES.includes(pathname);
+
+  if (!isSearchable) return null;
+
   return (
-    <form action={formActionUrl} method="GET">
+    <form action={pathname} method="GET">
       <Input
         type="search"
         placeholder="جستجو..."

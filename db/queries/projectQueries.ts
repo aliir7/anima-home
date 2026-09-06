@@ -2,11 +2,11 @@ import { ProjectWithCategory, QueryResult } from "@/types";
 import { db } from "..";
 import { projects } from "../schema/projects";
 import { normalizeProject } from "@/lib/utils/normalize";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, ilike, sql } from "drizzle-orm";
 import { cache } from "react";
 import { withDbError } from "../helpers/withDbError";
 
-export function normalizeProjectRow(row: typeof projects.$inferSelect) {
+function normalizeProjectRow(row: typeof projects.$inferSelect) {
   return normalizeProject({
     ...row,
     images: row.images as string[],
@@ -18,14 +18,18 @@ export const getAllProjects = cache(
   async ({
     page = 1,
     pageSize = 6,
+    query,
   }: {
     page?: number;
     pageSize?: number;
+    query?: string;
   }): Promise<QueryResult<ProjectWithCategory[]>> =>
     withDbError(async () => {
       const offset = (page - 1) * pageSize;
 
       const data = await db.query.projects.findMany({
+        where: query ? ilike(projects.title, `%${query}%`) : undefined,
+
         with: {
           category: {
             with: {
@@ -82,11 +86,12 @@ export const getFilteredProjects = cache(
 );
 
 export const getProjectsCount = cache(
-  async (categoryId?: string): Promise<number> => {
+  async (categoryId?: string, query?: string): Promise<number> => {
     try {
-      const whereClause = categoryId
-        ? eq(projects.categoryId, categoryId)
-        : undefined;
+      const whereClause = and(
+        categoryId ? eq(projects.categoryId, categoryId) : undefined,
+        query ? ilike(projects.title, `%${query}%`) : undefined,
+      );
 
       const result = await db
         .select({

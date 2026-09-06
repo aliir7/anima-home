@@ -17,3 +17,4 @@ export { materials } from "./materials";
 export { reviews } from "./reviews";
 export { coupons, couponTypeEnum } from "./coupons";
 export { couponUsages } from "./couponUsages";
+export { siteSettings } from "./siteSettings";
