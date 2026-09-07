@@ -11,3 +11,11 @@ export type ActionResult<T> =
       redirectTo?: string;
       message?: string;
     };
+
+export type AdminSearchResult = {
+  id: string;
+  title: string;
+  description?: string;
+  type: "product" | "user" | "order" | "coupon" | "material" | "project";
+  href: string;
+};
