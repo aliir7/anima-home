@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import type { Metadata } from "next";
-import AdminSearch from "@/components/shared/Admin/AdminSearch";
+import AdminSearch from "@/components/shared/Admin/Search/AdminSearch";
 import AdminBreadcrumb from "@/components/shared/Admin/AdminBreadcrumb";
 
 export const metadata: Metadata = {
