@@ -1,7 +1,5 @@
-import aparatImg from "@/public/images/icon--black.svg";
-import aparatDark from "@/public/images/icon--white.svg";
-import bleDark from "@/public/images/logo/ble-logo-white.png";
-import bleImg from "@/public/images/logo/ble-logo.png";
+import { SOCIAL_LINKS_DEFAULTS } from "@/lib/constants";
+import { SocialBaleMono, VodAparatMono } from "@persianlabs/icons/react";
 import Image from "next/image";
 import Link from "next/link";
 import { FaInstagram, FaTelegram, FaWhatsapp, FaYoutube } from "react-icons/fa";
@@ -18,25 +16,14 @@ type SocialLinksProps = {
   };
 };
 
-// مقادیر پیش‌فرض — اگر props.settings پاس داده نشود (یا فیلدی خالی
-// باشد)، همان لینک‌های قبلی که hardcode بودند به کار می‌روند
-const DEFAULTS = {
-  instagramUrl: "https://www.instagram.com/anima.home.ir",
-  telegramUrl: "https://telegram.me/AnimaHomeDecor",
-  whatsappUrl: "https://wa.me/989129277302",
-  youtubeUrl: "https://www.youtube.com/@Anima-HomeOfficial",
-  aparatUrl: "https://www.aparat.com/animahome.ir/",
-  bleUrl: "https://ble.ir/AnimaHome",
-};
-
 function SocialLinks({ isFooter = true, settings }: SocialLinksProps) {
   const links = {
-    instagramUrl: settings?.instagramUrl || DEFAULTS.instagramUrl,
-    telegramUrl: settings?.telegramUrl || DEFAULTS.telegramUrl,
-    whatsappUrl: settings?.whatsappUrl || DEFAULTS.whatsappUrl,
-    youtubeUrl: settings?.youtubeUrl || DEFAULTS.youtubeUrl,
-    aparatUrl: settings?.aparatUrl || DEFAULTS.aparatUrl,
-    bleUrl: settings?.bleUrl || DEFAULTS.bleUrl,
+    instagramUrl: settings?.instagramUrl || SOCIAL_LINKS_DEFAULTS.instagramUrl,
+    telegramUrl: settings?.telegramUrl || SOCIAL_LINKS_DEFAULTS.telegramUrl,
+    whatsappUrl: settings?.whatsappUrl || SOCIAL_LINKS_DEFAULTS.whatsappUrl,
+    youtubeUrl: settings?.youtubeUrl || SOCIAL_LINKS_DEFAULTS.youtubeUrl,
+    aparatUrl: settings?.aparatUrl || SOCIAL_LINKS_DEFAULTS.aparatUrl,
+    bleUrl: settings?.bleUrl || SOCIAL_LINKS_DEFAULTS.bleUrl,
   };
 
   return (
@@ -89,73 +76,22 @@ function SocialLinks({ isFooter = true, settings }: SocialLinksProps) {
           target="_blank"
           href={links.aparatUrl}
           aria-label="Aparat"
-          className="hover:text-primary active:text-primary opacity-70 transition duration-300 hover:opacity-100 dark:hidden"
+          className=""
         >
-          <Image
-            src={aparatImg}
-            className="h-5 w-5"
-            alt="aparatLogo"
-            loading="eager"
-            priority={true}
-            decoding="async"
-            fetchPriority="high"
+          <VodAparatMono
+            className="hover:text-primary active:text-primary h-5 w-5 opacity-70 transition duration-300 hover:opacity-100 dark:text-neutral-100"
+            title="aparat-logo"
           />
         </Link>
-        <Link
-          target="_blank"
-          href={links.aparatUrl}
-          aria-label="Aparat"
-          className="hover:text-primary active:text-primary hidden opacity-70 transition duration-300 hover:opacity-100 dark:block"
-        >
-          <Image
-            src={aparatDark}
-            className="h-5 w-5"
-            alt="aparatLogo"
-            loading="eager"
-            priority={true}
-            decoding="async"
-            fetchPriority="high"
-            aria-label="Aparat"
-          />
-        </Link>
+
         {/* ble logo */}
         <Link
           target="_blank"
           href={links.bleUrl}
           aria-label="ble-link"
-          className="hover:text-primary active:text-primary opacity-70 transition duration-300 hover:opacity-100 dark:hidden"
+          className=""
         >
-          <Image
-            src={bleImg}
-            className="h-5 w-5"
-            width={40}
-            height={40}
-            alt="bleLogo"
-            loading="eager"
-            priority={true}
-            decoding="async"
-            fetchPriority="high"
-            aria-label="ble"
-          />
-        </Link>
-        <Link
-          target="_blank"
-          href={links.bleUrl}
-          aria-label="ble-link"
-          className="hover:text-primary active:text-primary hidden opacity-70 transition duration-300 hover:opacity-100 dark:block"
-        >
-          <Image
-            src={bleDark}
-            className="h-5 w-5"
-            width={40}
-            height={40}
-            alt="bleLogo"
-            loading="eager"
-            priority={true}
-            decoding="async"
-            fetchPriority="high"
-            aria-label="ble"
-          />
+          <SocialBaleMono className="hover:text-primary active:text-primary h-5 w-5 opacity-70 transition duration-300 hover:opacity-100 dark:text-neutral-100" />
         </Link>
       </div>
       {isFooter && (

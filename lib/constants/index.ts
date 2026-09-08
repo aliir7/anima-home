@@ -109,6 +109,17 @@ export const plans = [
   // },
 ];
 
+// مقادیر پیش‌فرض — اگر props.settings پاس داده نشود (یا فیلدی خالی
+// باشد)، همان لینک‌های قبلی که hardcode بودند به کار می‌روند
+export const SOCIAL_LINKS_DEFAULTS = {
+  instagramUrl: "https://www.instagram.com/anima.home.ir",
+  telegramUrl: "https://telegram.me/AnimaHomeDecor",
+  whatsappUrl: "https://wa.me/989129277302",
+  youtubeUrl: "https://www.youtube.com/@Anima-HomeOfficial",
+  aparatUrl: "https://www.aparat.com/animahome.ir/",
+  bleUrl: "https://ble.ir/AnimaHome",
+};
+
 export const shippingAddressDefaultValues = {
   fullName: "",
   streetAddress: "",
