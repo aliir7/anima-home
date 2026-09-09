@@ -20,10 +20,12 @@ import {
   productVariants,
 } from "@/db/schema";
 import { and, eq, ne } from "drizzle-orm";
-import { generateUniqueSlug } from "../utils/generateSlug";
+import {
+  generateUniqueProductCategorySlug,
+  generateUniqueProductSlug,
+} from "../utils/generateSlug";
 import { revalidatePath } from "next/cache";
 import { insertCategorySchema } from "../validations/categoryValidations";
-import { randomUUID } from "crypto";
 import { calculateProductPrice } from "../utils/calculateProductPrice";
 import { requireAdmin } from "../auth/authGuard";
 import {
@@ -54,16 +56,13 @@ export async function createProductCategory(
     }
     const { name, parentName } = validation.data;
 
-    // generate slug
-    const slug = await generateUniqueSlug(name);
-
-    // بررسی تکراری نبودن دسته
-    const [existing] = await db
+    // بررسی تکراری نبودن دسته (بر اساس نام، قبل از ساخت اسلاگ)
+    const [existingByName] = await db
       .select()
       .from(productCategories)
-      .where(eq(productCategories.slug, slug));
+      .where(eq(productCategories.name, name));
 
-    if (existing) {
+    if (existingByName) {
       return {
         success: false,
         error: {
@@ -84,38 +83,53 @@ export async function createProductCategory(
       };
     }
 
-    // بررسی وجود والد
-    let parentId: string | null = null;
-    let finalParentName: string | null = null;
+    // ایجاد دسته جدید (به همراه ساخت واقعی والد در صورت نیاز) در یک تراکنش
+    const newCategory = await db.transaction(async (tx) => {
+      let parentId: string | null = null;
+      let finalParentName: string | null = null;
 
-    if (parentName && parentName.trim() !== "") {
-      const parentSlug = await generateUniqueSlug(parentName);
+      if (parentName && parentName.trim() !== "") {
+        const trimmedParentName = parentName.trim();
+        const [existingParent] = await tx
+          .select()
+          .from(productCategories)
+          .where(eq(productCategories.name, trimmedParentName));
 
-      const [existingParent] = await db
-        .select()
-        .from(productCategories)
-        .where(eq(productCategories.slug, parentSlug));
+        if (existingParent) {
+          // والد از قبل وجود دارد → به آن وصل شو
+          parentId = existingParent.id;
+          finalParentName = existingParent.name;
+        } else {
+          // والد وجود ندارد → واقعاً یک ردیف برایش بساز، نه یک UUID ساختگی
+          const newParentSlug =
+            await generateUniqueProductCategorySlug(trimmedParentName);
+          const [createdParent] = await tx
+            .insert(productCategories)
+            .values({
+              name: trimmedParentName,
+              slug: newParentSlug,
+            })
+            .returning();
 
-      if (existingParent) {
-        parentId = existingParent.id;
-        finalParentName = existingParent.name;
-      } else {
-        // اگر وجود نداشت، فقط نام والد رو ذخیره می‌کنیم، ولی خودش رو insert نمی‌کنیم
-        parentId = randomUUID();
-        finalParentName = parentName;
+          parentId = createdParent.id;
+          finalParentName = createdParent.name;
+        }
       }
-    }
 
-    // ایجاد دسته جدید
-    const [newCategory] = await db
-      .insert(productCategories)
-      .values({
-        name,
-        slug,
-        parentId,
-        parentName: finalParentName,
-      })
-      .returning();
+      const slug = await generateUniqueProductCategorySlug(name);
+
+      const [inserted] = await tx
+        .insert(productCategories)
+        .values({
+          name,
+          slug,
+          parentId,
+          parentName: finalParentName,
+        })
+        .returning();
+
+      return inserted;
+    });
 
     revalidatePath("/admin/categories");
 
@@ -207,7 +221,7 @@ export async function createProductAction(
       };
     }
 
-    const slug = await generateUniqueSlug(title);
+    const slug = await generateUniqueProductSlug(title);
 
     // Convert To Jsonb
     const specsObject = specs.reduce(

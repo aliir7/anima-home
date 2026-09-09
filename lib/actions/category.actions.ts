@@ -2,13 +2,12 @@
 
 import { db } from "@/db";
 import { categories } from "@/db/schema/categories";
-import { randomUUID } from "crypto";
 import slugify from "slugify";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { ActionResult, Category, InsertCategoryValues } from "@/types";
 import { insertCategorySchema } from "../validations/categoryValidations";
-import { generateUniqueSlug } from "../utils/generateSlug";
+import { generateUniqueCategorySlug } from "../utils/generateSlug";
 import { requireAdmin } from "../auth/authGuard";
 
 // Action for create category
@@ -32,15 +31,13 @@ export async function createCategoryAction(
 
     const { name, parentName } = validated.data;
 
-    const slug = await generateUniqueSlug(name);
-
-    // بررسی تکراری نبودن دسته
-    const [existing] = await db
+    // بررسی تکراری نبودن دسته (بر اساس نام)
+    const [existingByName] = await db
       .select()
       .from(categories)
-      .where(eq(categories.slug, slug));
+      .where(eq(categories.name, name));
 
-    if (existing) {
+    if (existingByName) {
       return {
         success: false,
         error: {
@@ -61,42 +58,52 @@ export async function createCategoryAction(
       };
     }
 
-    // بررسی وجود والد
-    let parentId: string | null = null;
-    let finalParentName: string | null = null;
+    // ایجاد دسته جدید (به همراه ساخت واقعی والد در صورت نیاز) در یک تراکنش
+    const newCategory = await db.transaction(async (tx) => {
+      let parentId: string | null = null;
+      let finalParentName: string | null = null;
 
-    if (parentName && parentName.trim() !== "") {
-      const parentSlug = slugify(parentName, {
-        lower: true,
-        strict: true,
-        locale: "fa",
-      });
+      if (parentName && parentName.trim() !== "") {
+        const trimmedParentName = parentName.trim();
+        const [existingParent] = await tx
+          .select()
+          .from(categories)
+          .where(eq(categories.name, trimmedParentName));
 
-      const [existingParent] = await db
-        .select()
-        .from(categories)
-        .where(eq(categories.slug, parentSlug));
+        if (existingParent) {
+          parentId = existingParent.id;
+          finalParentName = existingParent.name;
+        } else {
+          // والد وجود ندارد → واقعاً یک ردیف برایش بساز، نه یک UUID ساختگی
+          const newParentSlug =
+            await generateUniqueCategorySlug(trimmedParentName);
+          const [createdParent] = await tx
+            .insert(categories)
+            .values({
+              name: trimmedParentName,
+              slug: newParentSlug,
+            })
+            .returning();
 
-      if (existingParent) {
-        parentId = existingParent.id;
-        finalParentName = existingParent.name;
-      } else {
-        // اگر وجود نداشت، فقط نام والد رو ذخیره می‌کنیم، ولی خودش رو insert نمی‌کنیم
-        parentId = randomUUID();
-        finalParentName = parentName;
+          parentId = createdParent.id;
+          finalParentName = createdParent.name;
+        }
       }
-    }
 
-    // ایجاد دسته جدید
-    const [newCategory] = await db
-      .insert(categories)
-      .values({
-        name,
-        slug,
-        parentId,
-        parentName: finalParentName,
-      })
-      .returning();
+      const slug = await generateUniqueCategorySlug(name);
+
+      const [inserted] = await tx
+        .insert(categories)
+        .values({
+          name,
+          slug,
+          parentId,
+          parentName: finalParentName,
+        })
+        .returning();
+
+      return inserted;
+    });
 
     revalidatePath("/admin/categories");
 
@@ -160,15 +167,57 @@ export async function updateCategoryAction(
       };
     }
 
-    await db
-      .update(categories)
-      .set({
-        name,
-        slug,
-        parentName: parentName?.trim() || null,
-        parentId: parentName?.trim() ? crypto.randomUUID() : null,
-      })
-      .where(eq(categories.id, id));
+    // جلوگیری از والد شدن خودش
+    if (parentName && parentName.trim() === name.trim()) {
+      return {
+        success: false,
+        error: {
+          type: "custom",
+          message: "نام والد نمی‌تواند با نام دسته‌بندی یکی باشد.",
+        },
+      };
+    }
+
+    await db.transaction(async (tx) => {
+      let parentId: string | null = null;
+      let finalParentName: string | null = null;
+      const trimmedParentName = parentName?.trim() || "";
+
+      if (trimmedParentName) {
+        const [existingParent] = await tx
+          .select()
+          .from(categories)
+          .where(eq(categories.name, trimmedParentName));
+
+        if (existingParent) {
+          parentId = existingParent.id;
+          finalParentName = existingParent.name;
+        } else {
+          const newParentSlug =
+            await generateUniqueCategorySlug(trimmedParentName);
+          const [createdParent] = await tx
+            .insert(categories)
+            .values({
+              name: trimmedParentName,
+              slug: newParentSlug,
+            })
+            .returning();
+
+          parentId = createdParent.id;
+          finalParentName = createdParent.name;
+        }
+      }
+
+      await tx
+        .update(categories)
+        .set({
+          name,
+          slug,
+          parentName: finalParentName,
+          parentId,
+        })
+        .where(eq(categories.id, id));
+    });
 
     revalidatePath("/admin/categories");
 

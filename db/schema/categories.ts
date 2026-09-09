@@ -1,10 +1,18 @@
-import { pgTable, text, uuid, timestamp } from "drizzle-orm/pg-core";
+import {
+  AnyPgColumn,
+  pgTable,
+  text,
+  uuid,
+  timestamp,
+} from "drizzle-orm/pg-core";
 
 export const categories = pgTable("categories", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull().unique(),
   slug: text("slug").notNull().unique(),
-  parentId: uuid("parent_id"),
-  parentName: text("parent_name"), // فیلد جدید برای نام والد
+  parentId: uuid("parent_id").references((): AnyPgColumn => categories.id, {
+    onDelete: "restrict",
+  }),
+  parentName: text("parent_name"), // کش نمایشی؛ منبع صحت رابطه‌ی parent است
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });

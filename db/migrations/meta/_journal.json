@@ -15,6 +15,13 @@
       "when": 1788723509392,
       "tag": "0001_awesome_fallen_one",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788853558798,
+      "tag": "0002_misty_norman_osborn",
+      "breakpoints": true
     }
   ]
 }
