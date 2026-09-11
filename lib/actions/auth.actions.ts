@@ -6,6 +6,7 @@ import { headers } from "next/headers";
 import type { ActionResult, SigninValues, SignupFormValues } from "@/types";
 import { auth } from "../auth";
 import { checkRateLimit, rateLimitMessage } from "../rate-limit";
+import { getAuthErrorCode } from "../utils/authError";
 import {
   changePasswordSchema,
   forgotPasswordSchema,
@@ -16,25 +17,6 @@ import {
 // ------------------------------------------------------------------
 // Helpers
 // ------------------------------------------------------------------
-
-function getAuthErrorCode(error: unknown): string | undefined {
-  if (!isAPIError(error)) return undefined;
-
-  if (typeof error.body === "object" && error.body !== null) {
-    return (error.body as Record<string, unknown>).code as string | undefined;
-  }
-
-  if (typeof error.body === "string") {
-    try {
-      const parsed = JSON.parse(error.body);
-      return parsed?.code;
-    } catch {
-      return undefined;
-    }
-  }
-
-  return undefined;
-}
 
 /**
  * تبدیل کد خطا به پیام مناسب برای کاربر

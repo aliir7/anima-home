@@ -23,8 +23,8 @@ async function UserOrdersPage({
     redirect("/");
   }
 
-  const { page } = (await searchParams) ?? 1;
-  const currentPage = Number(page);
+  const { page } = await searchParams;
+  const currentPage = Number(page) || 1;
 
   const { data, totalPages } = await getMyOrders({
     page: currentPage,

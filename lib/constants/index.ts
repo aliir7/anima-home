@@ -15,6 +15,10 @@ import {
   ShoppingBag,
   Users,
   Ticket,
+  Mail,
+  Smartphone,
+  Image as ImageIcon,
+  MapPin,
 } from "lucide-react";
 
 export const isProduction = process.env.NODE_ENV === "production";
@@ -28,10 +32,20 @@ export const APP_DESCRIPTION =
 export const PAGE_SIZE = 6;
 
 // static data
-// user sidebar menu
+// user sidebar menu (used in header's user dropdown — quick links only)
 export const menu = [
   { label: "حساب کاربری", icon: User, sectionLink: "/my-account" },
   { label: "سفارش‌ها", icon: Package, sectionLink: "/my-account/orders" },
+];
+
+// my-account sidebar — لیست کامل بخش‌های حساب کاربری، مشابه adminRoutes
+export const accountRoutes = [
+  { label: "حساب کاربری", href: "/my-account", icon: User },
+  { label: "ایمیل", href: "/my-account/email", icon: Mail },
+  { label: "شماره موبایل", href: "/my-account/phone", icon: Smartphone },
+  { label: "عکس پروفایل", href: "/my-account/avatar", icon: ImageIcon },
+  { label: "آدرس", href: "/my-account/address", icon: MapPin },
+  { label: "سفارش‌ها", href: "/my-account/orders", icon: Package },
 ];
 
 // services in app

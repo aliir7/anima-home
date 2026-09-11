@@ -1,27 +1,27 @@
 "use client";
 
-import { useForm, useFieldArray } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import FileUploader from "@/components/shared/FileUploader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import FileUploader from "@/components/shared/Admin/FileUploader";
-import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
-import { Plus, Trash2, X, Image as ImageIcon, Globe } from "lucide-react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
-import { createProductValues, ProductWithRelations } from "@/types";
-import {
-  createProductSchema,
-  updateProductSchema,
-} from "@/lib/validations/productValidation";
+import { Textarea } from "@/components/ui/textarea";
 import {
   createProductAction,
   updateProductAction,
 } from "@/lib/actions/product.actions";
+import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
 import { getSafeImageSrc } from "@/lib/utils/urlUtils";
+import {
+  createProductSchema,
+  updateProductSchema,
+} from "@/lib/validations/productValidation";
+import { createProductValues, ProductWithRelations } from "@/types";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Globe, Image as ImageIcon, Plus, Trash2, X } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
 
 type Category = { id: string; name: string };
 

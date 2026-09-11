@@ -50,6 +50,39 @@ export const auth = betterAuth({
       // phoneNumber / phoneNumberVerified are registered by the
       // phoneNumber plugin below — no need to redeclare them here.
     },
+
+    changeEmail: {
+      enabled: true,
+
+      // امنیت تغییر ایمیل به‌صورت دو مرحله‌ای: ابتدا لینک تاییدِ درخواست به
+      // ایمیل فعلی (تاییدشده‌ی) کاربر ارسال می‌شود؛ فقط بعد از کلیک روی آن،
+      // Better Auth به‌صورت خودکار یک ایمیل تایید دیگر (همان
+      // emailVerification.sendVerificationEmail پایین‌تر) به آدرس جدید
+      // می‌فرستد. یعنی ایمیل فقط وقتی عوض می‌شود که هم صاحبِ ایمیل قبلی و
+      // هم صاحبِ ایمیل جدید درخواست را تایید کرده باشند — این جلوی سناریویی
+      // را می‌گیرد که یک نشست دزدیده‌شده بتواند ایمیل حساب را عوض کند.
+      sendChangeEmailConfirmation: async ({ user, newEmail, url }) => {
+        const subject = "تایید درخواست تغییر ایمیل";
+        const html = `
+          <div style="direction: rtl; font-family: sans-serif;">
+            <h2>درخواست تغییر ایمیل</h2>
+            <p>درخواستی برای تغییر ایمیل حساب شما در <strong>Anima Home</strong> به آدرس زیر ثبت شده است:</p>
+            <p dir="ltr" style="font-weight: bold;">${newEmail}</p>
+            <p>اگر این درخواست از طرف شما بوده، برای تایید روی دکمه زیر کلیک کنید:</p>
+            <a href="${url}"
+               style="display:inline-block;padding:10px 20px;background:#4a5a45;color:white;text-decoration:none;border-radius:8px;margin-top:20px;">
+               تایید تغییر ایمیل
+            </a>
+            <p style="margin-top:30px;">اگر این درخواست از طرف شما نبوده، لطفاً این ایمیل را نادیده بگیرید؛ بدون تایید شما ایمیل حساب تغییر نخواهد کرد.</p>
+          </div>
+        `;
+
+        void sendMailAction({ email: user.email, subject, html }).catch(
+          (error) =>
+            console.error("sendChangeEmailConfirmation failed:", error),
+        );
+      },
+    },
   },
 
   account: {

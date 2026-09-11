@@ -56,6 +56,10 @@ export const changePasswordSchema = z
     path: ["confirmPassword"],
   });
 
+export const changeEmailSchema = z.object({
+  newEmail: z.email("ایمیل معتبر نیست"),
+});
+
 export const contactFormSchema = z.object({
   name: z.string().min(3, { message: "نام باید حداقل 3 کاراکتر باشد" }),
   email: z.email({ message: "لطفاً یک ایمیل معتبر وارد کنید" }),

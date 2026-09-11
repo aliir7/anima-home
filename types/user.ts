@@ -1,6 +1,7 @@
 import { shippingAddressSchema } from "@/lib/validations/orderValidations";
 import { mobileSchema, otpSchema } from "@/lib/validations/smsValidations";
 import {
+  changeEmailSchema,
   changePasswordSchema,
   contactFormSchema,
   forgotPasswordSchema,
@@ -40,3 +41,4 @@ export type ShippingAddress = z.infer<typeof shippingAddressSchema>;
 
 export type MobileValues = z.infer<typeof mobileSchema>;
 export type OtpValues = z.infer<typeof otpSchema>;
+export type ChangeEmailValues = z.infer<typeof changeEmailSchema>;

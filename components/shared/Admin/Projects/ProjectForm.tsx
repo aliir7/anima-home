@@ -1,27 +1,23 @@
 "use client";
 
-import type { FieldArrayPath } from "react-hook-form";
-import { useState } from "react";
-import type { Resolver } from "react-hook-form";
-import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
+import type { FieldArrayPath, Resolver } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import { PlusCircle, Trash2 } from "lucide-react";
 
-import {
-  insertProjectSchema,
-  // از validations برگرفته شده (videos?: string[])
-} from "@/lib/validations/projectsValidations";
-import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
 import { createProject, updateProject } from "@/lib/actions/project.actions";
+import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
+import { insertProjectSchema } from "@/lib/validations/projectsValidations";
 
-import FileUploader from "../FileUploader";
 import { Category, ProjectFormValues } from "@/types";
+import FileUploader from "../../FileUploader";
 
 /**
  * راه‌حل: برای RHF یه تایپ محلی می‌سازیم که videos حتماً آرایه باشد.

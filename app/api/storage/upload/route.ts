@@ -1,10 +1,16 @@
 import { getCurrentSession } from "@/lib/auth/authGuard";
+import { checkRateLimit, rateLimitMessage } from "@/lib/rate-limit";
 import { s3 } from "@/lib/s3";
 import { ALLOWED_STORAGE_FOLDERS } from "@/lib/services/storage.service";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { NextRequest, NextResponse } from "next/server";
 import { extname } from "path";
 import { v4 as uuid } from "uuid";
+
+// تنها پوشه‌ای که کاربران عادی (غیرادمین) هم اجازه‌ی آپلود در آن را دارند —
+// برای عکس پروفایل. بقیه‌ی پوشه‌ها (محصولات، متریال، پروژه‌ها) همچنان فقط
+// مخصوص ادمین هستند.
+const PUBLIC_USER_FOLDER = "avatars";
 
 const ALLOWED_MIME_TYPES = [
   "image/jpeg",
@@ -31,12 +37,12 @@ function maxSizeFor(mimeType: string) {
 
 export async function POST(req: NextRequest) {
   try {
-    // 🔒 چک دسترسی ادمین
+    // 🔒 حداقل نیاز: کاربر باید لاگین کرده باشد
     const session = await getCurrentSession();
-    if (!session?.user || session.user.role !== "admin") {
+    if (!session?.user) {
       return NextResponse.json(
-        { success: false, message: "دسترسی غیرمجاز" },
-        { status: 403 },
+        { success: false, message: "ابتدا وارد حساب کاربری خود شوید" },
+        { status: 401 },
       );
     }
     //   🔒 چک حجم کل درخواست (چند فایل با هم)
@@ -59,12 +65,56 @@ export async function POST(req: NextRequest) {
       );
     }
     const folder = folderInput;
+    const isAdmin = session.user.role === "admin";
+    const isAvatarUpload = folder === PUBLIC_USER_FOLDER;
+
+    // 🔒 پوشه‌های دیگر (محصولات، متریال، پروژه‌ها و ...) فقط برای ادمین است؛
+    // کاربر عادی فقط اجازه‌ی آپلود در پوشه‌ی عکس پروفایل خودش را دارد.
+    if (!isAdmin && !isAvatarUpload) {
+      return NextResponse.json(
+        { success: false, message: "دسترسی غیرمجاز" },
+        { status: 403 },
+      );
+    }
 
     if (!files || files.length === 0) {
       return NextResponse.json(
         { success: false, message: "هیچ فایلی ارسال نشده است" },
         { status: 400 },
       );
+    }
+
+    if (isAvatarUpload) {
+      // 🔒 عکس پروفایل فقط یک فایل تصویری در هر درخواست است
+      if (files.length > 1) {
+        return NextResponse.json(
+          { success: false, message: "فقط یک تصویر برای عکس پروفایل مجاز است" },
+          { status: 400 },
+        );
+      }
+      if (!files[0].type.startsWith("image/")) {
+        return NextResponse.json(
+          { success: false, message: "فقط فایل تصویری مجاز است" },
+          { status: 400 },
+        );
+      }
+
+      // 🔒 این مسیر دیگر مخصوص ادمین نیست — برای جلوگیری از سو‌استفاده‌ی
+      // کاربران عادی از فضای ذخیره‌سازی، محدودیت نرخ سبک اعمال می‌شود.
+      const rateLimit = await checkRateLimit(
+        "avatar-upload",
+        { windowMs: 60 * 60 * 1000, max: 10 },
+        session.user.id,
+      );
+      if (!rateLimit.allowed) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: rateLimitMessage(rateLimit.retryAfterSeconds),
+          },
+          { status: 429 },
+        );
+      }
     }
 
     for (const file of files) {
