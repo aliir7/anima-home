@@ -27,7 +27,7 @@ export default function UserOrdersList({ orders }: UserOrdersListProps) {
           href={`/my-account/orders/order/${order.id}`}
           className="hover:bg-muted dark:hover:bg-muted-foreground block rounded-lg border p-4 transition dark:hover:text-neutral-800"
         >
-          <div className="flex-between">
+          <div className="flex-between dark:text-muted">
             <div className="space-y-1">
               <p className="text-muted text-sm">
                 {format(order.createdAt, "yyyy/MM/dd")}
