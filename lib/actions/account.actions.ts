@@ -10,7 +10,6 @@ import { users } from "@/db/schema";
 import { ActionResult } from "@/types";
 import { auth } from "../auth";
 import { getCurrentSession } from "../auth/authGuard";
-import { ROOT_BUCKET_URL } from "../constants";
 import { checkRateLimit, rateLimitMessage } from "../rate-limit";
 import {
   deleteStorageFiles,
@@ -301,19 +300,39 @@ export async function verifyChangePhoneOtpAction(data: {
   }
 }
 
+// فقط یک الگوی ساده و امن: پوشه‌ی avatars/ + یک نام فایل تک‌بخشی (بدون /
+// یا .. که بشود از آن برای path traversal استفاده کرد) — دقیقاً همون
+// فرمتی که خودِ app/api/storage/upload/route.ts موقع آپلود می‌سازد
+// (`avatars/${uuid()}${extension}`).
+const AVATAR_KEY_PATTERN = /^avatars\/[\w.-]+$/;
+
+// مقدار ذخیره‌شده‌ی قبلیِ عکس پروفایل ممکن است به یکی از دو فرمت باشد:
+// ۱) کلید نسبی جدید (avatars/xxx.jpg) — از این تغییر به بعد
+// ۲) URL کامل قدیمی (https://.../avatars/xxx.jpg) — کاربرهایی که قبل از
+//    این تغییر عکس آپلود کرده بودند
+// این تابع هر دو حالت را به یک کلید قابل‌حذف تبدیل می‌کند.
+function resolveAvatarKey(storedImage: string): string | null {
+  if (storedImage.startsWith("http://") || storedImage.startsWith("https://")) {
+    return extractStorageKey(storedImage);
+  }
+  return AVATAR_KEY_PATTERN.test(storedImage) ? storedImage : null;
+}
+
 // ================================================================
 // عکس پروفایل — به‌روزرسانی
 // ================================================================
 export async function updateAvatarAction(
-  newImageUrl: string,
+  newImageKey: string,
 ): Promise<ActionResult<string>> {
   try {
     const session = await getLoggedInSession();
     if (!session) return NOT_LOGGED_IN_ERROR;
 
-    // 🔒 فقط تصاویری که از همین مسیر آپلود (پوشه‌ی avatars) آمده‌اند
-    // پذیرفته می‌شوند
-    if (!ROOT_BUCKET_URL || !newImageUrl.startsWith(`${ROOT_BUCKET_URL}/avatars/`)) {
+    // 🔒 فقط کلیدهایی با همین فرمت (که خودِ مسیر آپلود می‌سازد) پذیرفته
+    // می‌شوند — نه یک URL کامل و نه هیچ مسیر دلخواه دیگر. از این به بعد
+    // فقط همین مسیر نسبی (avatars/xxx.jpg) در دیتابیس ذخیره می‌شود؛ آدرس
+    // کامل نمایش، هر جا لازم بود، با getStorageUrl() ساخته می‌شود.
+    if (!AVATAR_KEY_PATTERN.test(newImageKey)) {
       return {
         success: false,
         error: { type: "custom", message: "آدرس تصویر معتبر نیست" },
@@ -327,14 +346,14 @@ export async function updateAvatarAction(
 
     await db
       .update(users)
-      .set({ image: newImageUrl })
+      .set({ image: newImageKey })
       .where(eq(users.id, session.user.id));
 
     // پاک‌کردن عکس قبلی از فضای ابری — کلیدِ حذف همیشه از روی مقدارِ
     // قبلیِ خودِ دیتابیس استخراج می‌شود، نه از ورودی کاربر؛ به این ترتیب
     // کاربر امکان حذف هیچ فایل دلخواه دیگری را ندارد.
     const oldKey = currentUser?.image
-      ? extractStorageKey(currentUser.image)
+      ? resolveAvatarKey(currentUser.image)
       : null;
     if (oldKey && oldKey.startsWith("avatars/")) {
       deleteStorageFiles([oldKey]).catch((error) =>
@@ -377,7 +396,7 @@ export async function removeAvatarAction(): Promise<ActionResult<string>> {
       .set({ image: null })
       .where(eq(users.id, session.user.id));
 
-    const oldKey = extractStorageKey(currentUser.image);
+    const oldKey = resolveAvatarKey(currentUser.image);
     if (oldKey && oldKey.startsWith("avatars/")) {
       deleteStorageFiles([oldKey]).catch((error) =>
         console.error("Failed to delete avatar:", error),

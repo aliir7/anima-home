@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import ModeToggle from "./ModeToggle";
 import SignOutForm from "../Account/SignOutForm";
 import { services } from "@/lib/constants";
+import { getStorageUrl } from "@/lib/utils/urlUtils";
 
 type MobileNavClientProps = {
   user?: { name?: string | null; image?: string | null; role?: string | null };
@@ -58,7 +59,7 @@ function MobileNavClient({ user }: MobileNavClientProps) {
               <>
                 <Avatar className="h-8 w-8">
                   <AvatarImage
-                    src={user.image || ""}
+                    src={getStorageUrl(user.image)}
                     alt={user.name || "کاربر"}
                   />
                   <AvatarFallback>

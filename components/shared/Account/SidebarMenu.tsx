@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { accountRoutes } from "@/lib/constants";
 import { cn } from "@/lib/utils/utils";
+import { getStorageUrl } from "@/lib/utils/urlUtils";
 import SignOutForm from "./SignOutForm";
 
 type SidebarMenuProps = {
@@ -24,7 +25,10 @@ function SidebarMenu({ user }: SidebarMenuProps) {
       {/* خلاصه‌ی پروفایل بالای سایدبار */}
       <div className="mb-4 flex items-center gap-3 border-b pb-4 dark:border-neutral-700">
         <Avatar className="h-10 w-10">
-          <AvatarImage src={user.image || ""} alt={user.name || "کاربر"} />
+          <AvatarImage
+            src={getStorageUrl(user.image)}
+            alt={user.name || "کاربر"}
+          />
           <AvatarFallback className="text-primary dark:text-primaryDark">
             {user.name?.charAt(0).toUpperCase() || "U"}
           </AvatarFallback>

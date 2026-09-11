@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { getUserById } from "@/lib/actions/user.actions";
 import { getCurrentSession } from "@/lib/auth/authGuard";
+import { getStorageUrl } from "@/lib/utils/urlUtils";
 import { ShippingAddress } from "@/types";
 
 function VerifiedBadge({ verified }: { verified: boolean }) {
@@ -87,7 +88,7 @@ async function UserDetails() {
       <div className="flex items-center gap-4 rounded-lg border bg-white p-4 dark:bg-neutral-900">
         <Avatar className="h-16 w-16">
           <AvatarImage
-            src={user.image?.at(0) || ""}
+            src={getStorageUrl(user.image)}
             alt={user.name || "کاربر"}
           />
           <AvatarFallback className="text-primary dark:text-primaryDark text-xl">

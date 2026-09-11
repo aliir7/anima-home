@@ -27,6 +27,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { UserSchema } from "@/types";
+import { getStorageUrl } from "@/lib/utils/urlUtils";
 import LogoutSection from "./shared/Account/LogoutSection";
 import Link from "next/link";
 
@@ -48,7 +49,7 @@ export function NavUser({ user }: NavUserProps) {
             >
               <Avatar className="text-primary dark:text-primary h-8 w-8 rounded-lg">
                 <AvatarImage
-                  src={user.image || ""}
+                  src={getStorageUrl(user.image)}
                   alt={user.name || "avatar"}
                 />
                 <AvatarFallback className="rounded-lg">
@@ -75,7 +76,7 @@ export function NavUser({ user }: NavUserProps) {
                     {user.name?.charAt(0).toUpperCase() || "U"}
                   </AvatarFallback>
                   <AvatarImage
-                    src={user.image || ""}
+                    src={getStorageUrl(user.image)}
                     alt={user.name || "user"}
                   />
                 </Avatar>

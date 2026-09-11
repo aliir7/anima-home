@@ -12,6 +12,7 @@ import {
   updateAvatarAction,
 } from "@/lib/actions/account.actions";
 import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
+import { getStorageUrl } from "@/lib/utils/urlUtils";
 
 type AvatarSettingsFormProps = {
   name: string | null;
@@ -22,14 +23,20 @@ function AvatarSettingsForm({ name, image }: AvatarSettingsFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [isRemoving, startRemoveTransition] = useTransition();
-  const [previewImage, setPreviewImage] = useState<string | null>(image);
+  // این state همیشه مقدار خام ذخیره‌شده در دیتابیس را نگه می‌دارد (کلید
+  // نسبی مثل avatars/xxx.jpg) — برای نمایش، هر بار از getStorageUrl رد
+  // می‌شود تا آدرس کامل قابل‌نمایش ساخته شود.
+  const [rawImage, setRawImage] = useState<string | null>(image);
+  const displaySrc = rawImage ? getStorageUrl(rawImage) : "";
 
   const handleUploaded = (files: { url: string; key: string }[]) => {
     const uploaded = files[0];
     if (!uploaded) return;
 
     startTransition(async () => {
-      const result = await updateAvatarAction(uploaded.url);
+      // فقط کلید نسبی (avatars/xxx.jpg) در دیتابیس ذخیره می‌شود، نه URL
+      // کامل — نمایش آن هر جا لازم شد با getStorageUrl ساخته می‌شود.
+      const result = await updateAvatarAction(uploaded.key);
 
       if (!result.success) {
         const message =
@@ -40,7 +47,7 @@ function AvatarSettingsForm({ name, image }: AvatarSettingsFormProps) {
         return;
       }
 
-      setPreviewImage(uploaded.url);
+      setRawImage(uploaded.key);
       showSuccessToast(result.data ?? "عکس پروفایل به‌روزرسانی شد", "top-right");
       router.refresh();
     });
@@ -59,7 +66,7 @@ function AvatarSettingsForm({ name, image }: AvatarSettingsFormProps) {
         return;
       }
 
-      setPreviewImage(null);
+      setRawImage(null);
       showSuccessToast(result.data ?? "عکس پروفایل حذف شد", "top-right");
       router.refresh();
     });
@@ -70,13 +77,13 @@ function AvatarSettingsForm({ name, image }: AvatarSettingsFormProps) {
       <CardContent className="space-y-6 px-6 py-4">
         <div className="flex items-center gap-4">
           <Avatar className="h-20 w-20">
-            <AvatarImage src={previewImage || ""} alt={name || "کاربر"} />
+            <AvatarImage src={displaySrc} alt={name || "کاربر"} />
             <AvatarFallback className="text-primary dark:text-primaryDark text-2xl">
               {name?.charAt(0).toUpperCase() || "U"}
             </AvatarFallback>
           </Avatar>
 
-          {previewImage && (
+          {rawImage && (
             <Button
               type="button"
               variant="outline"

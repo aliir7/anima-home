@@ -108,10 +108,7 @@ export async function POST(req: NextRequest) {
       );
       if (!rateLimit.allowed) {
         return NextResponse.json(
-          {
-            success: false,
-            message: rateLimitMessage(rateLimit.retryAfterSeconds),
-          },
+          { success: false, message: rateLimitMessage(rateLimit.retryAfterSeconds) },
           { status: 429 },
         );
       }
@@ -148,6 +145,11 @@ export async function POST(req: NextRequest) {
         Key: fileName,
         Body: buffer,
         ContentType: file.type,
+        // 🔓 بدون این خط، هر آبجکت به‌صورت پیش‌فرض private آپلود می‌شود و
+        // تا وقتی کسی دستی از پنل ابرآروان «نمایش عمومی» را روی آن فعال
+        // نکند، در سایت نمایش داده نمی‌شود. با ست‌کردن ACL در همین لحظه‌ی
+        // آپلود، این مرحله‌ی دستی برای همیشه حذف می‌شود.
+        ACL: "public-read",
       });
 
       await s3.send(command);

@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
 import { menu } from "@/lib/constants";
+import { getStorageUrl } from "@/lib/utils/urlUtils";
 import { UserSchema } from "@/types";
 import Link from "next/link";
 import SignOutForm from "./SignOutForm";
@@ -23,7 +24,7 @@ function UserDropdown({ user }: UserDropdownProps) {
       <DropdownMenuTrigger asChild>
         <div className="flex cursor-pointer items-center gap-2" role="کاربر">
           <Avatar aria-label="آواتار کاربر" className="h-8 w-8">
-            <AvatarImage src={user.image || ""} alt={user.name || "user"} />
+            <AvatarImage src={getStorageUrl(user.image)} alt={user.name || "user"} />
             <AvatarFallback className="text-primary dark:text-primaryDark">
               {user.name?.charAt(0).toUpperCase() || "U"}
             </AvatarFallback>
