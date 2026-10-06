@@ -72,32 +72,23 @@ function ProductCard({ product, href, priority }: ProductCardProps) {
         {/* Title + Rating */}
         <div className="flex items-start gap-3">
           <Link href={href} className="min-w-0 flex-1">
-            <h3 className="group-hover:text-primary line-clamp-2 min-h-11 text-sm leading-5 font-bold transition-colors sm:text-base sm:leading-6">
+            <h3 className="group-hover:text-primary line-clamp-2 min-h-11 text-lg leading-5 font-bold transition-colors sm:leading-6 md:text-sm">
               {product.title}
             </h3>
           </Link>
 
           <div className="flex shrink-0 items-center gap-1">
-            <Rating rate={Number(product.rating)} size={14} />
-
-            {product.numReviews > 0 && (
-              <span className="text-muted-foreground text-[10px] whitespace-nowrap">
-                ({product.numReviews})
-              </span>
-            )}
+            <Rating rate={5} size={14} />
           </div>
         </div>
 
         {/* Variant */}
-        <p className="text-muted-foreground mt-2 line-clamp-1 h-5 text-xs">
-          {firstVariant.title}
-        </p>
 
         {/* Description */}
         <div className="mt-2 h-10">
           {product.description && (
-            <p className="text-muted-foreground line-clamp-2 text-xs leading-5">
-              {product.description}
+            <p className="text-muted-foreground line-clamp-2 text-sm leading-5">
+              {product.shortDescription}
             </p>
           )}
         </div>
@@ -110,7 +101,7 @@ function ProductCard({ product, href, priority }: ProductCardProps) {
           {/* Price */}
           <div className="min-w-0 flex-1 overflow-hidden">
             {isOutOfStock ? (
-              <span className="block text-sm font-semibold whitespace-nowrap text-red-500 lg:text-base">
+              <span className="block text-xs font-semibold whitespace-nowrap text-red-500 lg:text-sm">
                 تماس بگیرید
               </span>
             ) : discountPercent > 0 ? (
@@ -141,7 +132,7 @@ function ProductCard({ product, href, priority }: ProductCardProps) {
           {/* Button */}
           <Link
             href={href}
-            className="bg-primary text-primary-foreground flex h-11 shrink-0 items-center justify-center rounded-full px-5 text-xs font-medium whitespace-nowrap transition-all duration-300 group-hover:shadow-md hover:opacity-90 sm:px-6 sm:text-sm"
+            className="bg-primary text-primary-foreground flex h-11 shrink-0 items-center justify-center rounded-full px-5 text-sm font-medium whitespace-nowrap transition-all duration-300 group-hover:shadow-md hover:opacity-90 sm:px-6"
           >
             مشاهده محصول
           </Link>
