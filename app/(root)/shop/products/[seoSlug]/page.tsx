@@ -1,4 +1,5 @@
 import ProductDetailsClient from "@/components/shared/Shop/Product/ProductDetailsClient";
+import ProductDetailsContent from "@/components/shared/Shop/Product/ProductDetailsContent";
 import {
   getProductBySeoSlug,
   getProductBySlug,
@@ -104,7 +105,7 @@ export default async function ProductDetailsPage({
       : false;
 
   return (
-    <ProductDetailsClient
+    <ProductDetailsContent
       product={product}
       userId={userId}
       cart={cart}
