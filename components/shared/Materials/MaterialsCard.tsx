@@ -8,6 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
+import { getStorageUrl } from "@/lib/utils/urlUtils";
 
 type MaterialCardProps = {
   title: string;
@@ -28,7 +29,7 @@ export function MaterialCard({
         {image ? (
           <div className="relative h-48 w-full">
             <Image
-              src={image}
+              src={getStorageUrl(image)}
               alt={title}
               fill
               className="rounded-lg object-cover"
@@ -51,7 +52,7 @@ export function MaterialCard({
       </CardContent>
       <CardFooter className="mt-auto">
         <Button asChild className="w-full rounded-full">
-          <Link href={pdfUrl} target="_blank">
+          <Link href={getStorageUrl(pdfUrl)} target="_blank">
             مشاهده PDF
           </Link>
         </Button>

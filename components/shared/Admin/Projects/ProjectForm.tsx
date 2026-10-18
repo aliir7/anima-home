@@ -1,23 +1,27 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
+import type { FieldArrayPath } from "react-hook-form";
 import { useState } from "react";
-import type { FieldArrayPath, Resolver } from "react-hook-form";
-import { useFieldArray, useForm } from "react-hook-form";
+import type { Resolver } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { PlusCircle, Trash2 } from "lucide-react";
 
-import { createProject, updateProject } from "@/lib/actions/project.actions";
+import {
+  insertProjectSchema,
+  // از validations برگرفته شده (videos?: string[])
+} from "@/lib/validations/projectsValidations";
 import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
-import { insertProjectSchema } from "@/lib/validations/projectsValidations";
+import { createProject, updateProject } from "@/lib/actions/project.actions";
 
+import FileUploader from "@/components/shared/FileUploader";
 import { Category, ProjectFormValues } from "@/types";
-import FileUploader from "../../FileUploader";
 
 /**
  * راه‌حل: برای RHF یه تایپ محلی می‌سازیم که videos حتماً آرایه باشد.
@@ -81,7 +85,9 @@ export default function ProjectForm({
     field: "images" | "videos",
   ) => {
     const current = getValues(field) ?? [];
-    const newFiles = files.map((f) => f.url);
+    // فقط کلید نسبی (بدون دامنه‌ی باکت) در دیتابیس ذخیره می‌شود؛ نمایش آن
+    // هر جا لازم شد با getStorageUrl ساخته می‌شود.
+    const newFiles = files.map((f) => f.key);
     setValue(field, [...current, ...newFiles], {
       shouldValidate: true,
       shouldDirty: true,

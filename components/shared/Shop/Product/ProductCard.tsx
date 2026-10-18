@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import Rating from "@/components/ui/Rating";
 import formatPrice from "@/lib/utils/formatPrice";
-import { getStorageUrl } from "@/lib/utils/urlUtils";
+import { getSafeImageSrc } from "@/lib/utils/urlUtils";
 import type { ProductWithRelations } from "@/types"; // مسیر را مطابق پروژه خودت نگه دار
 import Image from "next/image";
 import Link from "next/link";
@@ -26,8 +26,7 @@ function ProductCard({ product, href, priority }: ProductCardProps) {
     firstVariant.price * (1 - discountPercent / 100),
   );
 
-  const imageUrl =
-    getStorageUrl(firstVariant.images?.[0]) ?? "/images/placeholder.svg";
+  const imageUrl = getSafeImageSrc(firstVariant.images?.[0]);
 
   const isOutOfStock = firstVariant.stock === 0;
 

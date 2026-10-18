@@ -13,7 +13,7 @@ import { getCurrentSession } from "../auth/authGuard";
 import { checkRateLimit, rateLimitMessage } from "../rate-limit";
 import {
   deleteStorageFiles,
-  extractStorageKey,
+  resolveStorageKey,
 } from "../services/storage.service";
 import { mobileSchema, otpSchema } from "../validations/smsValidations";
 import { changeEmailSchema } from "../validations/usersValidations";
@@ -306,18 +306,6 @@ export async function verifyChangePhoneOtpAction(data: {
 // (`avatars/${uuid()}${extension}`).
 const AVATAR_KEY_PATTERN = /^avatars\/[\w.-]+$/;
 
-// مقدار ذخیره‌شده‌ی قبلیِ عکس پروفایل ممکن است به یکی از دو فرمت باشد:
-// ۱) کلید نسبی جدید (avatars/xxx.jpg) — از این تغییر به بعد
-// ۲) URL کامل قدیمی (https://.../avatars/xxx.jpg) — کاربرهایی که قبل از
-//    این تغییر عکس آپلود کرده بودند
-// این تابع هر دو حالت را به یک کلید قابل‌حذف تبدیل می‌کند.
-function resolveAvatarKey(storedImage: string): string | null {
-  if (storedImage.startsWith("http://") || storedImage.startsWith("https://")) {
-    return extractStorageKey(storedImage);
-  }
-  return AVATAR_KEY_PATTERN.test(storedImage) ? storedImage : null;
-}
-
 // ================================================================
 // عکس پروفایل — به‌روزرسانی
 // ================================================================
@@ -353,7 +341,7 @@ export async function updateAvatarAction(
     // قبلیِ خودِ دیتابیس استخراج می‌شود، نه از ورودی کاربر؛ به این ترتیب
     // کاربر امکان حذف هیچ فایل دلخواه دیگری را ندارد.
     const oldKey = currentUser?.image
-      ? resolveAvatarKey(currentUser.image)
+      ? resolveStorageKey(currentUser.image)
       : null;
     if (oldKey && oldKey.startsWith("avatars/")) {
       deleteStorageFiles([oldKey]).catch((error) =>
@@ -396,7 +384,7 @@ export async function removeAvatarAction(): Promise<ActionResult<string>> {
       .set({ image: null })
       .where(eq(users.id, session.user.id));
 
-    const oldKey = resolveAvatarKey(currentUser.image);
+    const oldKey = resolveStorageKey(currentUser.image);
     if (oldKey && oldKey.startsWith("avatars/")) {
       deleteStorageFiles([oldKey]).catch((error) =>
         console.error("Failed to delete avatar:", error),

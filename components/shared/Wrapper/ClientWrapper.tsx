@@ -55,7 +55,7 @@ function ClientWrapper({
             description={item.description!}
             showDescription={true}
             buttonText="مشاهده بیشتر"
-            imageUrl={item.images?.[0] || "/placeholder.svg"}
+            imageUrl={item.images?.[0] || "/images/placeholder.svg"}
             priority={index < 2}
             href={`${basePath}/${item.seoSlug}`}
           />

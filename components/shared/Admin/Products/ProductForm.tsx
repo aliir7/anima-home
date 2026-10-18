@@ -1,27 +1,27 @@
 "use client";
 
-import FileUploader from "@/components/shared/FileUploader";
+import { useForm, useFieldArray } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  createProductAction,
-  updateProductAction,
-} from "@/lib/actions/product.actions";
+import { Label } from "@/components/ui/label";
+import FileUploader from "@/components/shared/FileUploader";
 import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
-import { getSafeImageSrc } from "@/lib/utils/urlUtils";
+import { Plus, Trash2, X, Image as ImageIcon, Globe } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { createProductValues, ProductWithRelations } from "@/types";
 import {
   createProductSchema,
   updateProductSchema,
 } from "@/lib/validations/productValidation";
-import { createProductValues, ProductWithRelations } from "@/types";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Globe, Image as ImageIcon, Plus, Trash2, X } from "lucide-react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
+import {
+  createProductAction,
+  updateProductAction,
+} from "@/lib/actions/product.actions";
+import { getSafeImageSrc } from "@/lib/utils/urlUtils";
 
 type Category = { id: string; name: string };
 
@@ -162,8 +162,10 @@ export default function ProductForm({
   const handleUploadSuccess = (
     uploadedFiles: { url: string; key: string }[],
   ) => {
-    const newUrls = uploadedFiles.map((file) => file.url);
-    setValue("images", [...currentImages, ...newUrls], {
+    // فقط کلید نسبی (بدون دامنه‌ی باکت) در دیتابیس ذخیره می‌شود؛ نمایش آن
+    // هر جا لازم شد با getStorageUrl/getSafeImageSrc ساخته می‌شود.
+    const newKeys = uploadedFiles.map((file) => file.key);
+    setValue("images", [...currentImages, ...newKeys], {
       shouldValidate: true,
     });
   };

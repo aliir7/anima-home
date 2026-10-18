@@ -1,4 +1,3 @@
-import ProductDetailsClient from "@/components/shared/Shop/Product/ProductDetailsClient";
 import ProductDetailsContent from "@/components/shared/Shop/Product/ProductDetailsContent";
 import {
   getProductBySeoSlug,
@@ -11,6 +10,7 @@ import {
 } from "@/lib/actions/review.actions";
 import { getCurrentSession } from "@/lib/auth/authGuard";
 import { ROOT_URL } from "@/lib/constants";
+import { getStorageUrl } from "@/lib/utils/urlUtils";
 import { Cart } from "@/types";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -60,9 +60,7 @@ export async function generateMetadata({
       images: firstImage
         ? [
             {
-              url: firstImage.startsWith("http")
-                ? firstImage
-                : `${ROOT_URL}${firstImage}`,
+              url: getStorageUrl(firstImage),
               width: 1200,
               height: 630,
               alt: product.title,

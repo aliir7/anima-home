@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { CartItem } from "@/types";
 import formatPrice from "@/lib/utils/formatPrice";
+import { getStorageUrl } from "@/lib/utils/urlUtils";
 
-// اینجا توابع را در تایپ تعریف می‌کنیم
 type CartItemsProps = {
   item: CartItem;
   addToCart: (item: CartItem) => void;
@@ -27,7 +27,7 @@ export default function CartItems({
       {/* Image */}
       <div className="relative h-24 w-24 shrink-0">
         <Image
-          src={item.image}
+          src={getStorageUrl(item.image) || "/images/placeholder.svg"}
           alt={item.name}
           fill
           className="rounded object-cover"

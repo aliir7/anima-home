@@ -1,16 +1,17 @@
 import RetryPaymentButton from "@/components/shared/Shop/Order/RetryPaymentButton";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { getCurrentSession } from "@/lib/auth/authGuard";
 import { getOrderById } from "@/lib/services/order.service";
+import { getCurrentSession } from "@/lib/auth/authGuard";
 import formatPrice from "@/lib/utils/formatPrice";
-import { ShippingAddress } from "@/types";
-import { format } from "date-fns-jalali";
+import { getStorageUrl } from "@/lib/utils/urlUtils";
 import { CalendarDays, MapPin, Phone, Receipt, User } from "lucide-react";
 import { Metadata } from "next";
 import Image from "next/image";
 import { notFound, redirect } from "next/navigation";
+import { format } from "date-fns-jalali";
+import { ShippingAddress } from "@/types";
 
 export const metadata: Metadata = {
   title: "جزئیات سفارش",
@@ -52,8 +53,8 @@ export default async function UserOrderDetailsPage({
       {/* هدر صفحه */}
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h2 className="dark:text-muted flex items-center gap-2 text-2xl font-bold">
-            <Receipt className="text-primary dark:text-muted h-6 w-6" />
+          <h2 className="flex items-center gap-2 text-2xl font-bold">
+            <Receipt className="text-primary h-6 w-6 dark:text-neutral-500" />
             جزئیات سفارش
           </h2>
           <p className="text-muted-foreground mt-2 text-sm dark:text-neutral-500">
@@ -135,9 +136,9 @@ export default async function UserOrderDetailsPage({
                       <Image
                         // استفاده از ?. برای جلوگیری از کرش کردن در صورت نبود عکس
                         src={
-                          item.product?.images?.[0] ||
-                          item.image ||
-                          "/placeholder.jpg"
+                          getStorageUrl(
+                            item.product?.images?.[0] || item.image,
+                          ) || "/images/placeholder.svg"
                         }
                         alt={item.product?.name || item.name || "محصول"}
                         fill
@@ -198,7 +199,7 @@ export default async function UserOrderDetailsPage({
 
               <Separator />
 
-              <div className="space-y-3 text-xs md:text-sm">
+              <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">
                     مبلغ کل محصولات:
@@ -219,7 +220,7 @@ export default async function UserOrderDetailsPage({
 
               <Separator />
 
-              <div className="flex items-center justify-between text-sm font-semibold">
+              <div className="flex items-center justify-between text-lg font-bold">
                 <span>مبلغ قابل پرداخت:</span>
                 <span className="text-primary">
                   {formatPrice(order.totalPrice)}

@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import Image from "next/image";
 import { deleteMaterial } from "@/lib/actions/materials.actions";
+import { getStorageUrl } from "@/lib/utils/urlUtils";
 
 type AdminMaterialCardProps = {
   id: string;
@@ -38,7 +39,7 @@ export function AdminMaterialCard({
         <CardHeader className="p-0">
           <div className="relative h-40 w-full">
             <Image
-              src={image}
+              src={getStorageUrl(image)}
               alt={title}
               fill
               unoptimized
@@ -55,7 +56,7 @@ export function AdminMaterialCard({
           </p>
         )}
         <a
-          href={pdfUrl}
+          href={getStorageUrl(pdfUrl)}
           target="_blank"
           className="text-primary text-sm underline"
         >

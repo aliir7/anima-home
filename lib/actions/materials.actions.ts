@@ -12,7 +12,7 @@ import { revalidatePath } from "next/cache";
 import { requireAdmin } from "../auth/authGuard";
 import {
   deleteStorageFiles,
-  extractStorageKey,
+  resolveStorageKey,
 } from "../services/storage.service";
 import { insertMaterialSchema } from "../validations/materialsValidations";
 
@@ -96,7 +96,7 @@ export async function deleteMaterial(
     // delete files from bucket — مستقیم از سرویس داخلی
     const fileKeys = [material.image, material.pdfUrl]
       .filter((url): url is string => typeof url === "string")
-      .map(extractStorageKey)
+      .map(resolveStorageKey)
       .filter((key): key is string => key !== null);
 
     if (fileKeys.length > 0) {

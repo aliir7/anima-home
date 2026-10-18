@@ -30,7 +30,7 @@ import { calculateProductPrice } from "../utils/calculateProductPrice";
 import { requireAdmin } from "../auth/authGuard";
 import {
   deleteStorageFiles,
-  extractStorageKey,
+  resolveStorageKey,
 } from "../services/storage.service";
 
 // =================================================================
@@ -455,7 +455,7 @@ export async function deleteProductAction(
     // بدون fetch به endpoint خودمان (چون کوکی سشن را همراه نمی‌آورد)
     const fileKeys = allImageUrls
       .filter((url): url is string => typeof url === "string")
-      .map(extractStorageKey)
+      .map(resolveStorageKey)
       .filter((key): key is string => key !== null);
 
     if (fileKeys.length > 0) {

@@ -18,7 +18,7 @@ import { generateUniqueSlug } from "../utils/generateSlug";
 import { requireAdmin } from "../auth/authGuard";
 import {
   deleteStorageFiles,
-  extractStorageKey,
+  resolveStorageKey,
 } from "../services/storage.service";
 
 // action for create project
@@ -207,7 +207,7 @@ export async function deleteProject(id: string): Promise<ActionResult<string>> {
     // از سرویس داخلی، بدون fetch به endpoint خودمان
     const fileKeys = [...images, ...videos]
       .filter((url): url is string => typeof url === "string")
-      .map(extractStorageKey)
+      .map(resolveStorageKey)
       .filter((key): key is string => key !== null);
 
     if (fileKeys.length > 0) {

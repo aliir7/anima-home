@@ -7,6 +7,7 @@ import VideoPlayer from "@/components/shared/VideoPlayer";
 
 import { getProjectBySeoSlug } from "@/db/queries/projectQueries";
 import { ROOT_URL } from "@/lib/constants";
+import { getStorageUrl } from "@/lib/utils/urlUtils";
 
 export const revalidate = 3600;
 
@@ -55,9 +56,7 @@ export async function generateMetadata({
       images: firstImage
         ? [
             {
-              url: firstImage.startsWith("http")
-                ? firstImage
-                : `${ROOT_URL}${firstImage}`,
+              url: getStorageUrl(firstImage),
               width: 1200,
               height: 630,
               alt: project.title,

@@ -1,19 +1,19 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { insertMaterialSchema } from "@/lib/validations/materialsValidations";
 import {
   createMaterial,
   updateMaterial,
 } from "@/lib/actions/materials.actions";
-import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
-import { insertMaterialSchema } from "@/lib/validations/materialsValidations";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { MaterialFormValues } from "@/types";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import FileUploader from "../../FileUploader";
+import FileUploader from "@/components/shared/FileUploader";
+import { Label } from "@/components/ui/label";
+import { showErrorToast, showSuccessToast } from "@/lib/utils/showToastMessage";
 
 type MaterialFormProps = {
   onClose: () => void;
@@ -99,7 +99,7 @@ export default function MaterialForm({
           label="آپلود تصویر"
           folderName="materials/images"
           accept="image/*"
-          onUploaded={(files) => setValue("image", files[0].url)}
+          onUploaded={(files) => setValue("image", files[0].key)}
         />
       </div>
 
@@ -108,7 +108,7 @@ export default function MaterialForm({
           label="آپلود PDF"
           folderName="materials/pdfs"
           accept="application/pdf"
-          onUploaded={(files) => setValue("pdfUrl", files[0].url)}
+          onUploaded={(files) => setValue("pdfUrl", files[0].key)}
         />
       </div>
 

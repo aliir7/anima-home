@@ -3,6 +3,8 @@
 import React from "react";
 import ReactPlayer from "react-player";
 
+import { getStorageUrl } from "@/lib/utils/urlUtils";
+
 type VideoPlayerProps = {
   src: string | string[];
   className?: string;
@@ -19,7 +21,7 @@ export default function VideoPlayer({ src, className }: VideoPlayerProps) {
           className="relative aspect-video w-full overflow-hidden rounded-xl border shadow"
         >
           <ReactPlayer
-            src={videoSrc} // توجه: باید url باشه
+            src={getStorageUrl(videoSrc)}
             controls
             width="100%"
             height="100%"

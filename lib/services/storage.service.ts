@@ -1,5 +1,3 @@
-// lib/services/storage.service.ts
-//
 // این فایل عمداً "use server" ندارد و یک Server Action نیست — یک تابع
 // داخلی معمولی است. علتش این است که چند Server Action دیگر (مثلاً
 // deleteProductAction) نیاز دارند بعد از حذف رکورد دیتابیس، فایل‌های
@@ -34,6 +32,19 @@ export function extractStorageKey(url: string): string | null {
   const bucketUrl = process.env.NEXT_PUBLIC_STORAGE_URL;
   if (!bucketUrl || !url.startsWith(bucketUrl)) return null;
   return url.replace(`${bucketUrl}/`, "");
+}
+
+// از این به بعد فایل‌های تازه‌آپلودشده به‌صورت کلید نسبی (مثل
+// "products/xxx.jpg") در دیتابیس ذخیره می‌شوند، نه URL کامل. اما رکوردهای
+// قدیمی‌تر ممکن است هنوز URL کامل داشته باشند. این تابع هر دو فرمت را به
+// یک کلید قابل‌حذف تبدیل می‌کند تا منطق حذف فایل (deleteStorageFiles) برای
+// هر دو حالت درست کار کند.
+export function resolveStorageKey(value: string): string | null {
+  if (!value) return null;
+  if (value.startsWith("http://") || value.startsWith("https://")) {
+    return extractStorageKey(value);
+  }
+  return value;
 }
 
 export async function deleteStorageFiles(keys: string[]) {

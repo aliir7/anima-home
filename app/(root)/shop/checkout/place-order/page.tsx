@@ -15,6 +15,7 @@ import { getMyCart } from "@/lib/actions/cart.actions";
 import { getUserById } from "@/lib/actions/user.actions";
 import { getCurrentSession } from "@/lib/auth/authGuard";
 import formatPrice from "@/lib/utils/formatPrice";
+import { getStorageUrl } from "@/lib/utils/urlUtils";
 import { CartItem, ShippingAddress } from "@/types";
 import { Metadata } from "next";
 import Image from "next/image";
@@ -140,7 +141,10 @@ async function PlaceOrderPage() {
                           <div className="flex min-w-50 items-center gap-3 md:min-w-62.5">
                             <div className="shrink-0">
                               <Image
-                                src={item.image}
+                                src={
+                                  getStorageUrl(item.image) ||
+                                  "/images/placeholder.svg"
+                                }
                                 alt={item.name}
                                 width={50}
                                 height={50}
